@@ -149,6 +149,24 @@ Après une mise à jour du fichier, recharger la page avec **Ctrl+F5** pour évi
 
 ## Données et confidentialité
 
-- Le fichier ne contient **aucun secret** : la connexion se fait dans le navigateur. Les fichiers de `/config/www/` étant accessibles sans authentification, rien de sensible n'y est écrit.
-- Les réglages d'affichage (plan, niveaux, masquage, thème) sont mémorisés **dans le navigateur de chaque appareil** ; les photos de fond sont stockées dans IndexedDB.
+### Où sont stockés les réglages ?
+
+| Donnée | Emplacement |
+|---|---|
+| Plan (pièces, appareils choisis et leur position, taille des icônes, grille), niveaux et répartition des pièces, entités et personnes masquées, cadrage des photos | **Home Assistant**, dans l'espace de données utilisateur des interfaces (`frontend/set_user_data`, clé `maison_dashboard`) |
+| Photos de fond (une par niveau et par mode) | **Home Assistant**, dans le gestionnaire d'images (`/api/image/upload`, comme les photos de profil) |
+| Dernière vue, dernier niveau, mode jour/nuit, sections repliées, session de connexion | Navigateur de l'appareil |
+
+Conséquences :
+
+- **Mêmes réglages sur tous les appareils** connectés avec le même compte Home Assistant : le plan configuré sur l'ordinateur apparaît sur la tablette. Les changements faits ailleurs sont récupérés à la connexion et au retour sur l'onglet.
+- **Inclus dans les sauvegardes** de Home Assistant (dossier `.storage` et dossier des images).
+- Les réglages sont **propres à chaque compte** : une tablette connectée avec un autre utilisateur HA a son propre plan.
+- L'envoi de photos demande un **compte administrateur**. Sans ce droit, la photo reste sur l'appareil (un message l'indique dans le bandeau d'édition) ; le reste des réglages est tout de même enregistré dans HA.
+- Au premier lancement de cette version, les réglages et photos déjà présents dans le navigateur sont **envoyés automatiquement** dans Home Assistant.
+- Le bandeau du mode édition indique l'état : « ☁️ Enregistré dans Home Assistant », « Enregistrement… » ou un avertissement.
+
+### Confidentialité
+
+- Le fichier `maison.html` ne contient **aucun secret** : la connexion se fait dans le navigateur. Les fichiers de `/config/www/` étant accessibles sans authentification, rien de sensible n'y est écrit.
 - Les données de la maison ne sont échangées qu'avec votre instance Home Assistant. Seule la police d'écriture (Inter) est chargée depuis Google Fonts ; sans accès Internet, la police système prend le relais.

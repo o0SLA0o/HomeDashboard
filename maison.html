@@ -659,6 +659,11 @@
   body.day .has-bg .room-w.alert .walls-hi { stroke: var(--err); }
   body.day.editing .has-bg .room-w .walls-hi { stroke: rgba(var(--accent),.8); }
   #themeBtn { font-size: 18px; }
+  .sync-info { display: inline-block; margin-left: 8px; font-size: 12px; padding: 2px 9px; border-radius: 999px;
+               background: rgba(var(--accent),.12); color: var(--muted); white-space: nowrap; }
+  .sync-info:empty { display: none; }
+  .sync-info[data-state=ok] { color: var(--ok); background: rgba(61,220,151,.12); }
+  .sync-info[data-state=warn], .sync-info[data-state=err] { color: var(--err); background: rgba(255,93,108,.12); white-space: normal; }
   /* Poignées de l'image de fond */
   .plan-onion { opacity: .45; pointer-events: none; }
   .bgh-frame { fill: none; stroke: rgb(var(--accent)); stroke-width: 2; stroke-dasharray: 10 6; pointer-events: none; }
@@ -728,7 +733,7 @@
       <button type="button" id="collapseAll" title="Tout replier">Replier</button>
     </div>
     <div id="editBar" class="banner glass hidden">
-      <div><strong>Mode édition</strong> · <span id="editInfo"></span>
+      <div><strong>Mode édition</strong> · <span id="editInfo"></span> <span class="sync-info" id="syncInfo"></span>
         <div class="sub" id="editSub">Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.</div></div>
       <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><button type="button" id="bgOnionBtn" class="hidden" title="Afficher en transparence la photo de l'autre mode pour aligner les deux">◐ Superposer l'autre mode</button><button type="button" id="bgMatchBtn" class="hidden" title="Donner à cette photo la position et la taille de celle de l'autre mode">⇆ Caler sur l'autre mode</button><span class="lvl-tools" id="levelTools"></span><button type="button" id="gridBtn" class="hidden" title="Aimanter les icônes sur une grille">▦ Grille</button><button type="button" id="alignBtn" class="hidden" title="Replacer toutes les icônes de ce niveau sur la grille">⌗ Aligner</button><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
     </div>
@@ -821,7 +826,7 @@
   let view = ls.get(K.view, "rooms");             // "rooms" ou "types"
   let editing = false;
   const saveColl = () => ls.set(K.coll, [...collapsed]);
-  const saveHidden = () => { ls.set(K.hidden, [...hidden]); ls.set(K.shown, [...shown]); };
+  const saveHidden = () => { ls.set(K.hidden, [...hidden]); ls.set(K.shown, [...shown]); scheduleSync(); };
 
   // ---------- État ----------
   let ws = null, msgId = 1, states = {}, pending = {}, reconnectTimer = null, manualClose = false;
@@ -1020,6 +1025,7 @@
         states = {};
         list.forEach(s => states[s.entity_id] = s);
         buildFilter(); render(); updateWeather();
+        pullSync(true);
         await send({ type: "subscribe_events", event_type: "state_changed" });
         // Pièce renommée, appareil déplacé… : on recharge les registres
         ["area_registry_updated", "device_registry_updated", "entity_registry_updated", "floor_registry_updated"].forEach(t =>
@@ -1452,7 +1458,7 @@
   const ZMIN = 0.5, ZMAX = 2.5, ZSTEP = 0.1;        // taille des icônes par pièce
   const PLAN_KEY = "ha-dashboard-plan";
   let plan = ls.get(PLAN_KEY, null) || { rooms: {}, markers: {} };
-  const savePlan = () => ls.set(PLAN_KEY, plan);
+  const savePlan = () => { ls.set(PLAN_KEY, plan); scheduleSync(); };
   // v2 : les pièces sont vides par défaut, on n'affiche que les appareils ajoutés avec « + ».
   // Migration : on garde les icônes qui étaient visibles, on oublie celles qui étaient masquées.
   if (plan.v !== 2) {
@@ -1559,7 +1565,7 @@
         if (!confirm(`Supprimer le niveau « ${cur.name} » ? Ses pièces retourneront à leur niveau d'origine.`)) return;
         plan.customLevels = plan.customLevels.filter(l => l.id !== lv);
         Object.keys(plan.areaLevel).forEach(a => { if (plan.areaLevel[a] === lv) { delete plan.areaLevel[a]; delete plan.rooms[a]; } });
-        [lv, "day|" + lv].forEach(k => { delete planBgs[k]; saveBg(k, null); });
+        [lv, "day|" + lv].forEach(k => { if (planBgs[k] && planBgs[k].img) deleteImage(planBgs[k].img); delete planBgs[k]; saveBg(k, null); });
         savePlan(); curLevel = null; render();
       } else if (act === "assign") { assignOpen = !assignOpen; render(); }
     };
@@ -2485,14 +2491,20 @@
       del: k => tx("readwrite", st => st.delete(k))
     };
   })();
-  const saveBg = (k, v) => v ? bgStore.put(k, v).catch(() => alert("Impossible d'enregistrer l'image dans ce navigateur : elle s'affichera jusqu'au rechargement."))
-                             : bgStore.del(k).catch(() => {});
+  // Photo envoyée à Home Assistant (v.img) : seul son cadrage est synchronisé, plus de copie locale.
+  // Sinon (pas de droits d'envoi, HA injoignable) : copie locale dans IndexedDB.
+  const saveBg = (k, v) => {
+    scheduleSync();
+    if (!v || v.img) return bgStore.del(k).catch(() => {});
+    return bgStore.put(k, v).catch(() => alert("Impossible d'enregistrer l'image dans ce navigateur : elle s'affichera jusqu'au rechargement."));
+  };
   // Chargement + migration des images enregistrées par les versions précédentes (localStorage)
   const bgReady = (async () => {
     let legacy = ls.get(BG_KEY, null);
     if (legacy && legacy.src) legacy = { _first: legacy };
     try {
-      planBgs = await bgStore.all();
+      const local = await bgStore.all();
+      for (const k in local) if (!planBgs[k]) planBgs[k] = local[k]; // ne pas écraser ce qui vient de HA
       if (legacy) {
         for (const k in legacy) if (!planBgs[k]) { planBgs[k] = legacy[k]; await bgStore.put(k, legacy[k]); }
         ls.del(BG_KEY);
@@ -2523,13 +2535,145 @@
       const rs = levelAreas(currentLevel()).filter(a => plan.rooms[a]).map(a => plan.rooms[a]);
       const x0 = rs.length ? Math.min(...rs.map(r => r.x)) : PAD, y0 = rs.length ? Math.min(...rs.map(r => r.y)) : PAD;
       const x1 = rs.length ? Math.max(...rs.map(r => r.x + r.w)) : 980;
+      const lvl = currentLevel(), k = bgKey(lvl), old = planBgs[k];
       planBg = { src, x: x0, y: y0, w: x1 - x0, h: (x1 - x0) * ratio };
-      const lvl = currentLevel(), k = bgKey(lvl);
+      setSync("save", "Envoi de la photo à Home Assistant…");
+      try {
+        planBg.img = await uploadImage(src);
+        planBg.src = imageUrl(planBg.img);
+        syncWarn = "";
+      } catch (e) {
+        setSync("warn", `photo gardée sur cet appareil uniquement (${e.message})`);
+      }
+      if (old && old.img && old.img !== planBg.img) deleteImage(old.img);
       planBgs[k] = planBg; saveBg(k, planBg);
       if (theme === "night" && lvl === levels()[0].id && planBgs._first) { delete planBgs._first; saveBg("_first", null); }
       render();
     } catch { alert("Impossible de lire cette image."); }
   }
+
+
+  // ---------- Stockage dans Home Assistant ----------
+  // Réglages : espace de données utilisateur de HA (frontend/get_user_data / set_user_data), propre au
+  //            compte HA et inclus dans les sauvegardes. localStorage ne sert plus que de cache.
+  // Photos   : gestionnaire d'images de HA (/api/image/upload), servies par /api/image/serve/<id>/original.
+  const SYNC_KEY = "maison_dashboard";
+  const imageUrl = id => conn.url + "/api/image/serve/" + id + "/original";
+
+  async function uploadImage(dataUrl) {
+    const blob = await (await fetch(dataUrl)).blob();
+    const fd = new FormData(); fd.append("file", blob, "plan-maison.jpg");
+    let r;
+    try {
+      r = await fetch(conn.url + "/api/image/upload", { method: "POST", body: fd,
+        headers: { Authorization: "Bearer " + await getAccessToken() } });
+    } catch { throw new Error("Home Assistant injoignable"); }
+    if (r.status === 401 || r.status === 403) throw new Error("l'envoi de photos demande un compte administrateur Home Assistant");
+    if (!r.ok) throw new Error("erreur " + r.status + " à l'envoi");
+    const j = await r.json();
+    if (!j.id) throw new Error("réponse inattendue de Home Assistant");
+    return j.id;
+  }
+  function deleteImage(id) { if (ws && ws.readyState === 1) send({ type: "image/delete", image_id: id }).catch(() => {}); }
+
+  function normalizePlan() {
+    if (!plan || typeof plan !== "object") plan = {};
+    if (!plan.rooms) plan.rooms = {};
+    if (!plan.markers) plan.markers = {};
+    plan.v = 2;
+    if (!plan.iconScale || typeof plan.iconScale !== "object") plan.iconScale = {};
+    if (typeof plan.grid !== "boolean") plan.grid = true;
+    if (!Array.isArray(plan.customLevels)) plan.customLevels = [];
+    if (!plan.areaLevel || typeof plan.areaLevel !== "object") plan.areaLevel = {};
+    if (!Array.isArray(plan.hiddenPeople)) plan.hiddenPeople = [];
+  }
+  function exportContent() {
+    const bgs = {};
+    for (const k in planBgs) {
+      const b = planBgs[k];
+      if (k !== "_first" && b && b.img) bgs[k] = { img: b.img, x: b.x, y: b.y, w: b.w, h: b.h };
+    }
+    return { v: 1, plan, hidden: [...hidden], shown: [...shown], bgs };
+  }
+  function applyConfig(c) {
+    plan = c.plan; normalizePlan();
+    ls.set(PLAN_KEY, plan);
+    hidden.clear(); (c.hidden || []).forEach(x => hidden.add(x));
+    shown.clear(); (c.shown || []).forEach(x => shown.add(x));
+    ls.set(K.hidden, [...hidden]); ls.set(K.shown, [...shown]);
+    for (const k in planBgs) if (planBgs[k] && planBgs[k].img) delete planBgs[k];
+    for (const k in c.bgs || {}) planBgs[k] = { ...c.bgs[k], src: imageUrl(c.bgs[k].img) };
+  }
+
+  var syncReady = false, syncTimer = null, syncPending = false, lastJson = null, lastUpdated = null, syncWarn = "";
+  function setSync(state, text) {
+    const el = document.getElementById("syncInfo"); if (!el) return;
+    if (state === "warn") { syncWarn = text; }
+    else if (state === "ok" && syncWarn) { state = "warn"; text = "☁️ Réglages enregistrés dans Home Assistant · ⚠️ " + syncWarn; }
+    el.dataset.state = state;
+    el.textContent = text || { ok: "☁️ Enregistré dans Home Assistant", save: "☁️ Enregistrement…", load: "☁️ Chargement…",
+      off: "💾 Enregistré sur cet appareil seulement", err: "⚠️ Enregistrement dans Home Assistant impossible" }[state] || "";
+  }
+  function scheduleSync() {
+    if (!syncReady) return;
+    clearTimeout(syncTimer);
+    syncPending = true; setSync("save");
+    syncTimer = setTimeout(pushSync, 800);
+  }
+  async function pushSync() {
+    clearTimeout(syncTimer); syncTimer = null;
+    if (!syncReady) return;
+    if (!ws || ws.readyState !== 1) { syncPending = true; return; } // renvoyé à la reconnexion
+    const content = exportContent(), json = JSON.stringify(content);
+    if (json === lastJson) { syncPending = false; setSync("ok"); return; }
+    const value = { ...content, updated: Date.now() };
+    try {
+      await send({ type: "frontend/set_user_data", key: SYNC_KEY, value });
+      lastJson = json; lastUpdated = value.updated; syncPending = false; setSync("ok");
+    } catch (e) { syncPending = true; setSync("err", "⚠️ Enregistrement impossible : " + ((e && e.message) || e)); }
+  }
+  // Photos encore stockées localement (versions précédentes) → envoyées dans HA
+  async function migrateLocalImages() {
+    if (planBgs._first) {
+      const k0 = levels()[0].id;
+      if (!planBgs[k0]) planBgs[k0] = planBgs._first;
+      delete planBgs._first; bgStore.del("_first").catch(() => {});
+    }
+    for (const k in planBgs) {
+      const b = planBgs[k];
+      if (!b || b.img || !String(b.src).startsWith("data:")) continue;
+      try { b.img = await uploadImage(b.src); b.src = imageUrl(b.img); bgStore.del(k).catch(() => {}); }
+      catch (e) { setSync("warn", `photos gardées sur cet appareil uniquement (${e.message})`); }
+    }
+  }
+  // Lecture des réglages depuis HA (à la connexion et au retour sur l'onglet)
+  async function pullSync(initial) {
+    await bgReady;
+    if (!ws || ws.readyState !== 1) return;
+    if (syncPending && syncReady) return pushSync(); // modifications locales pas encore envoyées
+    let v;
+    try {
+      if (initial) setSync("load");
+      v = (await send({ type: "frontend/get_user_data", key: SYNC_KEY }) || {}).value;
+    } catch { syncReady = false; setSync("off"); return; }        // HA trop ancien : mode local
+    if (v && v.plan) {
+      if (v.updated !== lastUpdated) {
+        applyConfig(v);
+        lastUpdated = v.updated; lastJson = JSON.stringify(exportContent());
+        syncReady = true; render();
+      }
+      syncReady = true; setSync("ok");
+    } else if (initial) {
+      // Première fois : on envoie les réglages et photos de cet appareil dans HA
+      syncReady = true;
+      await migrateLocalImages();
+      await pushSync();
+      render();
+    }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && !editing && document.body.classList.contains("connected")) pullSync(false);
+  });
 
   // ---------- Caméras ----------
   // HA donne à chaque caméra un jeton temporaire (attribut access_token), renouvelé régulièrement.
@@ -2602,6 +2746,7 @@
     manualClose = true; clearTimeout(reconnectTimer);
     closeCam();
     if (ws) ws.close();
+    syncReady = false; lastJson = null; lastUpdated = null; clearTimeout(syncTimer);
     revokeOAuth(conn); // invalide la session côté Home Assistant
     clearConn(); conn = null; states = {};
     setStatus("Déconnecté");
@@ -2673,6 +2818,7 @@
   $("bgRemove").onclick = () => {
     if (!confirm(`Retirer l'image de fond ${theme === "day" ? "de jour" : "de nuit"} de ce niveau ?`)) return;
     const lvl = currentLevel(), k = bgKey(lvl);
+    if (planBgs[k] && planBgs[k].img) deleteImage(planBgs[k].img);
     delete planBgs[k]; saveBg(k, null);
     if (theme === "night" && lvl === levels()[0].id && planBgs._first) { delete planBgs._first; saveBg("_first", null); }
     planBg = null; render();
