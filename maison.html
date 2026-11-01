@@ -347,6 +347,33 @@
             padding: 8px 10px 8px 20px; border-radius: 22px; flex-wrap: nowrap; }
   .brand { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 600; white-space: nowrap; }
   .brand-ic { font-size: 26px; color: rgb(var(--accent)); text-shadow: 0 0 14px rgba(var(--accent),.6); line-height: 1; }
+  .topbar { position: relative; z-index: 15; }
+  .brand-wrap { position: relative; flex: none; }
+  .brand { background: transparent; border: 1px solid transparent; padding: 6px 12px 6px 8px; margin-left: -8px; border-radius: 14px; }
+  .brand:hover, .brand[aria-expanded=true] { background: rgba(255,255,255,.06); border-color: var(--stroke); }
+  .brand-txt { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
+  .brand-txt small { font-size: 11px; font-weight: 500; color: rgb(var(--accent)); letter-spacing: .04em; }
+  .brand-txt small:empty { display: none; }
+  .brand-chev { font-size: 12px; color: var(--muted); transition: transform .25s; }
+  .brand[aria-expanded=true] .brand-chev { transform: rotate(180deg); }
+  .view-menu { position: absolute; top: calc(100% + 10px); left: -8px; z-index: 20; min-width: 270px; padding: 6px;
+               display: flex; flex-direction: column; gap: 2px; background: rgba(10,18,32,.94);
+               box-shadow: 0 20px 50px rgba(0,0,0,.6); border-radius: 16px; }
+  .view-menu button { display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 12px;
+                      border: 1px solid transparent; background: transparent; border-radius: 11px; }
+  .view-menu button > span:last-child { display: flex; flex-direction: column; font-weight: 600; }
+  .view-menu small { font-weight: 400; font-size: 12px; color: var(--muted); }
+  .view-menu button:hover { background: rgba(255,255,255,.06); }
+  .view-menu button.active { background: rgba(var(--accent),.14); border-color: rgba(var(--accent),.45); }
+  .vm-ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: rgba(255,255,255,.06); flex: none; }
+  .view-menu button.active .vm-ic { background: rgba(var(--accent),.25); color: #fff; }
+  /* Niveaux dans la barre du haut */
+  .levels-top { display: flex; gap: 4px; margin: 0 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+  .levels-top::-webkit-scrollbar { display: none; }
+  .levels-top .lvl { flex: none; padding: 10px 18px; border-radius: 14px; }
+  .levels-top .lvl.active { color: #fff; background: linear-gradient(180deg, rgba(var(--accent),.24), rgba(var(--accent),.07));
+                            border-color: rgba(var(--accent),.55); box-shadow: 0 0 24px rgba(var(--accent),.25), inset 0 1px 0 rgba(255,255,255,.15); }
+  .levels-top:empty + .top-right { margin-left: auto; }
   .tabs { display: flex; gap: 6px; margin: 0 auto; }
   .tabs button { background: transparent; border: 1px solid transparent; padding: 10px 20px; border-radius: 14px;
                  color: var(--muted); font-weight: 500; display: flex; gap: 8px; align-items: center; }
@@ -471,6 +498,9 @@
   @media (max-width: 860px) {
     .topbar { flex-wrap: wrap; padding: 10px 12px; gap: 10px; }
     .tabs { order: 3; width: 100%; justify-content: center; margin: 0; }
+    .levels-top { order: 3; width: 100%; justify-content: center; margin: 0; }
+    .levels-top:empty { display: none; }
+    .levels-top .lvl { padding: 8px 12px; }
     .tabs button { padding: 8px 12px; }
     .weather { padding-left: 10px; }
   }
@@ -494,6 +524,7 @@
   .lb-motion { background: #ffd25a; box-shadow: 0 0 8px #ffd25a; }
   .lb-alert { background: var(--err); box-shadow: 0 0 8px var(--err); animation: wallPulse 1.3s infinite; }
   .lvl-tools { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .lvl-tools:empty { display: none; }
   .lvl-tools button { font-size: 13px; padding: 7px 11px; }
   .lvl-tools button.active { border-color: rgba(var(--accent),.6); background: rgba(var(--accent),.18); }
   .plan.lvl-in { animation: lvlIn .45s cubic-bezier(.2,.8,.2,1); }
@@ -509,12 +540,16 @@
 </head>
 <body>
 <header class="topbar glass">
-  <div class="brand"><span class="brand-ic">⌂</span><span>Maison</span></div>
-  <nav class="tabs needs-conn" aria-label="Vues">
-    <button type="button" data-view="plan"><span>▦</span> Plan</button>
-    <button type="button" data-view="rooms"><span>◫</span> Pièces</button>
-    <button type="button" data-view="types"><span>☰</span> Types</button>
-  </nav>
+  <div class="brand-wrap">
+    <button type="button" class="brand" id="viewMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="viewMenu">
+      <span class="brand-ic">⌂</span><span class="brand-txt"><span>Maison</span><small id="viewName"></small></span><span class="brand-chev needs-conn">▾</span></button>
+    <div class="view-menu glass hidden" id="viewMenu" role="menu">
+      <button type="button" role="menuitem" data-view="plan"><span class="vm-ic">▦</span><span>Plan<small>Plan interactif par niveau</small></span></button>
+      <button type="button" role="menuitem" data-view="rooms"><span class="vm-ic">◫</span><span>Pièces<small>Contrôles regroupés par pièce</small></span></button>
+      <button type="button" role="menuitem" data-view="types"><span class="vm-ic">☰</span><span>Types<small>Lumières, volets, capteurs…</small></span></button>
+    </div>
+  </div>
+  <nav class="levels-top needs-conn" id="levelSlot" aria-label="Niveaux"></nav>
   <div class="top-right">
     <div class="clock"><b id="clockTime">--:--</b><span id="clockDate"></span></div>
     <div class="weather needs-conn" id="weather"></div>
@@ -551,7 +586,7 @@
     <div id="editBar" class="banner glass hidden">
       <div><strong>Mode édition</strong> · <span id="editInfo"></span>
         <div class="sub" id="editSub">Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.</div></div>
-      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
+      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><span class="lvl-tools" id="levelTools"></span><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
     </div>
     <div id="roomsNotice" class="banner glass hidden">
       <span>Impossible de lire les pièces depuis Home Assistant : affichage par type à la place.</span>
@@ -900,7 +935,8 @@
     const mode = view !== "types" && reg.ok ? view : "types";
     planBg = mode === "plan" ? bgFor(currentLevel()) : null;
     $("roomsNotice").classList.toggle("hidden", !(view !== "types" && !reg.ok));
-    document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+    document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === mode));
+    $("viewName").textContent = { plan: "Plan", rooms: "Pièces", types: "Types" }[mode];
     $("regenPlan").classList.toggle("hidden", mode !== "plan");
     $("bgPick").classList.toggle("hidden", mode !== "plan");
     $("bgRemove").classList.toggle("hidden", mode !== "plan" || !planBg);
@@ -908,6 +944,7 @@
     $("layout").classList.toggle("with-sides", mode === "plan");
     if (mode === "plan") { renderPlan(); if (planEls) renderSides(); updateEditInfo(); return; }
     $("leftCol").innerHTML = ""; $("rightCol").innerHTML = "";
+    clearLevelBar();
     planEls = null;
 
     if (mode === "types") {
@@ -1209,20 +1246,17 @@
     savePlan();
   }
 
-  // Sélecteur de niveaux au-dessus du plan (+ outils en mode édition)
+  // Sélecteur de niveaux dans la barre du haut ; outils des niveaux dans le bandeau d'édition
   function buildLevelBar(lv) {
     const L = levels(), cur = L.find(l => l.id === lv);
-    const bar = document.createElement("div");
-    bar.className = "levels";
-    bar.innerHTML = `<div class="lvl-tabs">${L.map(l => `<button type="button" class="lvl${l.id === lv ? " active" : ""}" data-level="${esc(l.id)}">
-        <span>${esc(l.name)}</span><span class="lvl-badges" data-badges="${esc(l.id)}"></span></button>`).join("")}</div>`
-      + (editing ? `<div class="lvl-tools">
-          <button type="button" data-lt="add">＋ Niveau</button>
-          ${cur && cur.custom ? `<button type="button" data-lt="rename" title="Renommer ce niveau">✎ Renommer</button>
+    const slot = $("levelSlot"), tools = $("levelTools");
+    slot.innerHTML = L.length < 2 ? "" : L.map(l => `<button type="button" class="lvl${l.id === lv ? " active" : ""}" data-level="${esc(l.id)}">
+        <span>${esc(l.name)}</span><span class="lvl-badges" data-badges="${esc(l.id)}"></span></button>`).join("");
+    tools.innerHTML = editing ? `<button type="button" data-lt="add">＋ Niveau</button>
+          ${cur && cur.custom ? `<button type="button" data-lt="rename" title="Renommer ce niveau">✎ Renommer « ${esc(cur.name)} »</button>
             <button type="button" data-lt="delete" title="Supprimer ce niveau">🗑</button>` : ""}
-          <button type="button" data-lt="assign" class="${assignOpen ? "active" : ""}">⇄ Répartir les pièces</button></div>` : "");
-    if (L.length < 2 && !editing) bar.classList.add("hidden");
-    bar.onclick = e => {
+          <button type="button" data-lt="assign" class="${assignOpen ? "active" : ""}">⇄ Répartir les pièces</button>` : "";
+    const handler = e => {
       const b = e.target.closest("[data-level]");
       if (b) return goLevel(b.dataset.level);
       const t = e.target.closest("[data-lt]"); if (!t) return;
@@ -1245,8 +1279,9 @@
         savePlan(); curLevel = null; render();
       } else if (act === "assign") { assignOpen = !assignOpen; render(); }
     };
-    return bar;
+    slot.onclick = handler; tools.onclick = handler;
   }
+  function clearLevelBar() { $("levelSlot").innerHTML = ""; $("levelTools").innerHTML = ""; }
 
   // Panneau de répartition : une liste déroulante de niveau par pièce
   function buildAssign() {
@@ -1429,7 +1464,7 @@
     const areas = mine.slice().sort((a, b) => areaName(a).localeCompare(areaName(b), "fr"));
 
     const wrap = document.createElement("div"); wrap.className = "plan-wrap" + (planBg ? " has-bg" : "");
-    wrap.append(buildLevelBar(lv));
+    buildLevelBar(lv);
     if (editing && assignOpen) wrap.append(buildAssign());
     // Glisser à gauche / droite sur tablette pour changer de niveau
     let sx = null, sy = null;
@@ -2152,8 +2187,18 @@
     $("dashboard").classList.add("hidden");
     $("logoutBtn").classList.add("hidden");
   };
+  const setMenu = open => {
+    if (open && !document.body.classList.contains("connected")) return;
+    $("viewMenu").classList.toggle("hidden", !open);
+    $("viewMenuBtn").setAttribute("aria-expanded", String(open));
+  };
+  $("viewMenuBtn").onclick = e => { e.stopPropagation(); setMenu($("viewMenu").classList.contains("hidden")); };
+  document.addEventListener("click", e => { if (!e.target.closest(".brand-wrap")) setMenu(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") setMenu(false); });
   document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => {
-    view = b.dataset.view; ls.set(K.view, view); render();
+    setMenu(false);
+    if (view === b.dataset.view) return;
+    view = b.dataset.view; ls.set(K.view, view); closeRoom(); render();
   });
   $("editBtn").onclick = () => setEditing(!editing);
   $("editDone").onclick = () => setEditing(false);
