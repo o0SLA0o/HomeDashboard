@@ -1,23 +1,154 @@
 # Ma Maison — dashboard Home Assistant
 
-Tableau de bord web en un seul fichier (`maison.html`), sans dépendance, qui pilote Home Assistant via son API WebSocket.
+Tableau de bord web en **un seul fichier** (`maison.html`), sans dépendance ni compilation, qui pilote Home Assistant en temps réel via son API WebSocket. Il se dépose dans Home Assistant et s'ouvre dans n'importe quel navigateur : ordinateur, tablette murale ou téléphone.
 
-## Fonctionnalités
+![Plan interactif, mode nuit](docs/plan-nuit.jpg)
 
-- **Plan interactif multi-niveaux** : plan stylisé généré depuis les pièces HA, étages HA + niveaux personnalisés (ex. dépendance), halos de la vraie couleur des lumières, sol teinté selon la température, alertes d'ouverture, ondes de présence, pochette et titre défilant des médias.
-- **Panneaux latéraux flottants** (repliés par défaut, repli automatique après 30 s) : occupation (personnes), scénarios rapides, état de la maison (alarme, portail, garage, ouvertures, serrures), température moyenne avec historique 24 h, consommation électrique, raccourcis lumières / volets / chauffage.
-- **Vues Pièces et Types**, regroupement par appareil, sections repliables.
-- **Mode jour / mode nuit** : bouton ☀️/🌙 dans la barre du haut ; thème clair le jour, thème bleu nuit la nuit, et une image de fond distincte par mode et par niveau (stockée dans IndexedDB).
-- **Caméras** : aperçus rafraîchis et flux en direct en plein écran.
-- **Mode édition** : masquer entités / appareils / personnes, déplacer et redimensionner les pièces, image de fond par niveau.
-- **Appareils du plan au choix** : les pièces sont vides par défaut ; le bouton « + » d'une pièce (mode édition) ouvre la liste à cocher de ses entités Home Assistant, et « × » retire un appareil du plan.
+> Les captures de cette page ont été réalisées avec une maison de démonstration (données simulées).
+
+## Sommaire
+
+- [Plan interactif](#plan-interactif)
+- [Plusieurs niveaux](#plusieurs-niveaux)
+- [Panneaux latéraux](#panneaux-latéraux)
+- [Contrôles d'une pièce](#contrôles-dune-pièce)
+- [Mode jour / mode nuit](#mode-jour--mode-nuit)
+- [Mode édition](#mode-édition)
+- [Vues Pièces et Types](#vues-pièces-et-types)
+- [Caméras](#caméras)
+- [Connexion sécurisée](#connexion-sécurisée)
+- [Sur téléphone et tablette](#sur-téléphone-et-tablette)
+- [Installation](#installation)
+- [Données et confidentialité](#données-et-confidentialité)
+
+## Plan interactif
+
+La vue **Plan** représente la maison vue de dessus. Les pièces sont générées automatiquement à partir des pièces (zones) définies dans Home Assistant, puis entièrement ajustables.
+
+Le plan réagit en temps réel à l'état de la maison :
+
+- **Lumières** : la pièce s'éclaire d'un halo de la **vraie couleur de l'ampoule** (RVB ou blanc chaud → froid), dont l'intensité suit la luminosité ; le halo s'arrête aux murs.
+- **Température** : le sol se teinte en bleu quand il fait frais et en orangé quand il fait chaud.
+- **Ouvertures** : une porte ou une fenêtre ouverte fait clignoter les murs de la pièce en rouge.
+- **Présence** : une onde se propage depuis un détecteur de mouvement actif.
+- **Médias** : un lecteur en cours de lecture affiche la **pochette** de ce qui joue, avec le titre et l'artiste qui défilent sous son nom.
+- **Capteurs** : la valeur s'affiche sous le nom de l'icône.
+
+Toucher une icône allume ou éteint l'appareil (ouvre ou ferme un volet, lance une caméra). Toucher une pièce ouvre le panneau de tous ses contrôles.
+
+## Plusieurs niveaux
+
+![Niveau Étage](docs/etage.jpg)
+
+Les **étages** définis dans Home Assistant (*Paramètres → Zones, étiquettes et étages*) sont repris automatiquement. On peut aussi créer ses propres niveaux, par exemple une **dépendance**, et y répartir les pièces.
+
+Les onglets de niveaux sont dans la barre du haut, avec des **pastilles d'activité** : nombre de lumières allumées, point jaune en cas de présence, point rouge clignotant si une ouverture est signalée. Sur tablette, on peut aussi **glisser** à gauche ou à droite sur le plan pour changer de niveau.
+
+## Panneaux latéraux
+
+![Panneaux latéraux ouverts](docs/panneaux.jpg)
+
+Deux panneaux flottants complètent le plan sans lui prendre de place : ils sont **repliés par défaut**, s'ouvrent **par-dessus le plan** depuis une languette sur chaque bord, et se **replient seuls après 30 secondes** sans interaction.
+
+**À gauche**
+
+- **Occupation** : maison occupée ou vide, avec les personnes Home Assistant et leur statut (présent, absent, zone).
+- **Scénarios rapides** : toutes les scènes et scripts, lancés d'un clic.
+- **État de la maison** : alarme, portail, garage, portes et fenêtres, serrures, avec une coche verte ou une alerte rouge.
+
+**À droite**
+
+- **Température** moyenne intérieure, avec sa courbe sur 24 h.
+- **Énergie** : consommation instantanée (capteur de puissance type Linky) et histogramme sur 12 h.
+- **Raccourcis** : toutes les lumières, tous les volets et le chauffage (avec son mode : Confort, Éco…).
+
+Même repliées, les languettes affichent l'essentiel : nombre de personnes présentes, pastille d'alerte et température moyenne.
+
+## Contrôles d'une pièce
+
+![Panneau d'une pièce](docs/piece.jpg)
+
+Toucher une pièce ouvre un panneau avec tous ses contrôles, **regroupés par appareil** : une ampoule connectée réunit sa lumière et sa consommation, une prise son interrupteur et son compteur. On y trouve les interrupteurs, la luminosité, les volets, la consigne du thermostat, les médias, les serrures, les scènes et les capteurs.
+
+## Mode jour / mode nuit
+
+![Plan en mode jour](docs/plan-jour.jpg)
+
+Le bouton ☀️ / 🌙 de la barre du haut bascule entre :
+
+- un **thème nuit** bleu nuit, avec effets lumineux ;
+- un **thème jour** clair, façon maquette d'architecte : sols blanc cassé, murs ardoise, halos des lumières qui teintent le sol.
+
+Chaque mode peut avoir **sa propre photo de fond** pour chaque niveau, par exemple un rendu 3D de la maison de jour et de nuit.
+
+## Mode édition
+
+![Mode édition](docs/edition.jpg)
+
+Le bouton ✎ de la barre du haut active le mode édition :
+
+- **Pièces** : glisser pour déplacer, coin ◢ pour redimensionner. Le nom des pièces n'apparaît qu'en mode édition, pour garder un plan épuré.
+- **Appareils** : chaque pièce démarre vide. Le **＋** en haut à droite d'une pièce ouvre la liste à cocher de ses entités Home Assistant, regroupées par appareil ; **×** retire un appareil du plan.
+- **Taille des icônes** : boutons **＋ / −** sous le **＋** de chaque pièce (50 % à 250 %).
+- **Grille d'alignement** : les icônes s'aimantent sur une grille calée sur les murs ; **Aligner** replace d'un coup toutes les icônes du niveau.
+- **Niveaux** : créer, renommer, supprimer un niveau et répartir les pièces.
+- **Photo de fond** : importer une image par niveau et par mode, la redimensionner avec les **poignées aux 4 coins** (proportions conservées, Maj pour un redimensionnement libre) et la déplacer avec la poignée centrale. **Superposer** affiche la photo de l'autre mode en transparence, et **Caler** reprend exactement sa position, pour aligner les photos de jour et de nuit.
+- **Personnes** : retirer une personne du bandeau d'occupation.
+
+![Choix des appareils d'une pièce](docs/choix-appareils.jpg)
+
+## Vues Pièces et Types
+
+![Vue par pièce](docs/vue-pieces.jpg)
+
+Le menu **Maison ▾** en haut à gauche donne accès à deux autres vues :
+
+- **Pièces** : tous les contrôles, pièce par pièce, regroupés par appareil ;
+- **Types** : tous les appareils par catégorie (lumières, prises, volets, chauffage, médias, capteurs…).
+
+Les sections se replient (le choix est mémorisé), la recherche porte sur les entités, les appareils et les pièces, et un filtre limite l'affichage à un type d'appareil. En mode édition, on peut **masquer** une entité ou un appareil entier ; les entités techniques (diagnostic, configuration) sont masquées par défaut.
+
+![Menu des vues](docs/menu-vues.jpg)
+
+## Caméras
+
+Les caméras affichent un aperçu rafraîchi toutes les 5 secondes. Un clic ouvre le **flux en direct** en plein écran (MJPEG), avec bascule automatique sur des images rapprochées si la caméra ne fournit pas de flux. Les images passent par le jeton temporaire que Home Assistant fournit pour chaque caméra.
+
+## Connexion sécurisée
+
+![Écran de connexion](docs/connexion.jpg)
+
+**Se connecter avec Home Assistant** utilise l'authentification OAuth intégrée à Home Assistant : on s'identifie sur la page de connexion habituelle de HA (identifiant, mot de passe, double authentification si elle est activée), puis on revient sur le dashboard.
+
+- Le jeton d'accès dure 30 minutes et se **renouvelle automatiquement**.
+- Chaque appareil apparaît dans le profil Home Assistant (*Sécurité → Jetons d'actualisation*) et peut y être **révoqué** individuellement.
+- La déconnexion révoque la session côté Home Assistant.
+- Pour un écran en mode kiosque, un **jeton d'accès longue durée** reste utilisable.
+
+## Sur téléphone et tablette
+
+<img src="docs/mobile.jpg" alt="Affichage sur téléphone" width="320">
+
+La mise en page s'adapte aux petits écrans : barre du haut sur deux lignes, plan pleine largeur, panneaux qui glissent par-dessus. Sur tablette murale, le renouvellement automatique de la session évite d'avoir à se reconnecter.
 
 ## Installation
 
-1. Copier `maison.html` dans le dossier `/config/www/` de Home Assistant (redémarrer HA si le dossier `www` vient d'être créé).
+1. Copier `maison.html` dans le dossier `/config/www/` de Home Assistant, par exemple avec l'add-on *File editor* ou *Samba*. Redémarrer HA si le dossier `www` vient d'être créé.
 2. Ouvrir `http://<adresse-ha>:8123/local/maison.html`.
-3. Cliquer sur **Se connecter avec Home Assistant** : connexion OAuth via la page de connexion habituelle de HA (identifiant, mot de passe, double authentification). Le jeton d'accès (30 min) est renouvelé automatiquement ; chaque appareil apparaît dans le profil HA sous « Jetons d'actualisation » et peut y être révoqué.
+3. Cliquer sur **Se connecter avec Home Assistant**.
    - Alternative pour un écran en mode kiosque : « Utiliser plutôt un jeton d'accès longue durée » (profil HA → Sécurité → Jetons d'accès longue durée).
    - Si la page n'est pas servie par Home Assistant, autoriser son origine dans `configuration.yaml` (`http: cors_allowed_origins:`).
+4. Passer en mode édition (✎) et ajouter les appareils de chaque pièce avec **＋**.
 
-Les réglages d'affichage (masquage, plan, niveaux) sont mémorisés dans le navigateur de chaque appareil.
+Après une mise à jour du fichier, recharger la page avec **Ctrl+F5** pour éviter l'ancienne version en cache.
+
+### Prérequis
+
+- Home Assistant avec des **pièces** définies, et idéalement des **étages** (2024.4 ou plus récent).
+- Facultatif : entités `person`, `weather`, capteurs de température et de puissance, scènes et scripts pour enrichir les panneaux latéraux.
+
+## Données et confidentialité
+
+- Le fichier ne contient **aucun secret** : la connexion se fait dans le navigateur. Les fichiers de `/config/www/` étant accessibles sans authentification, rien de sensible n'y est écrit.
+- Les réglages d'affichage (plan, niveaux, masquage, thème) sont mémorisés **dans le navigateur de chaque appareil** ; les photos de fond sont stockées dans IndexedDB.
+- Les données de la maison ne sont échangées qu'avec votre instance Home Assistant. Seule la police d'écriture (Inter) est chargée depuis Google Fonts ; sans accès Internet, la police système prend le relais.
