@@ -645,6 +645,21 @@
   body.day .has-bg .room-w.alert .walls-hi { stroke: var(--err); }
   body.day.editing .has-bg .room-w .walls-hi { stroke: rgba(var(--accent),.8); }
   #themeBtn { font-size: 18px; }
+  /* Poignées de l'image de fond */
+  .plan-onion { opacity: .45; pointer-events: none; }
+  .bgh-frame { fill: none; stroke: rgb(var(--accent)); stroke-width: 2; stroke-dasharray: 10 6; pointer-events: none; }
+  .bgh { cursor: pointer; }
+  .bgh-hit { fill: transparent; }
+  .bgh circle:not(.bgh-hit) { fill: #fff; stroke: rgb(var(--accent)); stroke-width: 3;
+                              filter: drop-shadow(0 2px 6px rgba(0,0,0,.45)); transition: r .15s; }
+  .bgh-corner[data-bgh=nw], .bgh-corner[data-bgh=se] { cursor: nwse-resize; }
+  .bgh-corner[data-bgh=ne], .bgh-corner[data-bgh=sw] { cursor: nesw-resize; }
+  .bgh-move { cursor: move; }
+  .bgh-move circle:not(.bgh-hit) { fill: rgba(var(--accent),.9); stroke: #fff; }
+  .bgh-move text { font: 600 18px "Inter", system-ui, sans-serif; fill: #fff; pointer-events: none; }
+  .bgh:hover circle:not(.bgh-hit) { stroke-width: 4; }
+  .bgh-info { font: 600 13px "Inter", system-ui, sans-serif; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.7); stroke-width: 4px; pointer-events: none; }
+  #bgOnionBtn.active { border-color: rgba(var(--accent),.6); background: rgba(var(--accent),.18); }
 </style>
 </head>
 <body>
@@ -696,7 +711,7 @@
     <div id="editBar" class="banner glass hidden">
       <div><strong>Mode édition</strong> · <span id="editInfo"></span>
         <div class="sub" id="editSub">Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.</div></div>
-      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><span class="lvl-tools" id="levelTools"></span><button type="button" id="gridBtn" class="hidden" title="Aimanter les icônes sur une grille">▦ Grille</button><button type="button" id="alignBtn" class="hidden" title="Replacer toutes les icônes de ce niveau sur la grille">⌗ Aligner</button><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
+      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><button type="button" id="bgOnionBtn" class="hidden" title="Afficher en transparence la photo de l'autre mode pour aligner les deux">◐ Superposer l'autre mode</button><button type="button" id="bgMatchBtn" class="hidden" title="Donner à cette photo la position et la taille de celle de l'autre mode">⇆ Caler sur l'autre mode</button><span class="lvl-tools" id="levelTools"></span><button type="button" id="gridBtn" class="hidden" title="Aimanter les icônes sur une grille">▦ Grille</button><button type="button" id="alignBtn" class="hidden" title="Replacer toutes les icônes de ce niveau sur la grille">⌗ Aligner</button><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
     </div>
     <div id="roomsNotice" class="banner glass hidden">
       <span>Impossible de lire les pièces depuis Home Assistant : affichage par type à la place.</span>
@@ -1069,6 +1084,13 @@
     $("bgPick").firstChild.textContent = `🖼 Image de fond ${theme === "day" ? "☀️ jour" : "🌙 nuit"}`;
     $("bgRemove").textContent = `Retirer l'image ${theme === "day" ? "de jour" : "de nuit"}`;
     $("bgRemove").classList.toggle("hidden", mode !== "plan" || !planBg);
+    const hasOther = mode === "plan" && !!planBg && !!otherBgFor(currentLevel());
+    const otherName = theme === "day" ? "nuit" : "jour";
+    $("bgOnionBtn").classList.toggle("hidden", !hasOther);
+    $("bgOnionBtn").classList.toggle("active", bgOnion);
+    $("bgOnionBtn").textContent = `◐ ${bgOnion ? "Masquer" : "Superposer"} la photo de ${otherName}`;
+    $("bgMatchBtn").classList.toggle("hidden", !hasOther);
+    $("bgMatchBtn").textContent = `⇆ Caler sur la photo de ${otherName}`;
     $("toolbar").classList.toggle("hidden", mode === "plan");
     $("layout").classList.toggle("with-sides", mode === "plan");
     if (mode === "plan") { renderPlan(); if (planEls) renderSides(); updateEditInfo(); return; }
@@ -1628,10 +1650,29 @@
     const roomsLayer = svgEl("g", { class: "rooms-layer" }), wallsLayer = svgEl("g"), labelsLayer = svgEl("g"), markLayer = svgEl("g");
     roomsLayer.append(wallsLayer);
     svg.append(roomsLayer, labelsLayer, markLayer);
+    const bgTop = svgEl("g", { class: "bg-top" }); svg.append(bgTop);
     const floorsLayer = svgEl("g"); roomsLayer.insertBefore(floorsLayer, wallsLayer);
-    if (planBg) svg.insertBefore(svgEl("image", { class: "plan-bg", href: planBg.src, x: planBg.x, y: planBg.y,
-      width: planBg.w, height: planBg.h, preserveAspectRatio: "xMidYMid meet" }), roomsLayer);
-    planEls = { svg, rooms: {}, markers: {}, glows: {} };
+    planEls = { svg, rooms: {}, markers: {}, glows: {}, bgTop };
+    if (planBg) {
+      planEls.bgImg = svgEl("image", { class: "plan-bg", href: planBg.src, preserveAspectRatio: "none" });
+      svg.insertBefore(planEls.bgImg, roomsLayer);
+      // Calque de l'autre mode (jour/nuit) en transparence, pour aligner les deux photos
+      const other = otherBgFor(lv);
+      if (editing && bgOnion && other) {
+        planEls.onion = svgEl("image", { class: "plan-onion", href: other.src, preserveAspectRatio: "none",
+          x: other.x, y: other.y, width: other.w, height: other.h });
+        svg.insertBefore(planEls.onion, roomsLayer);
+      }
+      // Poignées : 4 coins (redimensionner) + centre (déplacer)
+      if (editing) {
+        const h = svgEl("g", { class: "bg-handles" });
+        h.innerHTML = `<rect class="bgh-frame"/>
+          ${["nw", "ne", "sw", "se"].map(c => `<g class="bgh bgh-corner" data-bgh="${c}"><circle r="14" class="bgh-hit"/><circle r="8"/><title>Redimensionner l'image (Maj : sans garder les proportions)</title></g>`).join("")}
+          <g class="bgh bgh-move" data-bgh="move"><circle r="20" class="bgh-hit"/><circle r="15"/><text y="6" text-anchor="middle">✥</text><title>Déplacer l'image</title></g>
+          <text class="bgh-info" text-anchor="middle"></text>`;
+        planEls.bgHandles = h; bgTop.append(h);
+      }
+    }
 
     areas.forEach((a, i) => {
       const g = svgEl("g", { class: "room", "data-area": a });
@@ -1746,6 +1787,21 @@
         x.setAttribute("x", r.x); x.setAttribute("y", r.y); x.setAttribute("width", r.w); x.setAttribute("height", r.h);
       });
     }
+    if (planEls.bgImg && planBg) {
+      const b = planBg;
+      ["x", "y"].forEach(k => planEls.bgImg.setAttribute(k, b[k]));
+      planEls.bgImg.setAttribute("width", b.w); planEls.bgImg.setAttribute("height", b.h);
+      const H = planEls.bgHandles;
+      if (H) {
+        const fr = H.querySelector(".bgh-frame");
+        fr.setAttribute("x", b.x); fr.setAttribute("y", b.y); fr.setAttribute("width", b.w); fr.setAttribute("height", b.h);
+        const pos = { nw: [b.x, b.y], ne: [b.x + b.w, b.y], sw: [b.x, b.y + b.h], se: [b.x + b.w, b.y + b.h], move: [b.x + b.w / 2, b.y + b.h / 2] };
+        H.querySelectorAll("[data-bgh]").forEach(g => g.setAttribute("transform", `translate(${pos[g.dataset.bgh].join(" ")})`));
+        const inf = H.querySelector(".bgh-info");
+        inf.setAttribute("x", b.x + b.w / 2); inf.setAttribute("y", b.y + b.h / 2 + 40);
+        inf.textContent = drag && drag.kind === "bg" ? `${Math.round(b.w)} × ${Math.round(b.h)}` : "";
+      }
+    }
     for (const id in planEls.markers) {
       const { g, area } = planEls.markers[id], p = markerXY(id, area);
       const k = iconScale(area);
@@ -1854,6 +1910,13 @@
         if (k === 1) delete plan.iconScale[a]; else plan.iconScale[a] = k;
         savePlan(); applyGeometry(); return;
       }
+      const bh = e.target.closest("[data-bgh]");
+      if (bh && planBg) {
+        e.preventDefault(); e.stopPropagation();
+        drag = { kind: "bg", h: bh.dataset.bgh, p0: svgPoint(svg, e), b0: { ...planBg } };
+        svg.setPointerCapture(e.pointerId); svg.classList.add("dragging");
+        return;
+      }
       const t = e.target.closest("[data-drag]"); if (!t) return;
       e.preventDefault();
       const kind = t.dataset.drag;
@@ -1865,7 +1928,19 @@
     svg.addEventListener("pointermove", e => {
       if (!drag) return;
       const p = svgPoint(svg, e);
-      if (drag.kind === "marker") {
+      if (drag.kind === "bg") {
+        const b0 = drag.b0, dx = p.x - drag.p0.x, dy = p.y - drag.p0.y;
+        if (drag.h === "move") { planBg.x = b0.x + dx; planBg.y = b0.y + dy; }
+        else {
+          // coin opposé fixe ; proportions conservées sauf avec Maj
+          const east = drag.h.includes("e"), south = drag.h.includes("s");
+          const ax = east ? b0.x : b0.x + b0.w, ay = south ? b0.y : b0.y + b0.h;
+          let w = Math.max(80, Math.abs(p.x - ax)), h = Math.max(60, Math.abs(p.y - ay));
+          if (!e.shiftKey) { const sc = Math.max(w / b0.w, h / b0.h); w = b0.w * sc; h = b0.h * sc; }
+          planBg.w = w; planBg.h = h;
+          planBg.x = east ? ax : ax - w; planBg.y = south ? ay : ay - h;
+        }
+      } else if (drag.kind === "marker") {
         const r = plan.rooms[drag.area];
         let x = p.x, y = p.y;
         if (plan.grid) { // aimantation sur les intersections de la grille de la pièce
@@ -1883,8 +1958,10 @@
     });
     const end = () => {
       if (!drag) return;
+      const wasBg = drag.kind === "bg";
       drag = null; svg.classList.remove("dragging");
-      savePlan(); applyGeometry();
+      if (wasBg) saveBg(bgKey(currentLevel()), planBg); else savePlan();
+      applyGeometry();
     };
     svg.addEventListener("pointerup", end);
     svg.addEventListener("pointercancel", end);
@@ -2250,6 +2327,11 @@
   let planBg = null;
   const bgKey = lv => (theme === "day" ? "day|" : "") + lv;
   const bgFor = lv => planBgs[bgKey(lv)] || (theme === "night" && lv === levels()[0].id ? planBgs._first || null : null);
+  // Image de l'autre mode pour le même niveau (pour l'alignement jour / nuit)
+  const otherBgFor = lv => theme === "day"
+    ? planBgs[lv] || (lv === levels()[0].id ? planBgs._first || null : null)
+    : planBgs["day|" + lv] || null;
+  let bgOnion = false;
 
   // Petit magasin IndexedDB : bien plus de place que localStorage (≈ 5 Mo) pour plusieurs photos
   const bgStore = (() => {
@@ -2427,6 +2509,12 @@
   };
   $("drawerClose").onclick = closeRoom;
   $("pickerCancel").onclick = closePicker;
+  $("bgOnionBtn").onclick = () => { bgOnion = !bgOnion; render(); };
+  $("bgMatchBtn").onclick = () => {
+    const o = otherBgFor(currentLevel()); if (!o || !planBg) return;
+    Object.assign(planBg, { x: o.x, y: o.y, w: o.w, h: o.h });
+    saveBg(bgKey(currentLevel()), planBg); render();
+  };
   $("themeBtn").onclick = () => {
     theme = theme === "day" ? "night" : "day";
     ls.set("ha-dashboard-theme", theme);
