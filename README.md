@@ -16,6 +16,8 @@ Tableau de bord web en un seul fichier (`maison.html`), sans dépendance, qui pi
 
 1. Copier `maison.html` dans le dossier `/config/www/` de Home Assistant (redémarrer HA si le dossier `www` vient d'être créé).
 2. Ouvrir `http://<adresse-ha>:8123/local/maison.html`.
-3. Se connecter avec un jeton d'accès longue durée (profil HA → Sécurité → Jetons d'accès longue durée).
+3. Cliquer sur **Se connecter avec Home Assistant** : connexion OAuth via la page de connexion habituelle de HA (identifiant, mot de passe, double authentification). Le jeton d'accès (30 min) est renouvelé automatiquement ; chaque appareil apparaît dans le profil HA sous « Jetons d'actualisation » et peut y être révoqué.
+   - Alternative pour un écran en mode kiosque : « Utiliser plutôt un jeton d'accès longue durée » (profil HA → Sécurité → Jetons d'accès longue durée).
+   - Si la page n'est pas servie par Home Assistant, autoriser son origine dans `configuration.yaml` (`http: cors_allowed_origins:`).
 
 Les réglages d'affichage (masquage, plan, niveaux) sont mémorisés dans le navigateur de chaque appareil.

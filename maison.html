@@ -162,6 +162,12 @@
   .login { max-width: 460px; margin: 50px auto; padding: 26px; display: flex; flex-direction: column; gap: 14px; }
   .login strong { font-size: 18px; }
   .login label { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+  .login label.remember { flex-direction: row; align-items: center; gap: 8px; }
+  .login .llt { border-top: 1px solid var(--stroke); padding-top: 12px; margin-top: 4px; }
+  .login .llt summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  .login .llt summary:hover { color: var(--ink); }
+  .login .llt[open] { display: flex; flex-direction: column; gap: 12px; }
+  .login .llt[open] summary { margin-bottom: 2px; }
   .hint { font-size: 12px; color: var(--muted); }
   .error { color: var(--err); font-size: 13px; min-height: 1em; }
   .hidden { display: none !important; }
@@ -699,13 +705,18 @@
     <label>Adresse de Home Assistant
       <input type="text" id="haUrl" placeholder="http://homeassistant.local:8123" required>
     </label>
-    <label>Jeton d'accès longue durée
-      <input type="password" id="haToken" placeholder="eyJhbGciOi..." required>
-    </label>
-    <div class="hint">Crée un jeton dans Home Assistant : ton profil → onglet <em>Sécurité</em> → <em>Jetons d'accès longue durée</em>.</div>
-    <label style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="remember" checked> Se souvenir sur cet appareil</label>
+    <label class="remember"><input type="checkbox" id="remember" checked> Rester connecté sur cet appareil</label>
     <div class="error" id="loginError"></div>
-    <button class="primary" type="submit">Se connecter</button>
+    <button class="primary" type="submit" id="oauthBtn">Se connecter avec Home Assistant</button>
+    <div class="hint">Tu seras redirigé vers la page de connexion de Home Assistant (identifiant, mot de passe et double authentification si elle est activée), puis ramené ici.</div>
+    <details class="llt" id="lltBox">
+      <summary>Utiliser plutôt un jeton d'accès longue durée</summary>
+      <label>Jeton d'accès longue durée
+        <input type="password" id="haToken" placeholder="eyJhbGciOi..." autocomplete="off">
+      </label>
+      <div class="hint">Pratique pour un écran en mode kiosque. À créer dans ton profil Home Assistant → onglet <em>Sécurité</em> → <em>Jetons d'accès longue durée</em>.</div>
+      <button type="submit" id="tokenBtn">Se connecter avec le jeton</button>
+    </details>
   </form>
 
   <!-- Tableau de bord -->
@@ -867,7 +878,103 @@
     regTimer = setTimeout(async () => { await loadRegistries(); render(); }, 800);
   }
 
-  function connect() {
+
+  // ---------- Authentification : OAuth Home Assistant (ou jeton longue durée) ----------
+  // conn = { url, token }                                   → jeton longue durée
+  // conn = { url, oauth: { access, refresh, expires, clientId } } → OAuth (IndieAuth de HA)
+  const OAUTH_PENDING = "ha-dashboard-oauth";
+  const pageUrl = () => location.origin + location.pathname;  // redirect_uri
+  const clientIdFor = () => location.origin + "/";            // client_id : même hôte que redirect_uri
+  class AuthError extends Error { constructor(m, fatal) { super(m); this.fatal = fatal; } }
+
+  function saveConn() {
+    const remember = conn.remember !== false;
+    try { (remember ? localStorage : sessionStorage).setItem(K.conn, JSON.stringify(conn)); } catch {}
+    try { (remember ? sessionStorage : localStorage).removeItem(K.conn); } catch {}
+  }
+  function loadConn() {
+    for (const st of [localStorage, sessionStorage]) {
+      try { const v = JSON.parse(st.getItem(K.conn)); if (v && v.url && (v.token || v.oauth)) return v; } catch {}
+    }
+    return null;
+  }
+  function clearConn() { try { localStorage.removeItem(K.conn); } catch {} try { sessionStorage.removeItem(K.conn); } catch {} }
+
+  async function tokenRequest(url, params) {
+    let r;
+    try {
+      r = await fetch(url + "/auth/token", { method: "POST", body: new URLSearchParams(params),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    } catch {
+      throw new AuthError(location.origin === new URL(url).origin
+        ? "Home Assistant ne répond pas."
+        : `Home Assistant ne répond pas, ou refuse cette page (${location.origin}). Si le site n'est pas servi par HA, ajoute cette adresse à « http: cors_allowed_origins » dans configuration.yaml.`, false);
+    }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new AuthError(j.error_description || j.error || ("Erreur " + r.status), r.status === 400 || r.status === 403);
+    return j;
+  }
+
+  // Étape 1 : redirection vers la page de connexion de HA
+  function startOAuth(url, remember) {
+    if (!/^https?:$/.test(location.protocol)) {
+      return loginFail("La connexion Home Assistant nécessite que la page soit ouverte en http(s), par exemple http://<ha>:8123/local/maison.html.");
+    }
+    const state = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
+    try { sessionStorage.setItem(OAUTH_PENDING, JSON.stringify({ state, url, remember, clientId: clientIdFor(), redirect: pageUrl() })); } catch {}
+    const q = new URLSearchParams({ response_type: "code", client_id: clientIdFor(), redirect_uri: pageUrl(), state });
+    location.assign(url + "/auth/authorize?" + q);
+  }
+
+  // Étape 2 : retour de HA avec ?code=…&state=… → échange contre les jetons
+  async function finishOAuth() {
+    const q = new URLSearchParams(location.search);
+    if (!q.has("code") && !q.has("error")) return false;
+    let pend = null;
+    try { pend = JSON.parse(sessionStorage.getItem(OAUTH_PENDING)); sessionStorage.removeItem(OAUTH_PENDING); } catch {}
+    history.replaceState(null, "", pageUrl() + location.hash); // retire le code de l'adresse
+    if (!pend) return false;
+    $("haUrl").value = pend.url;
+    if (q.get("state") !== pend.state) { loginFail("Réponse de connexion invalide (state). Réessaie."); return true; }
+    if (q.has("error")) { loginFail("Connexion annulée ou refusée par Home Assistant."); return true; }
+    setStatus("Connexion…");
+    try {
+      const t = await tokenRequest(pend.url, { grant_type: "authorization_code", code: q.get("code"), client_id: pend.clientId });
+      conn = { url: pend.url, remember: pend.remember,
+               oauth: { access: t.access_token, refresh: t.refresh_token, expires: Date.now() + t.expires_in * 1000, clientId: pend.clientId } };
+      saveConn();
+      connect();
+    } catch (e) { loginFail("Échec de la connexion : " + e.message); }
+    return true;
+  }
+
+  // Jeton d'accès valide (rafraîchi automatiquement quand il expire)
+  let refreshing = null;
+  function getAccessToken(force) {
+    if (conn.token) return Promise.resolve(conn.token);
+    const o = conn.oauth;
+    if (!force && o.access && o.expires - Date.now() > 60000) return Promise.resolve(o.access);
+    if (!refreshing) refreshing = tokenRequest(conn.url, { grant_type: "refresh_token", refresh_token: o.refresh, client_id: o.clientId })
+      .then(t => {
+        o.access = t.access_token; o.expires = Date.now() + t.expires_in * 1000;
+        saveConn(); return o.access;
+      })
+      .finally(() => { refreshing = null; });
+    return refreshing;
+  }
+  // Garde la session « vivante » même si le WebSocket reste ouvert des semaines (tablette murale)
+  setInterval(() => { if (conn && conn.oauth && document.body.classList.contains("connected")) getAccessToken().catch(() => {}); }, 6 * 3600e3);
+
+  async function revokeOAuth(c) {
+    if (!c || !c.oauth || !c.oauth.refresh) return;
+    try {
+      await fetch(c.url + "/auth/revoke", { method: "POST", body: new URLSearchParams({ token: c.oauth.refresh }),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    } catch {}
+  }
+
+  let authRetried = false;
+  async function connect() {
     clearTimeout(reconnectTimer);
     manualClose = false;
     setStatus("Connexion…");
@@ -876,6 +983,14 @@
 
     if (location.protocol === "https:" && url.startsWith("ws:")) {
       return loginFail("Cette page est en https mais l'adresse de HA est en http : le navigateur bloque la connexion. Utilise une adresse en https:// (ou ouvre la page en http).");
+    }
+    let token;
+    try { token = await getAccessToken(); }
+    catch (e) {
+      if (e.fatal) { clearConn(); return loginFail("Session Home Assistant expirée ou révoquée : reconnecte-toi."); }
+      setStatus("Reconnexion…", "err");
+      if (document.body.classList.contains("connected")) { reconnectTimer = setTimeout(connect, 5000); return; }
+      return loginFail(e.message);
     }
     try { ws = new WebSocket(url); }
     catch (e) { return loginFail("Le navigateur refuse la connexion : " + e.message); }
@@ -889,12 +1004,16 @@
     ws.onmessage = async ev => {
       const msg = JSON.parse(ev.data);
       if (msg.type === "auth_required") {
-        ws.send(JSON.stringify({ type: "auth", access_token: conn.token }));
+        ws.send(JSON.stringify({ type: "auth", access_token: token }));
       } else if (msg.type === "auth_invalid") {
         clearTimeout(timeout); manualClose = true; ws.close();
-        loginFail("Jeton refusé par Home Assistant (" + (msg.message || "invalide") + "). Recopie-le en entier, sans « Bearer » devant.");
+        if (conn.oauth && !authRetried) { // jeton d'accès refusé : on force un rafraîchissement, une fois
+          authRetried = true; conn.oauth.expires = 0; return connect();
+        }
+        loginFail(conn.oauth ? "Session Home Assistant refusée : reconnecte-toi."
+          : "Jeton refusé par Home Assistant (" + (msg.message || "invalide") + "). Recopie-le en entier, sans « Bearer » devant.");
       } else if (msg.type === "auth_ok") {
-        authed = true; clearTimeout(timeout);
+        authed = true; authRetried = false; clearTimeout(timeout);
         setStatus("Connecté (HA " + msg.ha_version + ")", "ok");
         showDashboard();
         const [list] = await Promise.all([send({ type: "get_states" }), loadRegistries()]);
@@ -2468,17 +2587,23 @@
   $("loginForm").onsubmit = e => {
     e.preventDefault();
     $("loginError").textContent = "";
-    conn = { url: $("haUrl").value.trim().replace(/\/+$/, ""),
-             token: $("haToken").value.trim().replace(/^Bearer\s+/i, "") };
-    if ($("remember").checked) ls.set(K.conn, conn); else ls.del(K.conn);
-    connect();
+    let url = $("haUrl").value.trim().replace(/\/+$/, "");
+    if (url && !/^https?:\/\//i.test(url)) url = "http://" + url;
+    try { url = new URL(url).origin; } catch { return loginFail("Adresse invalide."); }
+    const remember = $("remember").checked;
+    if (e.submitter && e.submitter.id === "tokenBtn") {
+      const token = $("haToken").value.trim().replace(/^Bearer\s+/i, "");
+      if (!token) { $("haToken").focus(); return loginFail("Colle d'abord ton jeton d'accès longue durée."); }
+      conn = { url, token, remember }; saveConn(); connect();
+    } else startOAuth(url, remember);
   };
   $("logoutBtn").onclick = () => {
     document.body.classList.remove("connected");
     manualClose = true; clearTimeout(reconnectTimer);
     closeCam();
     if (ws) ws.close();
-    ls.del(K.conn); states = {};
+    revokeOAuth(conn); // invalide la session côté Home Assistant
+    clearConn(); conn = null; states = {};
     setStatus("Déconnecté");
     $("haToken").value = "";
     $("loginForm").classList.remove("hidden");
@@ -2559,10 +2684,11 @@
   // ---------- Démarrage ----------
   // Si la page est servie par Home Assistant (/local/), on pré-remplit l'adresse.
   $("haUrl").value = location.protocol.startsWith("http") ? location.origin : "http://homeassistant.local:8123";
-  const saved = ls.get(K.conn, null);
-  if (saved && saved.url && saved.token) {
-    conn = saved; $("haUrl").value = saved.url; connect();
-  }
+  finishOAuth().then(handled => {
+    if (handled) return;
+    const saved = loadConn();
+    if (saved) { conn = saved; $("haUrl").value = saved.url; connect(); }
+  });
 })();
 </script>
 </body>
