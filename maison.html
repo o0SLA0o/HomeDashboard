@@ -257,6 +257,14 @@
   .room-add circle { fill: rgba(var(--accent),.22); stroke: rgb(var(--accent)); stroke-width: 1.5; transition: fill .2s; }
   .room-add:hover circle { fill: rgba(var(--accent),.45); }
   .room-add text { font: 600 20px "Inter", system-ui, sans-serif; fill: #fff; pointer-events: none; }
+  .gridov { pointer-events: none; }
+  .rz-btn { cursor: pointer; }
+  .rz-btn circle { fill: rgba(10,18,32,.85); stroke: rgba(var(--accent),.6); stroke-width: 1.2; transition: fill .2s; }
+  .rz-btn:hover circle { fill: rgba(var(--accent),.35); }
+  .rz-btn text { font: 600 14px "Inter", system-ui, sans-serif; fill: #e6f6fb; pointer-events: none; }
+  .rz-pct { font: 600 10px "Inter", system-ui, sans-serif; fill: #a8dde6; pointer-events: none;
+            paint-order: stroke; stroke: rgba(8,12,20,.9); stroke-width: 3px; }
+  #gridBtn.active { border-color: rgba(var(--accent),.6); background: rgba(var(--accent),.18); }
   /* Fenêtre de choix des appareils */
   .picker-wrap { position: fixed; inset: 0; z-index: 11; display: grid; place-items: center; padding: 16px;
                  background: rgba(3,6,12,.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
@@ -586,7 +594,7 @@
     <div id="editBar" class="banner glass hidden">
       <div><strong>Mode édition</strong> · <span id="editInfo"></span>
         <div class="sub" id="editSub">Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.</div></div>
-      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><span class="lvl-tools" id="levelTools"></span><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
+      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><span class="lvl-tools" id="levelTools"></span><button type="button" id="gridBtn" class="hidden" title="Aimanter les icônes sur une grille">▦ Grille</button><button type="button" id="alignBtn" class="hidden" title="Replacer toutes les icônes de ce niveau sur la grille">⌗ Aligner</button><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
     </div>
     <div id="roomsNotice" class="banner glass hidden">
       <span>Impossible de lire les pièces depuis Home Assistant : affichage par type à la place.</span>
@@ -938,6 +946,10 @@
     document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === mode));
     $("viewName").textContent = { plan: "Plan", rooms: "Pièces", types: "Types" }[mode];
     $("regenPlan").classList.toggle("hidden", mode !== "plan");
+    $("gridBtn").classList.toggle("hidden", mode !== "plan");
+    $("gridBtn").classList.toggle("active", plan.grid);
+    $("gridBtn").textContent = plan.grid ? "▦ Grille : activée" : "▦ Grille : désactivée";
+    $("alignBtn").classList.toggle("hidden", mode !== "plan" || !plan.grid);
     $("bgPick").classList.toggle("hidden", mode !== "plan");
     $("bgRemove").classList.toggle("hidden", mode !== "plan" || !planBg);
     $("toolbar").classList.toggle("hidden", mode === "plan");
@@ -1170,6 +1182,8 @@
 
   // ---------- Plan de la maison ----------
   const PAD = 20, LABEL_H = 84, SNAP = 10, GAP = 0;
+  const GRID = 20;                                  // pas de la grille d'alignement des icônes
+  const ZMIN = 0.5, ZMAX = 2.5, ZSTEP = 0.1;        // taille des icônes par pièce
   const PLAN_KEY = "ha-dashboard-plan";
   let plan = ls.get(PLAN_KEY, null) || { rooms: {}, markers: {} };
   const savePlan = () => ls.set(PLAN_KEY, plan);
@@ -1180,6 +1194,10 @@
     delete plan.hidden; plan.v = 2; savePlan();
   }
   const onPlan = id => !!plan.markers[id];
+  if (!plan.iconScale || typeof plan.iconScale !== "object") plan.iconScale = {};
+  if (typeof plan.grid !== "boolean") plan.grid = true;
+  const iconScale = a => plan.iconScale[a] || 1;
+  const gridOn = () => editing && plan.grid;
   function removeFromPlan(id) { delete plan.markers[id]; savePlan(); }
   const MARK_DOMAINS = new Set(["light", "switch", "fan", "cover", "climate", "media_player", "lock", "camera", "binary_sensor"]);
   const BIN_ALERT = new Set(["door", "window", "opening", "garage_door"]);
@@ -1504,9 +1522,17 @@
       clip.append(clipRect); defs.append(clip);
       const floor = svgEl("rect", { class: "floor", rx: 3, "data-drag": "room" });
       const dots = svgEl("rect", { class: "dots", rx: 3, fill: "url(#dots)" });
+      const gpat = svgEl("pattern", { id: "grid-" + i, width: GRID, height: GRID, patternUnits: "userSpaceOnUse" });
+      gpat.innerHTML = `<path d="M${GRID} 0 L0 0 0 ${GRID}" fill="none" style="stroke: rgba(var(--accent),.16)" stroke-width="1"/>`;
+      const gpatBig = svgEl("pattern", { id: "gridb-" + i, width: GRID * 5, height: GRID * 5, patternUnits: "userSpaceOnUse" });
+      gpatBig.innerHTML = `<path d="M${GRID * 5} 0 L0 0 0 ${GRID * 5}" fill="none" style="stroke: rgba(var(--accent),.32)" stroke-width="1"/>`;
+      defs.append(gpat, gpatBig);
+      const grid = svgEl("rect", { class: "gridov", fill: `url(#grid-${i})` });
+      const gridBig = svgEl("rect", { class: "gridov", fill: `url(#gridb-${i})` });
       const tint = svgEl("rect", { class: "tint", rx: 3 });
       const glowG = svgEl("g", { class: "glows", "clip-path": `url(#clip-${i})` });
       g.append(floor, dots, tint, glowG);
+      if (gridOn()) g.append(grid, gridBig);
       floorsLayer.append(g);
       // murs épais sombres + liseré lumineux
       const gw = svgEl("g", { class: "room-w", "data-area": a });
@@ -1522,9 +1548,13 @@
       const add = svgEl("g", { class: "room-add", "data-area": a, role: "button" });
       add.innerHTML = `<circle r="15"/><text y="6" text-anchor="middle">+</text><title>Ajouter des appareils</title>`;
       labelsLayer.append(lab, handle);
-      if (editing) labelsLayer.append(add);
+      const zoom = svgEl("g", { class: "room-zoom", "data-area": a });
+      zoom.innerHTML = `<g class="rz-btn" data-z="1" role="button"><circle cy="0" r="12"/><text y="5" text-anchor="middle">＋</text><title>Agrandir les icônes</title></g>
+        <text class="rz-pct" y="27" text-anchor="middle"></text>
+        <g class="rz-btn" data-z="-1" role="button" transform="translate(0 50)"><circle r="12"/><text y="5" text-anchor="middle">−</text><title>Réduire les icônes</title></g>`;
+      if (editing) labelsLayer.append(add, zoom);
       const info = lab.querySelector(".rinfo");
-      planEls.rooms[a] = { g, gw, clipRect, floor, dots, tint, walls, wallsHi, lab, info, handle, add };
+      planEls.rooms[a] = { g, gw, clipRect, floor, dots, tint, walls, wallsHi, lab, info, handle, add, zoom, grid, gridBig, gpat, gpatBig };
 
       const ents = planEntities(a);
       ents.forEach((s, j) => {
@@ -1591,10 +1621,18 @@
       const bx = r.x + r.w - 8, by = r.y + r.h - 8;
       e.handle.setAttribute("d", `M${bx} ${by - 18} L${bx} ${by} L${bx - 18} ${by} Z`);
       e.add.setAttribute("transform", `translate(${r.x + r.w - 26} ${r.y + 26})`);
+      e.zoom.setAttribute("transform", `translate(${r.x + r.w - 26} ${r.y + 62})`);
+      e.zoom.querySelector(".rz-pct").textContent = Math.round(iconScale(a) * 100) + "%";
+      // grille calée sur le coin de la pièce
+      [e.gpat, e.gpatBig].forEach(pt => { pt.setAttribute("x", r.x); pt.setAttribute("y", r.y); });
+      [e.grid, e.gridBig].forEach(x => {
+        x.setAttribute("x", r.x); x.setAttribute("y", r.y); x.setAttribute("width", r.w); x.setAttribute("height", r.h);
+      });
     }
     for (const id in planEls.markers) {
       const { g, area } = planEls.markers[id], p = markerXY(id, area);
-      g.setAttribute("transform", `translate(${p.x} ${p.y})`);
+      const k = iconScale(area);
+      g.setAttribute("transform", `translate(${p.x} ${p.y})` + (k !== 1 ? ` scale(${k})` : ""));
       const gl = planEls.glows[id];
       if (gl) { gl.c.setAttribute("cx", p.x); gl.c.setAttribute("cy", p.y); }
     }
@@ -1691,6 +1729,14 @@
       }
       const add = e.target.closest(".room-add");
       if (add) { e.preventDefault(); e.stopPropagation(); openPicker(add.dataset.area); return; }
+      const zb = e.target.closest(".rz-btn");
+      if (zb) {
+        e.preventDefault(); e.stopPropagation();
+        const a = zb.closest(".room-zoom").dataset.area;
+        const k = Math.round(clamp(iconScale(a) + ZSTEP * +zb.dataset.z, ZMIN, ZMAX) * 10) / 10;
+        if (k === 1) delete plan.iconScale[a]; else plan.iconScale[a] = k;
+        savePlan(); applyGeometry(); return;
+      }
       const t = e.target.closest("[data-drag]"); if (!t) return;
       e.preventDefault();
       const kind = t.dataset.drag;
@@ -1704,7 +1750,12 @@
       const p = svgPoint(svg, e);
       if (drag.kind === "marker") {
         const r = plan.rooms[drag.area];
-        plan.markers[drag.id] = { fx: clamp((p.x - r.x) / r.w, .07, .93), fy: clamp((p.y - r.y) / r.h, .1, .93) };
+        let x = p.x, y = p.y;
+        if (plan.grid) { // aimantation sur les intersections de la grille de la pièce
+          x = r.x + Math.round((x - r.x) / GRID) * GRID;
+          y = r.y + Math.round((y - r.y) / GRID) * GRID;
+        }
+        plan.markers[drag.id] = { fx: clamp((x - r.x) / r.w, .04, .96), fy: clamp((y - r.y) / r.h, .06, .96) };
       } else {
         const dx = p.x - drag.p0.x, dy = p.y - drag.p0.y, r0 = drag.r0;
         plan.rooms[drag.area] = drag.kind === "room"
@@ -2219,6 +2270,17 @@
   };
   $("drawerClose").onclick = closeRoom;
   $("pickerCancel").onclick = closePicker;
+  $("gridBtn").onclick = () => { plan.grid = !plan.grid; savePlan(); render(); };
+  // Replace les icônes du niveau affiché sur l'intersection de grille la plus proche
+  $("alignBtn").onclick = () => {
+    if (!planEls) return;
+    for (const id in planEls.markers) {
+      const a = planEls.markers[id].area, r = plan.rooms[a], m = plan.markers[id];
+      const x = r.x + Math.round(m.fx * r.w / GRID) * GRID, y = r.y + Math.round(m.fy * r.h / GRID) * GRID;
+      plan.markers[id] = { fx: clamp((x - r.x) / r.w, .04, .96), fy: clamp((y - r.y) / r.h, .06, .96) };
+    }
+    savePlan(); applyGeometry();
+  };
   $("picker").onclick = e => { if (e.target.id === "picker") closePicker(); };
   document.addEventListener("keydown", e => { if (e.key === "Escape") closePicker(); });
   $("bgInput").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) setPlanBg(f); };
