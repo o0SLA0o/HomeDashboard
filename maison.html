@@ -1,0 +1,2060 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma Maison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06070c;
+    --ink: #eef1f8; --muted: #8a92a8; --faint: #5d6478;
+    --glass: rgba(255,255,255,.055); --glass-strong: rgba(255,255,255,.09);
+    --stroke: rgba(255,255,255,.09); --stroke-hi: rgba(255,255,255,.28);
+    --accent: 124,156,255; --ok: #3ddc97; --err: #ff5d6c;
+    --r: 22px; --blur: 24px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0; min-height: 100vh; color: var(--ink); overflow-x: hidden;
+    font: 15px/1.45 "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(1100px 760px at 8% -12%, #1d2558 0%, transparent 60%),
+      radial-gradient(900px 700px at 108% 8%, #3b1749 0%, transparent 55%),
+      radial-gradient(1000px 900px at 50% 125%, #0b3b42 0%, transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  /* Bulles de couleur floues derrière le verre */
+  body::before, body::after {
+    content: ""; position: fixed; z-index: -1; border-radius: 50%; filter: blur(90px); opacity: .45;
+    pointer-events: none; animation: float 22s ease-in-out infinite alternate;
+  }
+  body::before { width: 420px; height: 420px; background: #4f5bff; top: 18%; left: -120px; }
+  body::after  { width: 380px; height: 380px; background: #ff4fa3; bottom: 6%; right: -100px; animation-delay: -11s; }
+  @keyframes float { from { transform: translate(0,0) scale(1); } to { transform: translate(120px,-80px) scale(1.15); } }
+  @media (prefers-reduced-motion: reduce) { body::before, body::after { animation: none; } * { transition: none !important; } }
+
+  /* Verre liquide commun */
+  .glass {
+    position: relative; isolation: isolate;
+    background: linear-gradient(160deg, rgba(255,255,255,.085), rgba(255,255,255,.03));
+    backdrop-filter: blur(var(--blur)) saturate(170%); -webkit-backdrop-filter: blur(var(--blur)) saturate(170%);
+    border: 1px solid var(--stroke); border-radius: var(--r);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), inset 0 -1px 0 rgba(255,255,255,.03), 0 10px 30px rgba(0,0,0,.35);
+  }
+  /* Reflet en bordure (liseré lumineux en dégradé) */
+  .glass::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: -1;
+    background: linear-gradient(135deg, rgba(255,255,255,.35), rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,.12));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background: rgba(22,25,36,.92); }
+  }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 26px 16px 10px; max-width: 1200px; margin: 0 auto;
+  }
+  h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.03em;
+       background: linear-gradient(90deg, #fff, #b9c4ff 60%, #ffb3dc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .status { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted);
+            padding: 6px 6px 6px 14px; border-radius: 999px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  .dot.err { background: var(--err); box-shadow: 0 0 10px var(--err); }
+  main { max-width: 1200px; margin: 0 auto; padding: 8px 16px 60px; }
+
+  input, select, button { font: inherit; color: inherit; }
+  input[type=text], input[type=password], input[type=search], select {
+    background: rgba(255,255,255,.06); border: 1px solid var(--stroke); border-radius: 14px;
+    padding: 11px 14px; min-width: 0; outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+  input:focus, select:focus { border-color: rgba(var(--accent),.7); box-shadow: 0 0 0 4px rgba(var(--accent),.18); background: rgba(255,255,255,.09); }
+  select option { background: #151826; }
+  button {
+    background: rgba(255,255,255,.07); border: 1px solid var(--stroke); border-radius: 12px; padding: 9px 14px;
+    cursor: pointer; transition: background .2s, border-color .2s, transform .1s, box-shadow .2s;
+  }
+  button:hover { background: rgba(255,255,255,.13); border-color: var(--stroke-hi); }
+  button:active { transform: scale(.97); }
+  button.primary { background: linear-gradient(135deg, #6f86ff, #b46bff); border-color: transparent; color: #fff; font-weight: 600;
+                   box-shadow: 0 6px 24px rgba(124,120,255,.45); }
+  button.primary:hover { box-shadow: 0 8px 32px rgba(124,120,255,.65); }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0 22px; padding: 10px; border-radius: 18px; }
+  .toolbar input[type=search] { flex: 1 1 220px; }
+
+  /* Sections repliables */
+  .sec { margin-bottom: 14px; }
+  .sec-head {
+    width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+    padding: 12px 16px; border-radius: 16px; background: rgba(255,255,255,.035); border: 1px solid transparent;
+  }
+  .sec-head:hover { background: rgba(255,255,255,.07); border-color: var(--stroke); }
+  .sec-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: #c9cfdf; }
+  .chev { width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+          transform: rotate(45deg) translate(-2px,-2px); transition: transform .3s ease; flex: none; }
+  .sec.collapsed .chev { transform: rotate(-45deg); }
+  .pill { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); }
+  .pill.on-count { background: rgba(var(--accent),.18); color: #cfd8ff; box-shadow: 0 0 14px rgba(var(--accent),.35); margin-left: auto; }
+  .sec-body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .38s cubic-bezier(.2,.8,.2,1), opacity .3s; }
+  .sec.collapsed .sec-body { grid-template-rows: 0fr; opacity: 0; }
+  .sec-inner { min-height: 0; overflow: visible; }
+  /* Le contenu n'est rogné que pendant l'animation ou une fois replié, pour ne pas couper le halo */
+  .sec.collapsed .sec-inner, .sec.anim .sec-inner { overflow: hidden; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; padding: 14px 0 22px; }
+  .grid.cams { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+  /* Cartes */
+  .card {
+    --glow: var(--accent);
+    padding: 16px; display: flex; flex-direction: column; gap: 12px;
+    transition: transform .25s ease, box-shadow .35s ease, border-color .35s ease, background .35s ease;
+  }
+  .card:hover { transform: translateY(-3px); }
+  .card[data-domain=light] { --glow: 255,186,82; }
+  .card[data-domain=switch], .card[data-domain=input_boolean] { --glow: 56,224,200; }
+  .card[data-domain=fan] { --glow: 110,200,255; }
+  .card[data-domain=cover] { --glow: 165,140,255; }
+  .card[data-domain=climate] { --glow: 255,128,82; }
+  .card[data-domain=climate][data-state=cool] { --glow: 90,170,255; }
+  .card[data-domain=media_player] { --glow: 236,110,255; }
+  .card[data-domain=lock] { --glow: 255,93,108; }
+  .card[data-domain=binary_sensor] { --glow: 255,210,90; }
+  .card.on {
+    background: linear-gradient(160deg, rgba(var(--glow),.26), rgba(var(--glow),.06) 70%);
+    border-color: rgba(var(--glow),.55);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 30px rgba(var(--glow),.12),
+                0 0 0 1px rgba(var(--glow),.18), 0 10px 34px rgba(var(--glow),.28), 0 0 70px rgba(var(--glow),.2);
+  }
+  .card.on .name { text-shadow: 0 0 18px rgba(var(--glow),.6); }
+  .card.on .icon { background: rgba(var(--glow),.28); color: rgb(var(--glow)); box-shadow: 0 0 18px rgba(var(--glow),.55); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .ident { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .icon { width: 38px; height: 38px; border-radius: 12px; flex: none; display: grid; place-items: center; font-size: 18px;
+          background: rgba(255,255,255,.07); color: var(--muted); transition: all .35s ease; }
+  .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: text-shadow .35s; }
+  .sub { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .value { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+
+  /* Interrupteur */
+  .switch { position: relative; width: 50px; height: 28px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; background: rgba(255,255,255,.1); border: 1px solid var(--stroke);
+                 border-radius: 28px; cursor: pointer; transition: .3s; }
+  .switch span::before { content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
+                         background: #e8ebf3; border-radius: 50%; transition: .3s cubic-bezier(.3,1.4,.5,1); box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+  .switch input:checked + span { background: rgba(var(--glow),.85); border-color: rgba(var(--glow),1); box-shadow: 0 0 16px rgba(var(--glow),.7); }
+  .switch input:checked + span::before { transform: translateX(22px); background: #fff; }
+
+  input[type=range] { width: 100%; accent-color: rgb(var(--glow)); }
+  .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btns button { padding: 7px 11px; font-size: 13px; border-radius: 10px; }
+
+  /* Connexion */
+  .login { max-width: 460px; margin: 50px auto; padding: 26px; display: flex; flex-direction: column; gap: 14px; }
+  .login strong { font-size: 18px; }
+  .login label { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+  .hint { font-size: 12px; color: var(--muted); }
+  .error { color: var(--err); font-size: 13px; min-height: 1em; }
+  .hidden { display: none !important; }
+  .empty { color: var(--muted); text-align: center; padding: 30px; }
+
+  /* Caméras */
+  .cam-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px;
+             background: #000; cursor: zoom-in; display: block; }
+  .cam-wrap { position: relative; }
+  .live { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,.45); color: #fff;
+          backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+          font-size: 11px; padding: 4px 10px; border-radius: 20px; letter-spacing: .04em; border: 1px solid rgba(255,255,255,.15); }
+  .modal { position: fixed; inset: 0; background: rgba(4,5,10,.7); z-index: 10;
+           backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+           display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; gap: 12px; }
+  .modal img { max-width: 100%; max-height: calc(100vh - 100px); border-radius: 16px; background: #000;
+               box-shadow: 0 20px 80px rgba(0,0,0,.6); }
+  .modal .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+                width: 100%; max-width: 1200px; padding: 8px 8px 8px 16px; border-radius: 16px; }
+
+  /* Bascule Pièces / Types */
+  .seg { display: inline-flex; background: rgba(255,255,255,.05); border: 1px solid var(--stroke); border-radius: 14px; padding: 3px; }
+  .seg button { border: 0; background: transparent; padding: 8px 14px; border-radius: 11px; color: var(--muted); }
+  .seg button.active { background: rgba(255,255,255,.14); color: var(--ink); box-shadow: inset 0 1px 0 rgba(255,255,255,.2); }
+  #editBtn.active { background: rgba(var(--accent),.25); border-color: rgba(var(--accent),.6); box-shadow: 0 0 18px rgba(var(--accent),.35); }
+  .banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+            margin: -8px 0 20px; padding: 12px 14px 12px 18px; border-radius: 18px; font-size: 14px; }
+  .banner .sub { white-space: normal; margin-top: 2px; }
+  #editBar { border-color: rgba(var(--accent),.45); box-shadow: 0 0 30px rgba(var(--accent),.15); }
+
+  /* Panneau d'appareil (plusieurs entités) */
+  .device { grid-column: 1 / -1; border-radius: 20px; padding: 12px 14px 0;
+            background: linear-gradient(160deg, rgba(255,255,255,.035), rgba(255,255,255,.01));
+            border: 1px solid rgba(255,255,255,.06); }
+  .device-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 4px; }
+  .device-name { font-weight: 600; font-size: 14px; color: #d7dcea; }
+  .device .grid { padding: 12px 0 14px; }
+  @media (min-width: 720px) { .grid:not(.cams) > .card[data-domain=camera] { grid-column: span 2; } }
+
+  /* Masquage */
+  .eye-btn { align-self: flex-start; font-size: 12px; padding: 5px 10px; border-radius: 9px; }
+  .card.masked, .device.masked { opacity: .38; filter: saturate(.3); border-style: dashed; }
+  .card.masked:hover, .device.masked:hover { opacity: .75; }
+  .device.masked .card.masked { opacity: 1; filter: none; }
+  body.editing .card:not(.masked) { border-color: rgba(255,255,255,.16); }
+
+  /* Plan de la maison */
+  .plan-wrap { padding: 14px; border-radius: 28px; margin-bottom: 18px; }
+  .plan { width: 100%; height: auto; display: block; max-height: 80vh; user-select: none; -webkit-user-select: none; }
+  body.editing .plan { touch-action: none; }
+  .room .floor { fill: rgba(255,255,255,.035); cursor: pointer; transition: fill .4s; }
+  .room .floor:hover { fill: rgba(255,255,255,.065); }
+  .room .dots, .room .tint, .room .walls, .room .glows, .rname, .rinfo { pointer-events: none; }
+  .room .tint { transition: fill 1.2s ease; }
+  .room .walls { fill: none; stroke: rgba(255,255,255,.15); stroke-width: 2; transition: stroke .5s; }
+  .room.lit .walls { stroke: rgba(255,205,130,.42); }
+  .room.alert .walls { stroke: #ff5d6c; stroke-width: 3; animation: wallPulse 1.3s ease-in-out infinite; }
+  @keyframes wallPulse { 50% { stroke-opacity: .2; } }
+  .glow { transition: opacity .9s ease; mix-blend-mode: screen; }
+  .rname { fill: #cfd5e4; font: 600 13px "Inter", system-ui, sans-serif; letter-spacing: .12em; }
+  .rinfo { fill: var(--muted); font: 500 13px "Inter", system-ui, sans-serif; }
+  .handle { display: none; fill: rgba(var(--accent),.85); cursor: nwse-resize; }
+  body.editing .handle { display: inline; }
+  body.editing .room .floor { cursor: move; stroke: rgba(var(--accent),.55); stroke-dasharray: 6 6; stroke-width: 1.5; }
+  .mk { cursor: pointer; --glow: 160,170,200; }
+  .mk[data-domain=light] { --glow: 255,186,82; }
+  .mk[data-domain=switch] { --glow: 56,224,200; }
+  .mk[data-domain=fan] { --glow: 110,200,255; }
+  .mk[data-domain=cover] { --glow: 165,140,255; }
+  .mk[data-domain=climate] { --glow: 255,128,82; }
+  .mk[data-domain=media_player] { --glow: 236,110,255; }
+  .mk[data-domain=lock] { --glow: 255,93,108; }
+  .mk[data-domain=binary_sensor] { --glow: 255,210,90; }
+  .mk.alert { --glow: 255,93,108; }
+  .mk-bg { fill: rgba(16,18,28,.78); stroke: rgba(255,255,255,.2); stroke-width: 1.5; transition: fill .4s, stroke .4s, filter .4s; }
+  .mk:hover .mk-bg { stroke: rgba(255,255,255,.55); }
+  .mk.on .mk-bg { fill: rgba(var(--glow),.38); stroke: rgb(var(--glow));
+                  filter: drop-shadow(0 0 6px rgb(var(--glow))) drop-shadow(0 0 16px rgba(var(--glow),.6)); }
+  .mk-ic { font-size: 16px; pointer-events: none; }
+  .mk.unavail { opacity: .35; }
+  .mk.dim { opacity: .18; }
+  .mk-ripple { fill: none; stroke: rgb(var(--glow)); stroke-width: 2; opacity: 0; pointer-events: none;
+               transform-box: fill-box; transform-origin: center; }
+  .mk.motion .mk-ripple, .mk.alert .mk-ripple { animation: ripple 1.7s ease-out infinite; }
+  @keyframes ripple { from { transform: scale(1); opacity: .85; } to { transform: scale(3); opacity: 0; } }
+  body.editing .mk { cursor: grab; }
+  .plan.dragging, .plan.dragging * { cursor: grabbing !important; }
+  .mk-label { font: 500 11px "Inter", system-ui, sans-serif; fill: #d5dae7; pointer-events: none;
+              paint-order: stroke; stroke: rgba(8,9,15,.85); stroke-width: 3px; stroke-linejoin: round; }
+  .mk.on .mk-label { fill: #fff; }
+  .mk.masked { opacity: .35; }
+  .mk-cover { pointer-events: none; opacity: 0; transition: opacity .6s ease, filter .6s; }
+  .mk.has-cover .mk-cover { opacity: 1; }
+  .mk.has-cover .mk-ic { opacity: 0; }
+  .mk.has-cover .mk-bg { stroke-width: 2.5; }
+  .mk.paused .mk-cover { opacity: .55; filter: grayscale(.5); }
+  .mk-title { font: 500 10px "Inter", system-ui, sans-serif; fill: #f0c9ff; pointer-events: none;
+              paint-order: stroke; stroke: rgba(8,9,15,.85); stroke-width: 3px; stroke-linejoin: round; }
+  .mk.paused .mk-title { fill: var(--muted); }
+  .mk.masked .mk-bg { stroke-dasharray: 4 3; }
+  .mk-x { cursor: pointer; }
+  .mk-x circle { fill: #ff5d6c; stroke: rgba(8,9,15,.9); stroke-width: 2; }
+  .mk.masked .mk-x circle { fill: #3ddc97; }
+  .mk-x text { font: 700 13px "Inter", system-ui, sans-serif; fill: #fff; pointer-events: none; }
+  .mk.masked .mk-x { opacity: 1; }
+  /* Personnes : avatars discrets centrés */
+  .people { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 2px 4px 12px; }
+  .person { position: relative; flex: none; cursor: default; }
+  .pav { position: relative; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+         background: linear-gradient(135deg, #3a4580, #6b3a7a); font-weight: 600; font-size: 11px;
+         box-shadow: 0 0 0 2px rgba(255,255,255,.12); transition: filter .5s, opacity .5s, box-shadow .5s; }
+  .pav img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .person.home .pav { box-shadow: 0 0 0 2px rgba(61,220,151,.85), 0 0 14px rgba(61,220,151,.45); }
+  .person:not(.home) .pav { filter: grayscale(.9); opacity: .5; }
+  .pdot { position: absolute; right: -2px; bottom: -2px; width: 10px; height: 10px; border-radius: 50%;
+          background: var(--faint); border: 2px solid #10121b; }
+  .person.home .pdot { background: var(--ok); }
+  .person.unknown .pdot { background: #c9a24a; }
+  .person.masked { opacity: .35; }
+  .px { position: absolute; top: -7px; right: -7px; width: 17px; height: 17px; padding: 0; border-radius: 50%;
+        display: grid; place-items: center; font-size: 12px; font-weight: 700; line-height: 1;
+        background: #ff5d6c; border: 2px solid #10121b; color: #fff; }
+  .person.masked .px { background: #3ddc97; opacity: 1; }
+  .people-sum { font-size: 12px; color: var(--muted); margin-left: 6px; }
+  .plan-legend { font-size: 12px; color: var(--muted); text-align: center; padding: 10px 0 2px; }
+
+  /* Tiroir d'une pièce */
+  .drawer { position: fixed; top: 12px; right: 12px; bottom: 12px; width: min(460px, calc(100vw - 24px)); z-index: 9;
+            padding: 18px; overflow-y: auto; background: rgba(14,16,26,.72);
+            transform: translateX(calc(100% + 40px)); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .drawer.open { transform: none; }
+  .drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .drawer-head strong { font-size: 22px; letter-spacing: -.02em; }
+  .drawer .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+  @media (max-width: 600px) {
+    .drawer { top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 78vh;
+              transform: translateY(calc(100% + 30px)); }
+  }
+
+  /* ===================== Thème bleu nuit ===================== */
+  :root { --bg: #050a13; --accent: 63,208,224; --muted: #8796ab; --faint: #55627a;
+          --stroke: rgba(140,190,255,.12); --stroke-hi: rgba(140,200,255,.32); }
+  body {
+    background:
+      radial-gradient(1200px 800px at 0% -10%, #10264a 0%, transparent 60%),
+      radial-gradient(1000px 700px at 100% 0%, #0b2a3d 0%, transparent 55%),
+      radial-gradient(1100px 900px at 50% 120%, #07262a 0%, transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  body::before { background: #1d4f91; opacity: .35; }
+  body::after { background: #127a8a; opacity: .3; }
+  .glass { background: linear-gradient(160deg, rgba(120,170,235,.085), rgba(120,170,235,.025));
+           border-color: var(--stroke); }
+  button.primary { background: linear-gradient(135deg, #2fc4d6, #3a7bff); box-shadow: 0 6px 24px rgba(47,170,220,.4); }
+  button.primary:hover { box-shadow: 0 8px 32px rgba(47,170,220,.6); }
+  main { max-width: 1560px; }
+  body:not(.connected) .needs-conn { display: none !important; }
+
+  /* Barre du haut */
+  .topbar { display: flex; align-items: center; gap: 18px; max-width: 1560px; margin: 14px auto 18px;
+            padding: 8px 10px 8px 20px; border-radius: 22px; flex-wrap: nowrap; }
+  .brand { display: flex; align-items: center; gap: 12px; font-size: 21px; font-weight: 600; white-space: nowrap; }
+  .brand-ic { font-size: 26px; color: rgb(var(--accent)); text-shadow: 0 0 14px rgba(var(--accent),.6); line-height: 1; }
+  .tabs { display: flex; gap: 6px; margin: 0 auto; }
+  .tabs button { background: transparent; border: 1px solid transparent; padding: 10px 20px; border-radius: 14px;
+                 color: var(--muted); font-weight: 500; display: flex; gap: 8px; align-items: center; }
+  .tabs button span { opacity: .8; }
+  .tabs button:hover { color: var(--ink); background: rgba(255,255,255,.05); }
+  .tabs button.active { color: #fff; background: linear-gradient(180deg, rgba(var(--accent),.24), rgba(var(--accent),.07));
+                        border-color: rgba(var(--accent),.55); box-shadow: 0 0 24px rgba(var(--accent),.25), inset 0 1px 0 rgba(255,255,255,.15); }
+  .top-right { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+  .tabs + .top-right { margin-left: 0; }
+  .clock { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; }
+  .clock b { font-size: 22px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .clock span { font-size: 12px; color: var(--muted); }
+  .weather { display: flex; align-items: center; gap: 8px; padding-left: 16px; border-left: 1px solid var(--stroke); line-height: 1.15; }
+  .weather:empty { display: none; }
+  .w-ic { font-size: 26px; }
+  .weather b { display: block; font-size: 16px; font-weight: 600; }
+  .weather small { font-size: 11px; color: var(--muted); }
+  .topbar .status { padding: 0; background: none; border: 0; box-shadow: none; font-size: 12px; }
+  body.connected .topbar #statusText { display: none; }
+  .icon-btn { width: 42px; height: 42px; border-radius: 50%; padding: 0; display: grid; place-items: center; font-size: 17px; }
+  #editBtn.active { background: rgba(var(--accent),.25); border-color: rgba(var(--accent),.6); box-shadow: 0 0 18px rgba(var(--accent),.35); }
+  .btnlike { display: inline-flex; align-items: center; background: rgba(255,255,255,.07); border: 1px solid var(--stroke);
+             border-radius: 10px; padding: 7px 11px; font-size: 13px; cursor: pointer; }
+  .btnlike:hover { background: rgba(255,255,255,.13); }
+
+  /* Mise en page à trois colonnes (vue Plan) */
+  .layout.with-sides { display: grid; grid-template-columns: 300px minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+  .layout:not(.with-sides) .side { display: none; }
+  .side { display: flex; flex-direction: column; gap: 14px; }
+  .panel { padding: 18px; border-radius: 20px; }
+  .panel h3 { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
+  .occ { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; }
+  .occ-ic { font-size: 34px; filter: grayscale(.7); opacity: .6; transition: .5s; }
+  .occ-ic.on { filter: drop-shadow(0 0 10px rgba(61,220,151,.8)); opacity: 1; }
+  .occ-title { font-size: 18px; font-weight: 600; }
+  .occ-sub { color: var(--muted); font-size: 13px; }
+  .occ-people { grid-column: 1 / -1; }
+  .occ .people { justify-content: flex-start; padding: 10px 0 0; }
+  .occ .people-sum { display: none; }
+  .scenes { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
+  .scene { display: flex; align-items: center; gap: 12px; text-align: left; padding: 11px 14px; border-radius: 14px;
+           background: rgba(110,130,255,.09); border: 1px solid rgba(140,160,255,.14); }
+  .scene:hover { background: rgba(110,130,255,.18); border-color: rgba(160,175,255,.4); }
+  .scene.fired { background: rgba(var(--accent),.25); border-color: rgb(var(--accent)); box-shadow: 0 0 20px rgba(var(--accent),.45); }
+  .sc-ic { font-size: 18px; width: 22px; text-align: center; }
+  .hrow, .qrow { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-top: 1px solid rgba(255,255,255,.06); }
+  .hrow:first-child, .qrow:first-child { border-top: 0; padding-top: 2px; }
+  .h-ic, .q-ic { font-size: 20px; width: 28px; text-align: center; flex: none; }
+  .h-txt { display: flex; flex-direction: column; flex: 1; min-width: 0; line-height: 1.3; }
+  .h-txt b { font-weight: 600; font-size: 14px; }
+  .h-txt span { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .h-st { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex: none; }
+  .h-st.ok { color: var(--ok); border: 1.5px solid var(--ok); box-shadow: 0 0 10px rgba(61,220,151,.35); }
+  .h-st.warn { color: #fff; background: var(--err); box-shadow: 0 0 14px rgba(255,93,108,.7); animation: wallPulse 1.4s infinite; }
+  .stat-head { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; margin-bottom: 10px; }
+  .stat-ic { font-size: 22px; }
+  .stat-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+  .big { font-size: 36px; font-weight: 700; letter-spacing: -.03em; line-height: 1.05; }
+  .big small { font-size: 16px; font-weight: 500; color: #c5d3e6; }
+  .spark { width: 130px; height: 46px; flex: none; }
+  .bars { width: 96px; height: 46px; flex: none; }
+  .qrow .switch input:checked + span { background: rgba(var(--glow),.85); border-color: rgb(var(--glow)); box-shadow: 0 0 16px rgba(var(--glow),.7); }
+
+  /* Plan façon architecte */
+  .plan-wrap { padding: 6px; border-radius: 26px; margin-bottom: 18px;
+               background: radial-gradient(ellipse at 50% 50%, rgba(30,70,60,.28), transparent 72%), rgba(4,9,16,.35); }
+  .plan { max-height: calc(100vh - 150px); }
+  .rooms-layer { filter: drop-shadow(0 0 22px rgba(var(--accent),.14)) drop-shadow(0 14px 30px rgba(0,0,0,.65)); }
+  .room .floor { fill: #1a1f2b; }
+  .room .floor:hover { fill: #222838; }
+  .room-w .walls { fill: none; stroke: #0a111c; stroke-width: 9; animation: none; }
+  .room-w .walls-hi { fill: none; stroke: rgba(130,185,235,.22); stroke-width: 1.2; pointer-events: none; transition: stroke .5s; }
+  .room-w { pointer-events: none; }
+  .room-w.lit .walls-hi { stroke: rgba(255,205,130,.38); }
+  .room-w.alert .walls-hi { stroke: #ff5d6c; stroke-width: 3; animation: wallPulse 1.3s ease-in-out infinite; }
+  .room.alert .walls, .room.lit .walls { stroke: #0a111c; }
+  .rlabel { pointer-events: none; }
+  .rl-bg { fill: rgba(10,16,28,.6); stroke: rgba(140,190,255,.14); }
+  .rl-name { fill: #eef3fb; font: 600 15px "Inter", system-ui, sans-serif; }
+  .rlabel .rinfo { fill: #a6b4c8; font: 500 12px "Inter", system-ui, sans-serif; }
+  body.editing .room .floor { stroke: rgba(var(--accent),.6); }
+  .handle { fill: rgba(var(--accent),.9); }
+  /* Avec une image de fond : les pièces deviennent des zones transparentes */
+  .plan-bg { pointer-events: none; }
+  .has-bg .rooms-layer { filter: none; }
+  .has-bg .room .floor { fill: rgba(0,0,0,0); }
+  .has-bg .room .floor:hover { fill: rgba(255,255,255,.05); }
+  .has-bg .room .dots { display: none; }
+  .has-bg .room-w .walls { stroke: transparent; }
+  .has-bg .room-w .walls-hi { stroke: transparent; }
+  .has-bg .room-w.alert .walls-hi { stroke: #ff5d6c; }
+  body.editing .has-bg .room-w .walls-hi { stroke: rgba(var(--accent),.7); stroke-width: 2; }
+  .has-bg .glow { mix-blend-mode: screen; }
+
+  @media (max-width: 1250px) {
+    .layout.with-sides { grid-template-columns: 1fr 1fr; }
+    .layout.with-sides #groups { grid-column: 1 / -1; order: -1; }
+  }
+  @media (max-width: 860px) {
+    .topbar { flex-wrap: wrap; padding: 10px 12px; gap: 10px; }
+    .tabs { order: 3; width: 100%; justify-content: center; margin: 0; }
+    .tabs button { padding: 8px 12px; }
+    .weather { padding-left: 10px; }
+  }
+  @media (max-width: 640px) {
+    .layout.with-sides { grid-template-columns: 1fr; }
+    .clock { display: none; }
+  }
+
+  /* Niveaux */
+  .levels { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 8px 8px 12px; }
+  .lvl-tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 16px; background: rgba(8,14,24,.55); border: 1px solid var(--stroke); }
+  .lvl { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 12px; background: transparent;
+         border: 1px solid transparent; color: var(--muted); font-weight: 500; }
+  .lvl:hover { color: var(--ink); background: rgba(255,255,255,.05); }
+  .lvl.active { color: #fff; background: linear-gradient(180deg, rgba(var(--accent),.22), rgba(var(--accent),.06));
+                border-color: rgba(var(--accent),.5); box-shadow: 0 0 18px rgba(var(--accent),.22); }
+  .lvl-badges { display: inline-flex; align-items: center; gap: 5px; }
+  .lvl-badges:empty { display: none; }
+  .lb-light { font-style: normal; font-size: 11px; color: #ffd08a; text-shadow: 0 0 8px rgba(255,186,82,.7); }
+  .lb-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .lb-motion { background: #ffd25a; box-shadow: 0 0 8px #ffd25a; }
+  .lb-alert { background: var(--err); box-shadow: 0 0 8px var(--err); animation: wallPulse 1.3s infinite; }
+  .lvl-tools { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .lvl-tools button { font-size: 13px; padding: 7px 11px; }
+  .lvl-tools button.active { border-color: rgba(var(--accent),.6); background: rgba(var(--accent),.18); }
+  .plan.lvl-in { animation: lvlIn .45s cubic-bezier(.2,.8,.2,1); }
+  @keyframes lvlIn { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+  .assign { margin: 0 8px 12px; padding: 14px 16px; border-radius: 16px; background: rgba(8,14,24,.6);
+            border: 1px solid rgba(var(--accent),.35); }
+  .assign-head { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+  .assign-head .sub { white-space: normal; }
+  .assign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 14px; }
+  .assign-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; }
+  .assign-row select { padding: 6px 10px; border-radius: 10px; width: 170px; max-width: 55%; }
+</style>
+</head>
+<body>
+<header class="topbar glass">
+  <div class="brand"><span class="brand-ic">⌂</span><span>Maison</span></div>
+  <nav class="tabs needs-conn" aria-label="Vues">
+    <button type="button" data-view="plan"><span>▦</span> Plan</button>
+    <button type="button" data-view="rooms"><span>◫</span> Pièces</button>
+    <button type="button" data-view="types"><span>☰</span> Types</button>
+  </nav>
+  <div class="top-right">
+    <div class="clock"><b id="clockTime">--:--</b><span id="clockDate"></span></div>
+    <div class="weather needs-conn" id="weather"></div>
+    <div class="status" title="État de la connexion"><span class="dot" id="dot"></span><span id="statusText">Déconnecté</span></div>
+    <button type="button" id="editBtn" class="icon-btn needs-conn" title="Modifier la disposition">✎</button>
+    <button type="button" id="logoutBtn" class="icon-btn hidden" title="Déconnexion">⏻</button>
+  </div>
+</header>
+
+<main>
+  <!-- Écran de connexion -->
+  <form class="login glass" id="loginForm">
+    <strong>Connexion à Home Assistant</strong>
+    <label>Adresse de Home Assistant
+      <input type="text" id="haUrl" placeholder="http://homeassistant.local:8123" required>
+    </label>
+    <label>Jeton d'accès longue durée
+      <input type="password" id="haToken" placeholder="eyJhbGciOi..." required>
+    </label>
+    <div class="hint">Crée un jeton dans Home Assistant : ton profil → onglet <em>Sécurité</em> → <em>Jetons d'accès longue durée</em>.</div>
+    <label style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="remember" checked> Se souvenir sur cet appareil</label>
+    <div class="error" id="loginError"></div>
+    <button class="primary" type="submit">Se connecter</button>
+  </form>
+
+  <!-- Tableau de bord -->
+  <section id="dashboard" class="hidden">
+    <div class="toolbar glass" id="toolbar">
+      <input type="search" id="search" placeholder="Rechercher une entité, un appareil, une pièce…">
+      <select id="domainFilter"><option value="">Tous les types</option></select>
+      <button type="button" id="expandAll" title="Tout déplier">Déplier</button>
+      <button type="button" id="collapseAll" title="Tout replier">Replier</button>
+    </div>
+    <div id="editBar" class="banner glass hidden">
+      <div><strong>Mode édition</strong> · <span id="editInfo"></span>
+        <div class="sub" id="editSub">Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.</div></div>
+      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
+    </div>
+    <div id="roomsNotice" class="banner glass hidden">
+      <span>Impossible de lire les pièces depuis Home Assistant : affichage par type à la place.</span>
+    </div>
+    <div class="layout" id="layout">
+      <aside class="side" id="leftCol"></aside>
+      <div id="groups"></div>
+      <aside class="side" id="rightCol"></aside>
+    </div>
+  </section>
+</main>
+
+<!-- Tiroir d'une pièce (vue Plan) -->
+<aside class="drawer glass" id="drawer" aria-label="Contrôles de la pièce">
+  <div class="drawer-head"><strong id="drawerTitle"></strong><button type="button" id="drawerClose">Fermer ✕</button></div>
+  <div id="drawerBody"></div>
+</aside>
+
+<!-- Plein écran caméra -->
+<div class="modal hidden" id="camModal">
+  <div class="bar glass"><strong id="camTitle"></strong>
+    <div class="btns"><button id="camSnap">Image fixe</button><button id="camClose">Fermer ✕</button></div></div>
+  <img id="camLive" alt="Flux caméra en direct">
+  <div class="sub" id="camInfo" style="color:#bbb"></div>
+</div>
+
+<script>
+(() => {
+  // ---------- Configuration ----------
+  // Domaines affichés, dans l'ordre, avec leur libellé.
+  const DOMAINS = {
+    camera: "Caméras",
+    light: "Lumières", switch: "Prises & interrupteurs", fan: "Ventilateurs",
+    cover: "Volets", climate: "Chauffage / clim", media_player: "Médias",
+    scene: "Scènes", script: "Scripts", input_boolean: "Commutateurs virtuels",
+    lock: "Serrures", sensor: "Capteurs", binary_sensor: "Détecteurs"
+  };
+  const DOM_ORDER = Object.keys(DOMAINS);
+  const TOGGLEABLE = new Set(["light", "switch", "fan", "input_boolean", "media_player"]);
+  const ICONS = {
+    camera: "📷", light: "💡", switch: "🔌", fan: "🌀", cover: "🪟", climate: "🌡️", media_player: "🎵",
+    scene: "✨", script: "⚡", input_boolean: "🔘", lock: "🔒", sensor: "📊", binary_sensor: "🔔"
+  };
+  const ACTIVE = new Set(["on", "open", "opening", "closing", "playing", "unlocked",
+                          "heat", "cool", "heat_cool", "auto", "dry", "fan_only"]);
+  const isActive = s => ACTIVE.has(s.state);
+
+  // ---------- Stockage local (protégé) ----------
+  const ls = {
+    get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} }
+  };
+  const K = { conn: "ha-dashboard-conn", coll: "ha-dashboard-collapsed", hidden: "ha-dashboard-hidden",
+              shown: "ha-dashboard-shown", view: "ha-dashboard-view" };
+
+  const collapsed = new Set(ls.get(K.coll, []));
+  const hidden = new Set(ls.get(K.hidden, []));   // masquées par toi
+  const shown = new Set(ls.get(K.shown, []));     // masquées par défaut que tu as réaffichées
+  let view = ls.get(K.view, "rooms");             // "rooms" ou "types"
+  let editing = false;
+  const saveColl = () => ls.set(K.coll, [...collapsed]);
+  const saveHidden = () => { ls.set(K.hidden, [...hidden]); ls.set(K.shown, [...shown]); };
+
+  // ---------- État ----------
+  let ws = null, msgId = 1, states = {}, pending = {}, reconnectTimer = null, manualClose = false;
+  let conn = null;
+  const reg = { areas: {}, devices: {}, entities: {}, floors: {}, ok: false };
+
+  const $ = id => document.getElementById(id);
+
+  function setStatus(text, kind) {
+    $("statusText").textContent = text;
+    $("dot").className = "dot" + (kind ? " " + kind : "");
+  }
+
+  // ---------- WebSocket Home Assistant ----------
+  function wsUrl(base) {
+    const u = new URL(base);
+    u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
+    u.pathname = u.pathname.replace(/\/$/, "") + "/api/websocket";
+    return u.toString();
+  }
+
+  function send(msg) {
+    return new Promise((resolve, reject) => {
+      const id = msgId++;
+      pending[id] = { resolve, reject };
+      ws.send(JSON.stringify({ id, ...msg }));
+    });
+  }
+
+  // Pièces, appareils et entités enregistrés dans HA
+  async function loadRegistries() {
+    try {
+      const [areas, devices, entities] = await Promise.all([
+        send({ type: "config/area_registry/list" }),
+        send({ type: "config/device_registry/list" }),
+        send({ type: "config/entity_registry/list" })
+      ]);
+      reg.areas = Object.fromEntries(areas.map(a => [a.area_id, a]));
+      reg.devices = Object.fromEntries(devices.map(d => [d.id, d]));
+      reg.entities = Object.fromEntries(entities.map(e => [e.entity_id, e]));
+      reg.ok = true;
+      // Étages (HA 2024.4+) ; ignoré sur les versions plus anciennes
+      try { const fl = await send({ type: "config/floor_registry/list" }); reg.floors = Object.fromEntries(fl.map(f => [f.floor_id, f])); }
+      catch { reg.floors = {}; }
+    } catch (e) {
+      reg.ok = false;
+      console.warn("Registres HA indisponibles", e);
+    }
+  }
+
+  let regTimer = null;
+  function scheduleRegistryReload() {
+    clearTimeout(regTimer);
+    regTimer = setTimeout(async () => { await loadRegistries(); render(); }, 800);
+  }
+
+  function connect() {
+    clearTimeout(reconnectTimer);
+    manualClose = false;
+    setStatus("Connexion…");
+    let url;
+    try { url = wsUrl(conn.url); } catch { return loginFail("Adresse invalide."); }
+
+    if (location.protocol === "https:" && url.startsWith("ws:")) {
+      return loginFail("Cette page est en https mais l'adresse de HA est en http : le navigateur bloque la connexion. Utilise une adresse en https:// (ou ouvre la page en http).");
+    }
+    try { ws = new WebSocket(url); }
+    catch (e) { return loginFail("Le navigateur refuse la connexion : " + e.message); }
+    let authed = false;
+    const timeout = setTimeout(() => {
+      if (authed) return;
+      manualClose = true; try { ws.close(); } catch {}
+      loginFail("Pas de réponse de " + url + " après 8 s. Vérifie l'adresse et le port (souvent :8123), et que HA est joignable depuis cet appareil.");
+    }, 8000);
+
+    ws.onmessage = async ev => {
+      const msg = JSON.parse(ev.data);
+      if (msg.type === "auth_required") {
+        ws.send(JSON.stringify({ type: "auth", access_token: conn.token }));
+      } else if (msg.type === "auth_invalid") {
+        clearTimeout(timeout); manualClose = true; ws.close();
+        loginFail("Jeton refusé par Home Assistant (" + (msg.message || "invalide") + "). Recopie-le en entier, sans « Bearer » devant.");
+      } else if (msg.type === "auth_ok") {
+        authed = true; clearTimeout(timeout);
+        setStatus("Connecté (HA " + msg.ha_version + ")", "ok");
+        showDashboard();
+        const [list] = await Promise.all([send({ type: "get_states" }), loadRegistries()]);
+        states = {};
+        list.forEach(s => states[s.entity_id] = s);
+        buildFilter(); render(); updateWeather();
+        await send({ type: "subscribe_events", event_type: "state_changed" });
+        // Pièce renommée, appareil déplacé… : on recharge les registres
+        ["area_registry_updated", "device_registry_updated", "entity_registry_updated", "floor_registry_updated"].forEach(t =>
+          send({ type: "subscribe_events", event_type: t }).catch(() => {}));
+      } else if (msg.type === "result") {
+        const p = pending[msg.id]; delete pending[msg.id];
+        if (!p) return;
+        msg.success ? p.resolve(msg.result) : p.reject(msg.error);
+      } else if (msg.type === "event") {
+        const et = msg.event.event_type;
+        if (et === "state_changed") {
+          const { entity_id, new_state } = msg.event.data;
+          if (new_state) states[entity_id] = new_state; else delete states[entity_id];
+          updateCard(entity_id);
+          schedulePlan();
+          scheduleSides();
+          if (domainOf(entity_id) === "weather") updateWeather();
+        } else if (et.endsWith("_registry_updated")) {
+          scheduleRegistryReload();
+        }
+      }
+    };
+
+    ws.onerror = () => { if (!authed) setStatus("Erreur de connexion", "err"); };
+    ws.onclose = ev => {
+      if (manualClose) return;
+      clearTimeout(timeout);
+      if (!authed) return loginFail("Impossible de joindre " + url + " (code " + ev.code + "). Vérifie l'adresse, le port et http/https.");
+      setStatus("Reconnexion…", "err");
+      reconnectTimer = setTimeout(connect, 3000);
+    };
+  }
+
+  function callService(domain, service, entity_id, data = {}) {
+    return send({ type: "call_service", domain, service, service_data: data, target: { entity_id } })
+      .catch(err => alert("Erreur : " + (err && err.message || err)));
+  }
+
+  // ---------- Écrans ----------
+  function loginFail(text) {
+    document.body.classList.remove("connected");
+    setStatus("Déconnecté", "err");
+    $("loginError").textContent = text;
+    $("loginForm").classList.remove("hidden");
+    $("dashboard").classList.add("hidden");
+    $("logoutBtn").classList.add("hidden");
+  }
+
+  function showDashboard() {
+    document.body.classList.add("connected");
+    $("loginForm").classList.add("hidden");
+    $("dashboard").classList.remove("hidden");
+    $("logoutBtn").classList.remove("hidden");
+    $("loginError").textContent = "";
+  }
+
+  // ---------- Modèle ----------
+  const domainOf = id => id.split(".")[0];
+  const nameOf = s => s.attributes.friendly_name || s.entity_id;
+  const devName = d => d.name_by_user || d.name || "Appareil";
+  const areaName = a => (reg.areas[a] && reg.areas[a].name) || a;
+  const deviceOf = id => {
+    const e = reg.entities[id];
+    return e && e.device_id ? reg.devices[e.device_id] || null : null;
+  };
+  // La pièce de l'entité prime sur celle de son appareil
+  const areaOf = id => {
+    const e = reg.entities[id];
+    if (e && e.area_id) return e.area_id;
+    const d = deviceOf(id);
+    return d && d.area_id ? d.area_id : null;
+  };
+  // Entités techniques (diagnostic, configuration) ou masquées dans HA : cachées par défaut
+  const defaultHidden = id => { const e = reg.entities[id]; return !!(e && (e.entity_category || e.hidden_by)); };
+  const isHidden = id => hidden.has(id) || (defaultHidden(id) && !shown.has(id));
+  function setHidden(id, h) {
+    if (h) { hidden.add(id); shown.delete(id); }
+    else { hidden.delete(id); if (defaultHidden(id)) shown.add(id); }
+  }
+
+  // « Lampe salon Luminosité » dans l'appareil « Lampe salon » → « Luminosité »
+  function shortName(s, dev) {
+    const n = nameOf(s);
+    if (!dev) return n;
+    const dn = devName(dev);
+    if (n.toLowerCase().startsWith(dn.toLowerCase() + " ")) {
+      const r = n.slice(dn.length + 1).trim();
+      return r.charAt(0).toUpperCase() + r.slice(1);
+    }
+    return n;
+  }
+
+  const byName = (a, b) => nameOf(a).localeCompare(nameOf(b), "fr");
+  const byDomainThenName = (a, b) =>
+    (DOM_ORDER.indexOf(domainOf(a.entity_id)) - DOM_ORDER.indexOf(domainOf(b.entity_id))) || byName(a, b);
+
+  function buildFilter() {
+    const sel = $("domainFilter"), present = new Set(Object.keys(states).map(domainOf));
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Tous les types</option>';
+    Object.entries(DOMAINS).forEach(([d, label]) => {
+      if (present.has(d)) sel.insertAdjacentHTML("beforeend", `<option value="${d}">${label}</option>`);
+    });
+    sel.value = cur;
+  }
+
+  function visible(s) {
+    const id = s.entity_id, d = domainOf(id);
+    if (!(d in DOMAINS)) return false;
+    if (!editing && isHidden(id)) return false;
+    return matches(s);
+  }
+
+  // Filtre de type + recherche (utilisé aussi pour estomper les icônes du plan)
+  function matches(s) {
+    const id = s.entity_id, d = domainOf(id);
+    const df = $("domainFilter").value;
+    if (df && d !== df) return false;
+    const q = $("search").value.trim().toLowerCase();
+    if (q) {
+      const dev = deviceOf(id), area = areaOf(id);
+      const hay = [nameOf(s), id, dev ? devName(dev) : "", area ? areaName(area) : ""].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }
+
+  // ---------- Rendu ----------
+  function makeSection(key, label, count, searching, cams) {
+    const isColl = collapsed.has(key) && !searching;
+    const sec = document.createElement("section");
+    sec.className = "sec" + (isColl ? " collapsed" : "");
+    sec.dataset.key = key;
+    sec.innerHTML = `<button type="button" class="sec-head" aria-expanded="${!isColl}">
+        <span class="chev" aria-hidden="true"></span>
+        <span class="sec-title">${esc(label)}</span><span class="pill">${count}</span>
+        <span class="pill on-count hidden"></span></button>
+      <div class="sec-body"><div class="sec-inner"><div class="grid${cams ? " cams" : ""}"></div></div></div>`;
+    const head = sec.querySelector(".sec-head");
+    sec.querySelector(".sec-body").addEventListener("transitionend", e => {
+      if (e.propertyName === "grid-template-rows") sec.classList.remove("anim");
+    });
+    head.onclick = () => {
+      sec.classList.add("anim");
+      const c = sec.classList.toggle("collapsed");
+      c ? collapsed.add(key) : collapsed.delete(key);
+      head.setAttribute("aria-expanded", String(!c));
+      saveColl();
+    };
+    return { sec, grid: sec.querySelector(".grid") };
+  }
+
+  function devicePanel(dv, ents) {
+    const p = document.createElement("div");
+    p.className = "device";
+    p.dataset.device = dv.id;
+    const allHidden = ents.every(s => isHidden(s.entity_id));
+    if (editing && allHidden) p.classList.add("masked");
+    const meta = [dv.manufacturer, dv.model].filter(Boolean).join(" · ");
+    p.innerHTML = `<div class="device-head">
+        <div style="min-width:0"><div class="device-name">${esc(devName(dv))}</div>
+        ${meta ? `<div class="sub">${esc(meta)}</div>` : ""}</div>
+        ${editing ? `<button type="button" class="eye-btn dev-eye">${allHidden ? "👁 Afficher l'appareil" : "🚫 Masquer l'appareil"}</button>` : ""}
+      </div><div class="grid"></div>`;
+    const g = p.querySelector(".grid");
+    ents.sort(byDomainThenName).forEach(s => g.appendChild(card(s, shortName(s, dv))));
+    if (editing) p.querySelector(".dev-eye").onclick = () => {
+      ents.forEach(s => setHidden(s.entity_id, !allHidden));
+      saveHidden(); render();
+    };
+    return p;
+  }
+
+  function render() {
+    const groups = $("groups"); groups.innerHTML = "";
+    const searching = $("search").value.trim() !== "";
+    const items = Object.values(states).filter(visible);
+    const mode = view !== "types" && reg.ok ? view : "types";
+    planBg = mode === "plan" ? bgFor(currentLevel()) : null;
+    $("roomsNotice").classList.toggle("hidden", !(view !== "types" && !reg.ok));
+    document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+    $("regenPlan").classList.toggle("hidden", mode !== "plan");
+    $("bgPick").classList.toggle("hidden", mode !== "plan");
+    $("bgRemove").classList.toggle("hidden", mode !== "plan" || !planBg);
+    $("toolbar").classList.toggle("hidden", mode === "plan");
+    $("layout").classList.toggle("with-sides", mode === "plan");
+    if (mode === "plan") { renderPlan(); if (planEls) renderSides(); updateEditInfo(); return; }
+    $("leftCol").innerHTML = ""; $("rightCol").innerHTML = "";
+    planEls = null;
+
+    if (mode === "types") {
+      Object.entries(DOMAINS).forEach(([d, label]) => {
+        const list = items.filter(s => domainOf(s.entity_id) === d).sort(byName);
+        if (!list.length) return;
+        const { sec, grid } = makeSection("type:" + d, label, list.length, searching, d === "camera");
+        list.forEach(s => grid.appendChild(card(s)));
+        groups.append(sec); refreshCount(sec);
+      });
+    } else {
+      const byArea = new Map();
+      items.forEach(s => {
+        const a = areaOf(s.entity_id) || "_none";
+        if (!byArea.has(a)) byArea.set(a, []);
+        byArea.get(a).push(s);
+      });
+      const keys = [...byArea.keys()].sort((a, b) =>
+        a === "_none" ? 1 : b === "_none" ? -1 : areaName(a).localeCompare(areaName(b), "fr"));
+      keys.forEach(a => {
+        const list = byArea.get(a);
+        const { sec, grid } = makeSection("area:" + a, a === "_none" ? "Sans pièce" : areaName(a), list.length, searching, false);
+        fillArea(grid, list);
+        groups.append(sec); refreshCount(sec);
+      });
+    }
+    if (!groups.children.length) groups.innerHTML = '<p class="empty">Aucune entité à afficher.</p>';
+    updateEditInfo();
+  }
+
+  // Contenu d'une pièce : regroupement par appareil (un appareil à une seule entité = carte simple)
+  function fillArea(grid, list) {
+    const byDev = new Map(), loose = [];
+    list.forEach(s => {
+      const dv = deviceOf(s.entity_id);
+      if (!dv) return loose.push(s);
+      if (!byDev.has(dv.id)) byDev.set(dv.id, []);
+      byDev.get(dv.id).push(s);
+    });
+    const panels = [];
+    byDev.forEach((ents, id) => ents.length === 1 ? loose.push(ents[0]) : panels.push([reg.devices[id], ents]));
+    loose.sort(byDomainThenName).forEach(s => grid.appendChild(card(s)));
+    panels.sort((x, y) => devName(x[0]).localeCompare(devName(y[0]), "fr"))
+          .forEach(([dv, ents]) => grid.appendChild(devicePanel(dv, ents)));
+  }
+
+  // Badge « n actifs » dans l'en-tête de section
+  function refreshCount(sec) {
+    if (!sec) return;
+    const n = sec.querySelectorAll(".card.on:not(.masked)").length;
+    const b = sec.querySelector(".on-count");
+    b.textContent = n + (n > 1 ? " actifs" : " actif");
+    b.classList.toggle("hidden", n === 0);
+  }
+
+  function updateCard(id) {
+    const old = document.querySelector(`.card[data-entity="${CSS.escape(id)}"]`);
+    if (!old) return;
+    const s = states[id];
+    if (!s) return old.remove();
+    // Caméras : leur jeton change régulièrement ; on ne redessine que si la disponibilité change
+    if (domainOf(id) === "camera") {
+      const wasUnavail = old.dataset.unavail === "1";
+      const isUnavail = s.state === "unavailable" || s.state === "unknown";
+      if (wasUnavail === isUnavail) return;
+    }
+    // Ne pas écraser un curseur en cours de manipulation
+    if (old.contains(document.activeElement) && document.activeElement.type === "range") return;
+    const fresh = card(s, old.dataset.label);
+    old.replaceWith(fresh);
+    refreshCount(fresh.closest(".sec"));
+  }
+
+  function esc(t) { const d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+
+  function card(s, label) {
+    const d = domainOf(s.entity_id), a = s.attributes;
+    label = label || nameOf(s);
+    const el = document.createElement("div");
+    el.className = "card glass" + (isActive(s) ? " on" : "") + (editing && isHidden(s.entity_id) ? " masked" : "");
+    el.dataset.entity = s.entity_id;
+    el.dataset.domain = d;
+    el.dataset.state = s.state;
+    el.dataset.label = label;
+    const unavailable = s.state === "unavailable" || s.state === "unknown";
+
+    let head = `<div class="row"><div class="ident"><div class="icon" aria-hidden="true">${ICONS[d] || "•"}</div>
+                <div style="min-width:0"><div class="name">${esc(label)}</div>
+                <div class="sub">${esc(s.entity_id)}</div></div></div>`;
+    if (TOGGLEABLE.has(d) && !unavailable) {
+      head += `<label class="switch"><input type="checkbox" ${s.state === "on" || s.state === "playing" ? "checked" : ""}><span></span></label>`;
+    }
+    head += `</div>`;
+    el.innerHTML = head;
+
+    const sw = el.querySelector(".switch input");
+    if (sw) sw.onchange = () => callService(d === "media_player" ? "media_player" : "homeassistant",
+      d === "media_player" ? "media_play_pause" : (sw.checked ? "turn_on" : "turn_off"), s.entity_id);
+
+    el.dataset.unavail = unavailable ? "1" : "0";
+    if (unavailable) {
+      el.insertAdjacentHTML("beforeend", `<div class="sub">Indisponible</div>`);
+      return withEye(el);
+    }
+
+    // Caméras : aperçu rafraîchi + clic pour le direct
+    if (d === "camera") {
+      el.insertAdjacentHTML("beforeend", `<div class="cam-wrap">
+        <img class="cam-img" alt="Aperçu ${esc(label)}" loading="lazy">
+        <span class="live">Aperçu · 5 s</span></div>`);
+      const img = el.querySelector(".cam-img");
+      img.src = camUrl(s.entity_id, "snapshot");
+      img.onerror = () => { img.alt = "Image indisponible"; };
+      img.onclick = () => openCam(s.entity_id);
+      return withEye(el);
+    }
+
+    // Luminosité
+    if (d === "light" && s.state === "on" && a.brightness != null) {
+      const pct = Math.round(a.brightness / 2.55);
+      el.insertAdjacentHTML("beforeend", `<div class="sub">Luminosité <b class="pct">${pct}%</b></div>
+        <input type="range" min="1" max="100" value="${pct}">`);
+      const r = el.querySelector("input[type=range]");
+      r.oninput = () => el.querySelector(".pct").textContent = r.value + "%";
+      r.onchange = () => callService("light", "turn_on", s.entity_id, { brightness_pct: +r.value });
+    }
+
+    // Volets
+    if (d === "cover") {
+      const pos = a.current_position != null ? ` · ${a.current_position}%` : "";
+      el.insertAdjacentHTML("beforeend", `<div class="sub">${esc(s.state)}${pos}</div>
+        <div class="btns"><button data-s="open_cover">Ouvrir</button><button data-s="stop_cover">Stop</button><button data-s="close_cover">Fermer</button></div>`);
+    }
+
+    // Chauffage
+    if (d === "climate") {
+      const cur = a.current_temperature != null ? `${a.current_temperature}°` : "–";
+      const tgt = a.temperature;
+      el.insertAdjacentHTML("beforeend", `<div class="row"><div class="value">${cur}</div>
+        <div class="sub">${esc(s.state)}${tgt != null ? " · consigne " + tgt + "°" : ""}</div></div>`);
+      if (tgt != null) {
+        const step = a.target_temp_step || 0.5;
+        el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-t="-">−${step}°</button><button data-t="+">+${step}°</button></div>`);
+        el.querySelectorAll("[data-t]").forEach(b => b.onclick = () =>
+          callService("climate", "set_temperature", s.entity_id,
+            { temperature: Math.round((tgt + (b.dataset.t === "+" ? step : -step)) * 10) / 10 }));
+      }
+    }
+
+    // Scènes & scripts
+    if (d === "scene") el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-s="turn_on">Activer</button></div>`);
+    if (d === "script") el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-s="turn_on">Lancer</button></div>`);
+
+    // Serrures
+    if (d === "lock") el.insertAdjacentHTML("beforeend", `<div class="sub">${esc(s.state)}</div>
+      <div class="btns"><button data-s="lock">Verrouiller</button><button data-s="unlock">Déverrouiller</button></div>`);
+
+    // Capteurs
+    if (d === "sensor" || d === "binary_sensor") {
+      const unit = a.unit_of_measurement ? " " + a.unit_of_measurement : "";
+      el.insertAdjacentHTML("beforeend", `<div class="value">${esc(s.state)}${esc(unit)}</div>`);
+    }
+
+    // Média : titre en cours
+    if (d === "media_player" && a.media_title) {
+      el.insertAdjacentHTML("beforeend", `<div class="sub">${esc(a.media_title)}</div>`);
+    }
+
+    el.querySelectorAll("[data-s]").forEach(b => b.onclick = () => callService(d, b.dataset.s, s.entity_id));
+    return withEye(el);
+  }
+
+  // En mode édition : bouton Masquer / Afficher sur chaque carte
+  function withEye(el) {
+    if (!editing) return el;
+    const id = el.dataset.entity;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "eye-btn";
+    const sync = () => { const h = isHidden(id); b.textContent = h ? "👁 Afficher" : "🚫 Masquer"; el.classList.toggle("masked", h); };
+    sync();
+    b.onclick = () => {
+      setHidden(id, !isHidden(id)); saveHidden(); sync();
+      refreshCount(el.closest(".sec")); updateEditInfo();
+      const panel = el.closest(".device");
+      if (panel) { // met à jour le bouton de l'appareil
+        const ids = [...panel.querySelectorAll(".card")].map(c => c.dataset.entity);
+        const all = ids.every(isHidden);
+        panel.classList.toggle("masked", all);
+        const db = panel.querySelector(".dev-eye");
+        if (db) {
+          db.textContent = all ? "👁 Afficher l'appareil" : "🚫 Masquer l'appareil";
+          db.onclick = () => { ids.forEach(x => setHidden(x, !all)); saveHidden(); render(); };
+        }
+      }
+    };
+    el.appendChild(b);
+    return el;
+  }
+
+  function updateEditInfo() {
+    $("editSub").textContent = "Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.";
+    if (view === "plan" && reg.ok) {
+      const n = plan.hidden.length;
+      $("editInfo").textContent = "déplace et redimensionne les pièces, place les appareils"
+        + (n ? ` · ${n} icône${n > 1 ? "s" : ""} masquée${n > 1 ? "s" : ""}.` : ".");
+      $("editSub").textContent = planBg
+        ? "Place les pièces par-dessus l'image : elles deviennent des zones transparentes où s'affichent les lumières. × masque une icône, ◢ redimensionne."
+        : "× masque une icône du plan seulement, + la réaffiche. Le coin ◢ redimensionne une pièce. Tu peux aussi mettre une image (rendu 3D de ta maison) en fond.";
+      return;
+    }
+    const n = Object.keys(states).filter(id => (domainOf(id) in DOMAINS) && isHidden(id)).length;
+    $("editInfo").textContent = n
+      ? `${n} entité${n > 1 ? "s" : ""} masquée${n > 1 ? "s" : ""} (en transparence ci-dessous).`
+      : "Aucune entité masquée.";
+  }
+
+  function setEditing(on) {
+    editing = on;
+    document.body.classList.toggle("editing", on);
+    $("editBar").classList.toggle("hidden", !on);
+    $("editBtn").classList.toggle("active", on);
+    render();
+  }
+
+  // ---------- Plan de la maison ----------
+  const PAD = 20, LABEL_H = 84, SNAP = 10, GAP = 0;
+  const PLAN_KEY = "ha-dashboard-plan";
+  let plan = ls.get(PLAN_KEY, null) || { rooms: {}, markers: {} };
+  if (!Array.isArray(plan.hidden)) plan.hidden = [];
+  const planHidden = id => plan.hidden.includes(id);
+  function togglePlanHidden(id) {
+    plan.hidden = planHidden(id) ? plan.hidden.filter(x => x !== id) : [...plan.hidden, id];
+    savePlan();
+  }
+  const savePlan = () => ls.set(PLAN_KEY, plan);
+  const MARK_DOMAINS = new Set(["light", "switch", "fan", "cover", "climate", "media_player", "lock", "camera", "binary_sensor"]);
+  const BIN_ALERT = new Set(["door", "window", "opening", "garage_door"]);
+  const BIN_MOTION = new Set(["motion", "occupancy", "presence"]);
+  const svgNS = "http://www.w3.org/2000/svg";
+  const snap = v => Math.round(v / SNAP) * SNAP;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  let planEls = null, drag = null, planRaf = 0;
+
+  function svgEl(tag, attrs = {}) {
+    const e = document.createElementNS(svgNS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // Entités représentées par une icône sur le plan
+  function planEntities(area) {
+    return Object.values(states).filter(s => {
+      const id = s.entity_id, d = domainOf(id);
+      if (!MARK_DOMAINS.has(d) || isHidden(id) || areaOf(id) !== area) return false;
+      if (!editing && planHidden(id)) return false;
+      if (d === "binary_sensor") {
+        const dc = s.attributes.device_class;
+        return BIN_ALERT.has(dc) || BIN_MOTION.has(dc);
+      }
+      return true;
+    }).sort(byDomainThenName);
+  }
+  const areaWeight = a => 4 + Object.keys(states).filter(id => (domainOf(id) in DOMAINS) && !isHidden(id) && areaOf(id) === a).length;
+
+  // ---------- Niveaux (étages HA + niveaux personnalisés comme « Dépendance ») ----------
+  if (!Array.isArray(plan.customLevels)) plan.customLevels = [];
+  if (!plan.areaLevel || typeof plan.areaLevel !== "object") plan.areaLevel = {};
+  let curLevel = ls.get("ha-dashboard-level", null), levelAnim = false, assignOpen = false;
+
+  function levels() {
+    const fl = Object.values(reg.floors || {})
+      .sort((a, b) => (a.level ?? 0) - (b.level ?? 0) || a.name.localeCompare(b.name, "fr"))
+      .map(f => ({ id: "floor:" + f.floor_id, name: f.name, ha: true }));
+    const base = fl.length ? fl : [{ id: "main", name: "Maison" }];
+    return [...base, ...plan.customLevels.map(l => ({ ...l, custom: true }))];
+  }
+  // Niveau d'une pièce : ton choix, sinon l'étage HA, sinon le premier niveau
+  function levelOf(a, list = levels()) {
+    const ids = new Set(list.map(l => l.id)), forced = plan.areaLevel[a];
+    if (forced && ids.has(forced)) return forced;
+    const f = reg.areas[a] && reg.areas[a].floor_id;
+    if (f && ids.has("floor:" + f)) return "floor:" + f;
+    return list[0].id;
+  }
+  const levelAreas = lv => { const l = levels(); return Object.keys(reg.areas).filter(a => levelOf(a, l) === lv); };
+  function currentLevel() {
+    const l = levels();
+    if (!l.some(x => x.id === curLevel)) curLevel = l[0].id;
+    return curLevel;
+  }
+  function goLevel(id) {
+    if (id === curLevel) return;
+    curLevel = id; ls.set("ha-dashboard-level", id);
+    levelAnim = true; closeRoom(); render();
+  }
+  function moveArea(a, lv) {
+    plan.areaLevel[a] = lv;
+    delete plan.rooms[a]; // la pièce sera replacée sur son nouveau plan
+    Object.keys(plan.markers).forEach(id => { if (areaOf(id) === a) delete plan.markers[id]; });
+    savePlan();
+  }
+
+  // Sélecteur de niveaux au-dessus du plan (+ outils en mode édition)
+  function buildLevelBar(lv) {
+    const L = levels(), cur = L.find(l => l.id === lv);
+    const bar = document.createElement("div");
+    bar.className = "levels";
+    bar.innerHTML = `<div class="lvl-tabs">${L.map(l => `<button type="button" class="lvl${l.id === lv ? " active" : ""}" data-level="${esc(l.id)}">
+        <span>${esc(l.name)}</span><span class="lvl-badges" data-badges="${esc(l.id)}"></span></button>`).join("")}</div>`
+      + (editing ? `<div class="lvl-tools">
+          <button type="button" data-lt="add">＋ Niveau</button>
+          ${cur && cur.custom ? `<button type="button" data-lt="rename" title="Renommer ce niveau">✎ Renommer</button>
+            <button type="button" data-lt="delete" title="Supprimer ce niveau">🗑</button>` : ""}
+          <button type="button" data-lt="assign" class="${assignOpen ? "active" : ""}">⇄ Répartir les pièces</button></div>` : "");
+    if (L.length < 2 && !editing) bar.classList.add("hidden");
+    bar.onclick = e => {
+      const b = e.target.closest("[data-level]");
+      if (b) return goLevel(b.dataset.level);
+      const t = e.target.closest("[data-lt]"); if (!t) return;
+      const act = t.dataset.lt;
+      if (act === "add") {
+        const name = (prompt("Nom du nouveau niveau (ex. Dépendance, Sous-sol, Étage) :") || "").trim();
+        if (!name) return;
+        const id = "lvl:" + Date.now().toString(36);
+        plan.customLevels.push({ id, name }); savePlan();
+        assignOpen = true; goLevel(id);
+      } else if (act === "rename") {
+        const name = (prompt("Nouveau nom :", cur.name) || "").trim();
+        if (!name) return;
+        plan.customLevels = plan.customLevels.map(l => l.id === lv ? { ...l, name } : l); savePlan(); render();
+      } else if (act === "delete") {
+        if (!confirm(`Supprimer le niveau « ${cur.name} » ? Ses pièces retourneront à leur niveau d'origine.`)) return;
+        plan.customLevels = plan.customLevels.filter(l => l.id !== lv);
+        Object.keys(plan.areaLevel).forEach(a => { if (plan.areaLevel[a] === lv) { delete plan.areaLevel[a]; delete plan.rooms[a]; } });
+        delete planBgs[lv]; try { localStorage.setItem(BG_KEY, JSON.stringify(planBgs)); } catch {}
+        savePlan(); curLevel = null; render();
+      } else if (act === "assign") { assignOpen = !assignOpen; render(); }
+    };
+    return bar;
+  }
+
+  // Panneau de répartition : une liste déroulante de niveau par pièce
+  function buildAssign() {
+    const L = levels(), hasFloors = L.some(l => l.ha);
+    const box = document.createElement("div");
+    box.className = "assign";
+    const areas = Object.keys(reg.areas).sort((a, b) => areaName(a).localeCompare(areaName(b), "fr"));
+    box.innerHTML = `<div class="assign-head"><b>Répartition des pièces</b>
+        <span class="sub">${hasFloors ? "Par défaut, chaque pièce suit l'étage défini dans Home Assistant." : "Crée un niveau avec « ＋ Niveau », puis choisis où va chaque pièce."}</span></div>
+      <div class="assign-grid">${areas.map(a => `<label class="assign-row"><span>${roomIcon(areaName(a))} ${esc(areaName(a))}</span>
+        <select data-area="${esc(a)}">${L.map(l => `<option value="${esc(l.id)}"${levelOf(a, L) === l.id ? " selected" : ""}>${esc(l.name)}</option>`).join("")}</select></label>`).join("")}</div>`;
+    box.onchange = e => {
+      const sel = e.target.closest("select[data-area]"); if (!sel) return;
+      moveArea(sel.dataset.area, sel.value); render();
+    };
+    return box;
+  }
+
+  // Pastilles d'activité sur chaque niveau : lumières allumées, ouverture, présence
+  function updateLevelBadges() {
+    const spans = document.querySelectorAll("[data-badges]");
+    if (!spans.length) return;
+    const L = levels(), al = {}, info = {};
+    Object.keys(reg.areas).forEach(a => al[a] = levelOf(a, L));
+    L.forEach(l => info[l.id] = { lights: 0, alert: false, motion: false });
+    for (const s of Object.values(states)) {
+      const a = areaOf(s.entity_id); if (!a || !al[a]) continue;
+      const d = domainOf(s.entity_id), dc = s.attributes.device_class, i = info[al[a]];
+      if (d === "light" && s.state === "on" && !isHidden(s.entity_id)) i.lights++;
+      if (d === "binary_sensor" && s.state === "on") {
+        if (BIN_ALERT.has(dc)) i.alert = true;
+        if (BIN_MOTION.has(dc)) i.motion = true;
+      }
+    }
+    spans.forEach(sp => {
+      const i = info[sp.dataset.badges]; if (!i) return;
+      sp.innerHTML = (i.lights ? `<i class="lb-light">💡${i.lights}</i>` : "")
+        + (i.motion ? `<i class="lb-dot lb-motion" title="Présence"></i>` : "")
+        + (i.alert ? `<i class="lb-dot lb-alert" title="Ouverture"></i>` : "");
+    });
+  }
+
+  // Plan stylisé : découpage récursif de la maison, les pièces les plus équipées sont les plus grandes
+  function generateLayout(areaList) {
+    const items = areaList.map(a => ({ a, w: areaWeight(a) })).sort((x, y) => y.w - x.w);
+    areaList.forEach(a => delete plan.rooms[a]);
+    Object.keys(plan.markers).forEach(id => { if (areaList.includes(areaOf(id))) delete plan.markers[id]; });
+    if (items.length) (function split(list, x, y, w, h) {
+      if (list.length === 1) { plan.rooms[list[0].a] = { x, y, w, h }; return; }
+      const total = list.reduce((s, i) => s + i.w, 0);
+      let acc = list[0].w, k = 1;
+      while (k < list.length - 1 && acc + list[k].w <= total / 2) acc += list[k++].w;
+      const r = acc / total;
+      if (w >= h) { const wa = snap(w * r); split(list.slice(0, k), x, y, wa, h); split(list.slice(k), x + wa, y, w - wa, h); }
+      else { const ha = snap(h * r); split(list.slice(0, k), x, y, w, ha); split(list.slice(k), x, y + ha, w, h - ha); }
+    })(items, PAD, PAD, 960, 600);
+    savePlan();
+  }
+
+  // Position par défaut : icônes réparties en grille sous le nom de la pièce
+  function defaultMarker(area, idx, n) {
+    const r = plan.rooms[area];
+    const cols = Math.max(1, Math.round(Math.sqrt(n * r.w / Math.max(r.h - LABEL_H, 40))));
+    const rows = Math.ceil(n / cols);
+    const top = Math.min(LABEL_H / r.h, 0.45);
+    return { fx: (idx % cols + 0.5) / cols, fy: top + (1 - top) * (Math.floor(idx / cols) + 0.5) / rows };
+  }
+  function markerLabel(s, area) {
+    const dev = deviceOf(s.entity_id);
+    let n = dev ? devName(dev) : nameOf(s);
+    const an = areaName(area);
+    // retire le nom de la pièce (« Lampe salon » dans Salon → « Lampe »), accents compris
+    const L = " " + n + " ", i = L.toLowerCase().indexOf(" " + an.toLowerCase() + " ");
+    const stripped = i < 0 ? n : (L.slice(0, i) + " " + L.slice(i + an.length + 2)).trim();
+    if (stripped) n = stripped.charAt(0).toUpperCase() + stripped.slice(1);
+    return n.length > 18 ? n.slice(0, 17) + "…" : n;
+  }
+  // Lecteur média : pochette dans l'icône, « titre — artiste » qui défile sous le nom
+  const TICKER_W = 120;
+  function updateMedia(g, s) {
+    const a = s.attributes, active = s.state === "playing" || s.state === "paused";
+    const img = g.querySelector(".mk-cover"), t = g.querySelector(".mk-title");
+    if (!img || !t) return;
+    let pic = "";
+    if (active && a.entity_picture) {
+      pic = /^(https?:|data:)/.test(a.entity_picture) ? a.entity_picture : conn.url.replace(/\/+$/, "") + a.entity_picture;
+    }
+    if ((img.getAttribute("href") || "") !== pic) pic ? img.setAttribute("href", pic) : img.removeAttribute("href");
+    g.classList.toggle("has-cover", !!pic);
+    g.classList.toggle("paused", s.state === "paused");
+
+    const title = active ? [a.media_title, a.media_artist].filter(Boolean).join(" — ") : "";
+    if (t.textContent !== title) {
+      t.textContent = title;
+      if (t._anim) { t._anim.cancel(); t._anim = null; }
+      t.setAttribute("text-anchor", "middle");
+      if (title) {
+        const tw = t.getComputedTextLength();
+        if (tw > TICKER_W - 8) { // trop long : défilement continu de droite à gauche
+          t.setAttribute("text-anchor", "start");
+          t._anim = t.animate(
+            [{ transform: `translateX(${TICKER_W / 2}px)` }, { transform: `translateX(${-TICKER_W / 2 - tw}px)` }],
+            { duration: (tw + TICKER_W) * 32, iterations: Infinity });
+        }
+      }
+    }
+    if (t._anim) s.state === "paused" ? t._anim.pause() : t._anim.play();
+  }
+  // Bandeau des personnes (entités person.* de HA) : avatars discrets, nom et statut au survol
+  if (!Array.isArray(plan.hiddenPeople)) plan.hiddenPeople = [];
+  function personStatus(st) {
+    return st === "home" ? "Présent" : st === "not_home" ? "Absent"
+      : st === "unknown" || st === "unavailable" ? "Inconnu" : "Absent · " + st;
+  }
+  function buildPeople() {
+    const persons = Object.values(states)
+      .filter(s => domainOf(s.entity_id) === "person" && (editing || !plan.hiddenPeople.includes(s.entity_id)))
+      .sort(byName);
+    if (!persons.length) { planEls.people = null; return null; }
+    const bar = document.createElement("div");
+    bar.className = "people";
+    persons.forEach(s => {
+      const id = s.entity_id, n = nameOf(s), masked = plan.hiddenPeople.includes(id);
+      const ini = n.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+      const chip = document.createElement("div");
+      chip.className = "person" + (masked ? " masked" : "");
+      chip.dataset.entity = id;
+      chip.innerHTML = `<span class="pav"><span>${esc(ini)}</span><img alt=""></span><span class="pdot"></span>
+        ${editing ? `<button type="button" class="px" title="${masked ? "Réafficher" : "Retirer du bandeau"}">${masked ? "+" : "×"}</button>` : ""}`;
+      const img = chip.querySelector("img");
+      img.onerror = () => img.remove();
+      const x = chip.querySelector(".px");
+      if (x) x.onclick = () => {
+        plan.hiddenPeople = masked ? plan.hiddenPeople.filter(v => v !== id) : [...plan.hiddenPeople, id];
+        savePlan(); render();
+      };
+      bar.append(chip);
+    });
+    bar.insertAdjacentHTML("beforeend", `<span class="people-sum"></span>`);
+    planEls.people = bar;
+    return bar;
+  }
+  function updatePeople() {
+    const bar = planEls && planEls.people; if (!bar) return;
+    let home = 0, total = 0;
+    bar.querySelectorAll(".person").forEach(chip => {
+      const s = states[chip.dataset.entity];
+      if (!s) { chip.style.display = "none"; return; }
+      chip.style.display = "";
+      const st = s.state, isHome = st === "home", masked = chip.classList.contains("masked");
+      if (!masked) { total++; if (isHome) home++; }
+      chip.classList.toggle("home", isHome);
+      chip.classList.toggle("unknown", st === "unknown" || st === "unavailable");
+      chip.title = `${nameOf(s)} · ${personStatus(st)}`;
+      const img = chip.querySelector("img"), pic = s.attributes.entity_picture;
+      if (img && pic) {
+        const url = /^(https?:|data:)/.test(pic) ? pic : conn.url.replace(/\/+$/, "") + pic;
+        if (img.getAttribute("src") !== url) img.setAttribute("src", url);
+      }
+    });
+    bar.querySelector(".people-sum").textContent =
+      !total ? "" : home === 0 ? "Personne à la maison" : `${home}/${total} à la maison`;
+  }
+  const markerXY = (id, area) => {
+    const r = plan.rooms[area], m = plan.markers[id];
+    return { x: r.x + m.fx * r.w, y: r.y + m.fy * r.h };
+  };
+
+  function renderPlan() {
+    const groups = $("groups"); groups.innerHTML = "";
+    const lv = currentLevel(), mine = levelAreas(lv);
+    // Pièces supprimées dans HA ; plan généré au premier affichage du niveau ; nouvelles pièces sous le plan
+    Object.keys(plan.rooms).forEach(a => { if (!reg.areas[a]) delete plan.rooms[a]; });
+    if (mine.length && !mine.some(a => plan.rooms[a])) generateLayout(mine);
+    let baseY = Math.max(PAD, ...mine.filter(a => plan.rooms[a]).map(a => plan.rooms[a].y + plan.rooms[a].h)) + 30, nx = PAD;
+    mine.forEach(a => {
+      if (plan.rooms[a]) return;
+      plan.rooms[a] = { x: nx, y: baseY, w: 220, h: 160 };
+      nx += 230; if (nx > 760) { nx = PAD; baseY += 190; }
+    });
+    const areas = mine.slice().sort((a, b) => areaName(a).localeCompare(areaName(b), "fr"));
+
+    const wrap = document.createElement("div"); wrap.className = "plan-wrap" + (planBg ? " has-bg" : "");
+    wrap.append(buildLevelBar(lv));
+    if (editing && assignOpen) wrap.append(buildAssign());
+    // Glisser à gauche / droite sur tablette pour changer de niveau
+    let sx = null, sy = null;
+    wrap.addEventListener("touchstart", e => { if (editing) return; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+    wrap.addEventListener("touchend", e => {
+      if (sx == null) return;
+      const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+      if (Math.abs(dx) < 70 || Math.abs(dy) > 50) return;
+      const L = levels(), k = L.findIndex(l => l.id === lv), n = L[k + (dx < 0 ? 1 : -1)];
+      if (n) goLevel(n.id);
+    });
+    if (!areas.length) {
+      wrap.insertAdjacentHTML("beforeend", `<p class="empty">${Object.keys(reg.areas).length
+        ? "Aucune pièce sur ce niveau. Passe en mode édition (✎) puis « ⇄ Répartir les pièces »."
+        : "Aucune pièce définie dans Home Assistant (Paramètres → Zones et pièces)."}</p>`);
+      groups.append(wrap);
+      planEls = { svg: null, rooms: {}, markers: {}, glows: {}, people: null };
+      updateLevelBadges();
+      return;
+    }
+    const svg = svgEl("svg", { class: "plan", role: "img", "aria-label": "Plan de la maison" });
+    svg.innerHTML = `<defs><pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,.08)"/></pattern></defs>`;
+    const defs = svg.querySelector("defs");
+    // Calques : sols (+ halos), murs, étiquettes, icônes
+    const roomsLayer = svgEl("g", { class: "rooms-layer" }), wallsLayer = svgEl("g"), labelsLayer = svgEl("g"), markLayer = svgEl("g");
+    roomsLayer.append(wallsLayer);
+    svg.append(roomsLayer, labelsLayer, markLayer);
+    const floorsLayer = svgEl("g"); roomsLayer.insertBefore(floorsLayer, wallsLayer);
+    if (planBg) svg.insertBefore(svgEl("image", { class: "plan-bg", href: planBg.src, x: planBg.x, y: planBg.y,
+      width: planBg.w, height: planBg.h, preserveAspectRatio: "xMidYMid meet" }), roomsLayer);
+    planEls = { svg, rooms: {}, markers: {}, glows: {} };
+
+    areas.forEach((a, i) => {
+      const g = svgEl("g", { class: "room", "data-area": a });
+      const clip = svgEl("clipPath", { id: "clip-" + i }), clipRect = svgEl("rect", { rx: 3 });
+      clip.append(clipRect); defs.append(clip);
+      const floor = svgEl("rect", { class: "floor", rx: 3, "data-drag": "room" });
+      const dots = svgEl("rect", { class: "dots", rx: 3, fill: "url(#dots)" });
+      const tint = svgEl("rect", { class: "tint", rx: 3 });
+      const glowG = svgEl("g", { class: "glows", "clip-path": `url(#clip-${i})` });
+      g.append(floor, dots, tint, glowG);
+      floorsLayer.append(g);
+      // murs épais sombres + liseré lumineux
+      const gw = svgEl("g", { class: "room-w", "data-area": a });
+      const walls = svgEl("rect", { class: "walls", rx: 3 }), wallsHi = svgEl("rect", { class: "walls-hi", rx: 3 });
+      gw.append(walls, wallsHi); wallsLayer.append(gw);
+      // étiquette centrée : icône + nom + température
+      const nm = areaName(a), cw = Math.max(116, nm.length * 9 + 60);
+      const lab = svgEl("g", { class: "rlabel" });
+      lab.innerHTML = `<rect class="rl-bg" x="${-cw / 2}" y="-26" width="${cw}" height="52" rx="13"/>
+        <text class="rl-name" x="0" y="-3" text-anchor="middle">${roomIcon(nm)} ${esc(nm)}</text>
+        <text class="rinfo" x="0" y="16" text-anchor="middle"></text>`;
+      const handle = svgEl("path", { class: "handle", "data-drag": "resize", "data-area": a });
+      labelsLayer.append(lab, handle);
+      const info = lab.querySelector(".rinfo");
+      planEls.rooms[a] = { g, gw, clipRect, floor, dots, tint, walls, wallsHi, lab, info, handle };
+
+      const ents = planEntities(a);
+      ents.forEach((s, j) => {
+        const id = s.entity_id, d = domainOf(id);
+        if (!plan.markers[id]) plan.markers[id] = defaultMarker(a, j, ents.length);
+        const mk = svgEl("g", { class: "mk", "data-entity": id, "data-domain": d, "data-drag": "marker" });
+        mk.innerHTML = `<circle class="mk-ripple" r="18"/><circle class="mk-bg" r="18"/>
+          ${d === "media_player" ? `<clipPath id="mc${i}-${j}"><circle r="16"/></clipPath>
+            <image class="mk-cover" x="-16" y="-16" width="32" height="32" preserveAspectRatio="xMidYMid slice" clip-path="url(#mc${i}-${j})"/>` : ""}
+          <text class="mk-ic" text-anchor="middle" dy="6">${ICONS[d] || "•"}</text>
+          <text class="mk-label" text-anchor="middle" y="36">${esc(markerLabel(s, a))}</text>
+          ${d === "media_player" ? `<clipPath id="mt${i}-${j}"><rect x="-${TICKER_W / 2}" y="40" width="${TICKER_W}" height="16"/></clipPath>
+            <g clip-path="url(#mt${i}-${j})"><text class="mk-title" x="0" y="51" text-anchor="middle"></text></g>` : ""}
+          ${editing ? `<g class="mk-x" role="button"><circle cx="15" cy="-15" r="9"/>
+            <text x="15" y="-11" text-anchor="middle">${planHidden(id) ? "+" : "×"}</text>
+            <title>${planHidden(id) ? "Réafficher sur le plan" : "Masquer du plan"}</title></g>` : ""}
+          <title></title>`;
+        if (editing && planHidden(id)) mk.classList.add("masked");
+        const cov = mk.querySelector(".mk-cover");
+        if (cov) cov.addEventListener("error", () => { cov.removeAttribute("href"); mk.classList.remove("has-cover"); });
+        markLayer.append(mk);
+        planEls.markers[id] = { g: mk, area: a };
+        if (d === "light") { // halo de lumière, rogné aux murs de la pièce
+          const gid = "lg" + i + "-" + j;
+          const grad = svgEl("radialGradient", { id: gid });
+          grad.innerHTML = `<stop offset="0%" stop-opacity=".9"/><stop offset="40%" stop-opacity=".38"/><stop offset="100%" stop-opacity="0"/>`;
+          defs.append(grad);
+          const c = svgEl("circle", { r: 170, fill: `url(#${gid})`, class: "glow" });
+          glowG.append(c);
+          planEls.glows[id] = { c, grad };
+        }
+      });
+    });
+    savePlan();
+
+    if (levelAnim) { svg.classList.add("lvl-in"); levelAnim = false; }
+    wrap.append(svg);
+    wrap.insertAdjacentHTML("beforeend", `<div class="plan-legend">${editing
+      ? `Glisse une pièce pour la déplacer, son coin ◢ pour la redimensionner, et les icônes pour placer les appareils · × masque une icône du plan, + la réaffiche${plan.hidden.length ? ` (${plan.hidden.length} masquée${plan.hidden.length > 1 ? "s" : ""})` : ""}.`
+      : "Touche une icône pour allumer / éteindre · touche une pièce pour tous ses contrôles" + (levels().length > 1 ? " · glisse pour changer de niveau" : "")}</div>`);
+    groups.append(wrap);
+    attachPlanEvents(svg);
+    applyGeometry();
+    updatePlan();
+  }
+
+  // Positions et tailles (appelée aussi pendant le glisser-déposer)
+  function applyGeometry() {
+    if (!planEls || !planEls.svg) return;
+    const rs = Object.keys(planEls.rooms).map(a => plan.rooms[a]);
+    if (!drag) {
+      const bs = planBg ? [...rs, planBg] : rs; // l'image de fond compte dans le cadrage
+      const x0 = Math.min(...bs.map(r => r.x)) - PAD, y0 = Math.min(...bs.map(r => r.y)) - PAD;
+      const x1 = Math.max(...bs.map(r => r.x + r.w)) + PAD, y1 = Math.max(...bs.map(r => r.y + r.h)) + PAD;
+      planEls.svg.setAttribute("viewBox", `${x0} ${y0} ${x1 - x0} ${y1 - y0}`);
+    }
+    for (const a in planEls.rooms) {
+      const r = plan.rooms[a], e = planEls.rooms[a];
+      [e.clipRect, e.floor, e.dots, e.tint, e.walls, e.wallsHi].forEach(x => {
+        x.setAttribute("x", r.x + GAP); x.setAttribute("y", r.y + GAP);
+        x.setAttribute("width", r.w - 2 * GAP); x.setAttribute("height", r.h - 2 * GAP);
+      });
+      e.lab.setAttribute("transform", `translate(${r.x + r.w / 2} ${r.y + 44})`);
+      const bx = r.x + r.w - 8, by = r.y + r.h - 8;
+      e.handle.setAttribute("d", `M${bx} ${by - 18} L${bx} ${by} L${bx - 18} ${by} Z`);
+    }
+    for (const id in planEls.markers) {
+      const { g, area } = planEls.markers[id], p = markerXY(id, area);
+      g.setAttribute("transform", `translate(${p.x} ${p.y})`);
+      const gl = planEls.glows[id];
+      if (gl) { gl.c.setAttribute("cx", p.x); gl.c.setAttribute("cy", p.y); }
+    }
+  }
+
+  // Couleur réelle de la lampe (RGB, ou blanc chaud → froid selon la température de couleur)
+  function lightColor(s) {
+    const a = s.attributes;
+    if (Array.isArray(a.rgb_color)) return a.rgb_color;
+    if (a.color_temp_kelvin) {
+      const t = clamp((a.color_temp_kelvin - 2200) / 4300, 0, 1);
+      return [255 - 35 * t, 165 + 65 * t, 80 + 175 * t].map(Math.round);
+    }
+    return [255, 186, 82];
+  }
+  // Teinte du sol : bleu si frais, orangé si chaud (neutre vers 20,5 °C)
+  function tempTint(t) {
+    const d = t - 20.5, k = clamp(Math.abs(d) / 4, 0, 1);
+    return d < 0 ? `rgba(90,160,255,${(0.24 * k).toFixed(3)})` : `rgba(255,110,70,${(0.24 * k).toFixed(3)})`;
+  }
+  function areaTemp(a) {
+    let clim = null;
+    for (const s of Object.values(states)) {
+      if (areaOf(s.entity_id) !== a) continue;
+      const d = domainOf(s.entity_id);
+      if (d === "sensor" && s.attributes.device_class === "temperature" && !isNaN(parseFloat(s.state))) return parseFloat(s.state);
+      if (d === "climate" && s.attributes.current_temperature != null) clim = +s.attributes.current_temperature;
+    }
+    return clim;
+  }
+  const stateLabel = s => s.state + (s.attributes.unit_of_measurement ? " " + s.attributes.unit_of_measurement : "");
+
+  // États visuels (appelée à chaque changement d'état)
+  function updatePlan() {
+    if (!planEls) return;
+    updateLevelBadges();
+    updatePeople();
+    const info = {};
+    for (const id in planEls.markers) {
+      const s = states[id], { g, area } = planEls.markers[id];
+      if (!s) { g.style.display = "none"; continue; }
+      g.style.display = "";
+      const d = domainOf(id), dc = s.attributes.device_class, on = isActive(s);
+      const alert = d === "binary_sensor" && BIN_ALERT.has(dc) && s.state === "on";
+      const motion = d === "binary_sensor" && BIN_MOTION.has(dc) && s.state === "on";
+      const ri = info[area] || (info[area] = { lights: 0, alert: false, motion: false });
+      if (d === "light" && on) ri.lights++;
+      if (alert) ri.alert = true;
+      if (motion) ri.motion = true;
+      g.classList.toggle("on", on);
+      g.classList.toggle("alert", alert);
+      g.classList.toggle("motion", motion);
+      g.classList.toggle("unavail", s.state === "unavailable" || s.state === "unknown");
+      g.classList.toggle("dim", !matches(s));
+      g.querySelector("title").textContent = `${nameOf(s)} · ${stateLabel(s)}`;
+      if (d === "media_player") updateMedia(g, s);
+      const gl = planEls.glows[id];
+      if (gl) {
+        const [r, gg, b] = lightColor(s);
+        gl.grad.querySelectorAll("stop").forEach(st => st.setAttribute("stop-color", `rgb(${r},${gg},${b})`));
+        const br = s.attributes.brightness != null ? s.attributes.brightness / 255 : 1;
+        gl.c.style.opacity = on ? (0.3 + 0.7 * br).toFixed(2) : "0";
+        if (on) g.style.setProperty("--glow", `${r},${gg},${b}`); else g.style.removeProperty("--glow");
+      }
+    }
+    for (const a in planEls.rooms) {
+      const e = planEls.rooms[a], ri = info[a] || {}, t = areaTemp(a);
+      e.tint.setAttribute("fill", t == null ? "transparent" : tempTint(t));
+      e.info.textContent = [t != null ? `${fr(t)} °C` : "", ri.lights ? `💡 ${ri.lights}` : "",
+                            ri.alert ? "⚠ ouvert" : "", ri.motion ? "◉ présence" : ""].filter(Boolean).join("    ");
+      [e.g, e.gw].forEach(x => { x.classList.toggle("lit", !!ri.lights); x.classList.toggle("alert", !!ri.alert); });
+    }
+  }
+  function schedulePlan() {
+    if (!planEls || planRaf) return;
+    planRaf = requestAnimationFrame(() => { planRaf = 0; updatePlan(); });
+  }
+
+  function svgPoint(svg, e) {
+    const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+    return p.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
+  function attachPlanEvents(svg) {
+    svg.addEventListener("pointerdown", e => {
+      if (!editing) return;
+      const x = e.target.closest(".mk-x");
+      if (x) {
+        e.preventDefault(); e.stopPropagation();
+        togglePlanHidden(x.closest(".mk").dataset.entity);
+        render(); return;
+      }
+      const t = e.target.closest("[data-drag]"); if (!t) return;
+      e.preventDefault();
+      const kind = t.dataset.drag;
+      if (kind === "marker") drag = { kind, id: t.dataset.entity, area: planEls.markers[t.dataset.entity].area };
+      else { const a = t.dataset.area || t.closest(".room").dataset.area; drag = { kind, area: a, p0: svgPoint(svg, e), r0: { ...plan.rooms[a] } }; }
+      svg.setPointerCapture(e.pointerId);
+      svg.classList.add("dragging");
+    });
+    svg.addEventListener("pointermove", e => {
+      if (!drag) return;
+      const p = svgPoint(svg, e);
+      if (drag.kind === "marker") {
+        const r = plan.rooms[drag.area];
+        plan.markers[drag.id] = { fx: clamp((p.x - r.x) / r.w, .07, .93), fy: clamp((p.y - r.y) / r.h, .1, .93) };
+      } else {
+        const dx = p.x - drag.p0.x, dy = p.y - drag.p0.y, r0 = drag.r0;
+        plan.rooms[drag.area] = drag.kind === "room"
+          ? { ...r0, x: snap(r0.x + dx), y: snap(r0.y + dy) }
+          : { ...r0, w: Math.max(120, snap(r0.w + dx)), h: Math.max(100, snap(r0.h + dy)) };
+      }
+      applyGeometry();
+    });
+    const end = () => {
+      if (!drag) return;
+      drag = null; svg.classList.remove("dragging");
+      savePlan(); applyGeometry();
+    };
+    svg.addEventListener("pointerup", end);
+    svg.addEventListener("pointercancel", end);
+    svg.addEventListener("click", e => {
+      if (editing) return;
+      const mk = e.target.closest(".mk");
+      if (mk) return markerAction(mk.dataset.entity);
+      const room = e.target.closest(".room");
+      if (room) openRoom(room.dataset.area);
+    });
+  }
+
+  function markerAction(id) {
+    const s = states[id]; if (!s) return;
+    const d = domainOf(id);
+    if (d === "media_player") return callService("media_player", "media_play_pause", id);
+    if (TOGGLEABLE.has(d)) return callService("homeassistant", s.state === "on" ? "turn_off" : "turn_on", id);
+    if (d === "cover") return callService("cover", "toggle", id);
+    if (d === "camera") return openCam(id);
+    openRoom(planEls.markers[id].area);
+  }
+
+  // Tiroir latéral avec tous les contrôles de la pièce
+  function openRoom(a) {
+    $("drawerTitle").textContent = areaName(a);
+    const body = $("drawerBody"); body.innerHTML = "";
+    const list = Object.values(states).filter(s => visible(s) && areaOf(s.entity_id) === a);
+    if (!list.length) body.innerHTML = '<p class="empty">Rien à afficher dans cette pièce.</p>';
+    else { const grid = document.createElement("div"); grid.className = "grid"; fillArea(grid, list); body.append(grid); }
+    $("drawer").classList.add("open");
+  }
+  const closeRoom = () => $("drawer").classList.remove("open");
+
+  // ---------- Panneaux latéraux de la vue Plan ----------
+  const listDomain = d => Object.values(states).filter(s => domainOf(s.entity_id) === d && !isHidden(s.entity_id));
+  const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+  const fr = (v, dec = 1) => (+v).toFixed(dec).replace(".", ",");
+  const WEATHER = { "clear-night": "🌙", sunny: "☀️", partlycloudy: "⛅", cloudy: "☁️", rainy: "🌧️", pouring: "🌧️",
+                    snowy: "❄️", "snowy-rainy": "🌨️", fog: "🌫️", hail: "🌨️", lightning: "⛈️", "lightning-rainy": "⛈️",
+                    windy: "💨", "windy-variant": "💨", exceptional: "⚠️" };
+  const PRESETS = { comfort: "Confort", eco: "Éco", away: "Absence", boost: "Boost", sleep: "Nuit", home: "Maison", activity: "Activité" };
+  const HVAC = { heat: "Chauffe", cool: "Clim", heat_cool: "Auto", auto: "Auto", dry: "Déshumidification", fan_only: "Ventilation", off: "Arrêt" };
+
+  function roomIcon(n) {
+    n = n.toLowerCase();
+    return /enfant|b[ée]b[ée]|kid/.test(n) ? "🧸" : /chambre|bedroom|suite/.test(n) ? "🛏️" : /salon|s[ée]jour|living/.test(n) ? "🛋️"
+      : /cuisine|kitchen/.test(n) ? "🍳" : /bain|sdb|douche|bath/.test(n) ? "🚿" : /bureau|office/.test(n) ? "💻"
+      : /entr[ée]e|hall|couloir|palier/.test(n) ? "🚪" : /garage/.test(n) ? "🚗" : /jardin|terrasse|ext[ée]rieur|balcon|piscine/.test(n) ? "🌳"
+      : /buanderie|cellier|lingerie/.test(n) ? "🧺" : /wc|toilette/.test(n) ? "🚽" : /manger|repas/.test(n) ? "🍽️" : "◻️";
+  }
+  function sceneIcon(n) {
+    n = n.toLowerCase();
+    return /soir|ap[ée]ro|f[êe]te|party/.test(n) ? "🍸" : /cin[ée]|film|t[ée]l[ée]|tv/.test(n) ? "🎬"
+      : /absen|d[ée]part|partir|vacances|away/.test(n) ? "🏡" : /nuit|dodo|coucher|sleep|night/.test(n) ? "🌙"
+      : /matin|r[ée]veil|morning/.test(n) ? "☀️" : /repas|d[îi]ner|d[ée]jeuner/.test(n) ? "🍽️"
+      : /lecture|lire/.test(n) ? "📖" : /arriv|retour|bienvenue/.test(n) ? "👋" : "✨";
+  }
+
+  // Capteurs de température intérieurs = ceux rangés dans une pièce
+  const indoorTemps = () => Object.values(states).filter(s => domainOf(s.entity_id) === "sensor"
+    && s.attributes.device_class === "temperature" && areaOf(s.entity_id) && num(s.state) != null && !isHidden(s.entity_id));
+  const toKW = s => { const v = num(s.state) || 0; return (s.attributes.unit_of_measurement || "W").toLowerCase() === "kw" ? v : v / 1000; };
+  // Puissance de la maison : un capteur « total / maison / compteur… » sinon le plus élevé
+  function powerSensor() {
+    const ps = Object.values(states).filter(s => domainOf(s.entity_id) === "sensor" && s.attributes.device_class === "power" && num(s.state) != null);
+    if (!ps.length) return null;
+    return ps.find(s => /(maison|total|g[ée]n[ée]ral|r[ée]seau|grid|linky|compteur|consommation|house|home)/i.test(nameOf(s) + " " + s.entity_id))
+      || ps.sort((a, b) => toKW(b) - toKW(a))[0];
+  }
+
+  // Historique (24 h de température, 12 h de puissance) pour les mini-graphiques
+  const hist = { temp: null, power: null, at: 0, key: "" };
+  async function loadHistory(tempIds, powerId) {
+    const key = tempIds.join(",") + "|" + (powerId || "");
+    if (hist.key === key && Date.now() - hist.at < 10 * 60e3) return;
+    hist.key = key; hist.at = Date.now();
+    const ids = [...tempIds, powerId].filter(Boolean);
+    if (!ids.length) return;
+    try {
+      const r = await send({ type: "history/history_during_period", start_time: new Date(Date.now() - 24 * 3600e3).toISOString(),
+                             entity_ids: ids, minimal_response: true, no_attributes: true });
+      hist.temp = tempIds.length ? bucket(tempIds.map(id => r[id] || []), 24, 24) : null;
+      hist.power = powerId ? bucket([r[powerId] || []], 12, 12) : null;
+      scheduleSides();
+    } catch (e) { console.warn("Historique indisponible", e); }
+  }
+  setInterval(() => { hist.at = 0; if (view === "plan" && $("leftCol").childElementCount) {
+    const p = powerSensor(); loadHistory(indoorTemps().slice(0, 8).map(s => s.entity_id), p && p.entity_id); } }, 10 * 60e3);
+
+  // n tranches sur les `hours` dernières heures ; moyenne des capteurs (dernière valeur connue sinon)
+  function bucket(series, n, hours) {
+    const end = Date.now(), step = hours * 3600e3 / n, out = [];
+    const pts = series.map(arr => arr.map(p => [(p.lu ?? p.lc ?? 0) * 1000, parseFloat(p.s)]).filter(p => !isNaN(p[1])));
+    for (let k = 0; k < n; k++) {
+      const t1 = end - (n - 1 - k) * step, t0 = t1 - step, vals = [];
+      pts.forEach(arr => {
+        const inside = arr.filter(p => p[0] > t0 && p[0] <= t1).map(p => p[1]);
+        if (inside.length) vals.push(inside.reduce((a, b) => a + b, 0) / inside.length);
+        else { let last = null; for (const p of arr) { if (p[0] <= t1) last = p[1]; else break; } if (last != null) vals.push(last); }
+      });
+      out.push(vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null);
+    }
+    return out;
+  }
+  function spark(vals) {
+    const v = (vals || []).map((x, i) => [i, x]).filter(p => p[1] != null);
+    if (v.length < 2) return "";
+    const W = 130, H = 46, n = vals.length - 1, ys = v.map(p => p[1]);
+    const mn = Math.min(...ys), mx = Math.max(...ys), rg = (mx - mn) || 1;
+    const pts = v.map(([i, y]) => [i / n * W, H - 5 - (y - mn) / rg * (H - 12)]);
+    // courbe lissée
+    let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+    for (let k = 1; k < pts.length; k++) {
+      const [x0, y0] = pts[k - 1], [x1, y1] = pts[k], cx = (x0 + x1) / 2;
+      d += ` C${cx.toFixed(1)} ${y0.toFixed(1)} ${cx.toFixed(1)} ${y1.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+    }
+    const lx = pts[pts.length - 1][0], fx = pts[0][0];
+    return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs><linearGradient id="spk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="rgb(63,208,224)" stop-opacity=".35"/><stop offset="1" stop-color="rgb(63,208,224)" stop-opacity="0"/></linearGradient></defs>
+      <path d="${d} L${lx} ${H} L${fx} ${H} Z" fill="url(#spk)"/>
+      <path d="${d}" fill="none" stroke="rgb(63,208,224)" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="${lx}" cy="${pts[pts.length - 1][1]}" r="3" fill="rgb(63,208,224)"/></svg>`;
+  }
+  function bars(vals) {
+    const v = (vals || []).map(x => x == null ? 0 : Math.abs(x));
+    if (!v.some(x => x > 0)) return "";
+    const mx = Math.max(...v), W = 96, H = 46, bw = W / v.length;
+    return `<svg class="bars" viewBox="0 0 ${W} ${H}" aria-hidden="true">${v.map((x, i) => {
+      const h = Math.max(2, x / mx * (H - 4));
+      return `<rect x="${(i * bw + 1.2).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw - 2.4).toFixed(1)}" height="${h.toFixed(1)}" rx="1.5"
+        fill="rgb(63,208,224)" opacity="${(0.3 + 0.7 * (i + 1) / v.length).toFixed(2)}"/>`; }).join("")}</svg>`;
+  }
+
+  function renderSides() {
+    const L = $("leftCol"), R = $("rightCol");
+    L.innerHTML = `
+      <div class="panel glass occ"><div class="occ-ic" id="occIc">🏠</div>
+        <div><div class="occ-title" id="occTitle"></div><div class="occ-sub" id="occSub"></div></div>
+        <div class="occ-people" id="peopleSlot"></div></div>
+      <div class="panel glass"><h3>Scénarios rapides</h3><div class="scenes" id="scenes"></div></div>
+      <div class="panel glass"><h3>État de la maison</h3><div id="houseState"></div></div>`;
+    const people = buildPeople();
+    if (people) $("peopleSlot").append(people);
+    updatePeople();
+    const sc = [...listDomain("scene"), ...listDomain("script")].sort(byName);
+    $("scenes").innerHTML = sc.length
+      ? sc.map(s => `<button type="button" class="scene" data-scene="${s.entity_id}"><span class="sc-ic">${sceneIcon(nameOf(s))}</span><span>${esc(nameOf(s))}</span></button>`).join("")
+      : `<div class="sub">Aucune scène ni script dans Home Assistant.</div>`;
+    L.onclick = e => {
+      const b = e.target.closest("[data-scene]"); if (!b) return;
+      const id = b.dataset.scene;
+      callService(domainOf(id), "turn_on", id);
+      b.classList.add("fired"); setTimeout(() => b.classList.remove("fired"), 1400);
+    };
+    R.innerHTML = `<div class="panel glass" id="tempCard"></div><div class="panel glass" id="powerCard"></div><div class="panel glass" id="quick"></div>`;
+    R.onchange = e => { const t = e.target.closest("[data-act]"); if (t) quickAction(t.dataset.act, t.checked, t); };
+    updateSides();
+    const p = powerSensor();
+    loadHistory(indoorTemps().slice(0, 8).map(s => s.entity_id), p && p.entity_id);
+  }
+
+  let sidesRaf = 0;
+  function scheduleSides() {
+    if (sidesRaf || view !== "plan") return;
+    sidesRaf = requestAnimationFrame(() => { sidesRaf = 0; updateSides(); });
+  }
+
+  function updateSides() {
+    if (!$("occTitle")) return;
+    // Occupation
+    const persons = Object.values(states).filter(s => domainOf(s.entity_id) === "person" && !(plan.hiddenPeople || []).includes(s.entity_id));
+    const home = persons.filter(s => s.state === "home").length;
+    $("occTitle").textContent = !persons.length ? "Maison" : home ? "Maison occupée" : "Maison vide";
+    $("occSub").textContent = !persons.length ? "Aucune personne définie dans HA" : home ? `${home} personne${home > 1 ? "s" : ""}` : "Personne à la maison";
+    $("occIc").classList.toggle("on", home > 0);
+
+    // État de la maison
+    const all = Object.values(states), rows = [];
+    const alarm = all.find(s => domainOf(s.entity_id) === "alarm_control_panel");
+    if (alarm) {
+      const st = alarm.state;
+      rows.push({ ic: "🛡️", label: "Alarme", ok: st !== "triggered",
+        val: st === "disarmed" ? "Désactivée" : st === "triggered" ? "Déclenchée !" : st.startsWith("armed") ? "Activée"
+           : st === "arming" ? "Activation…" : st === "pending" ? "En attente" : st });
+    }
+    const covers = all.filter(s => domainOf(s.entity_id) === "cover");
+    const coverOpen = s => ["open", "opening", "closing"].includes(s.state);
+    const gates = covers.filter(s => s.attributes.device_class === "gate");
+    if (gates.length) { const o = gates.filter(coverOpen); rows.push({ ic: "🚧", label: "Portail", val: o.length ? "Ouvert" : "Fermé", ok: !o.length }); }
+    const garages = [...covers.filter(s => s.attributes.device_class === "garage"),
+                     ...all.filter(s => domainOf(s.entity_id) === "binary_sensor" && s.attributes.device_class === "garage_door")];
+    if (garages.length) {
+      const o = garages.filter(s => domainOf(s.entity_id) === "cover" ? coverOpen(s) : s.state === "on");
+      rows.push({ ic: "🚗", label: "Garage", val: o.length ? "Ouvert" : "Fermé", ok: !o.length });
+    }
+    const openings = all.filter(s => domainOf(s.entity_id) === "binary_sensor"
+      && ["door", "window", "opening"].includes(s.attributes.device_class) && !isHidden(s.entity_id));
+    if (openings.length) {
+      const o = openings.filter(s => s.state === "on");
+      rows.push({ ic: "🪟", label: "Portes & fenêtres", ok: !o.length, title: o.map(nameOf).join(", "),
+                  val: o.length ? `${o.length} ouverte${o.length > 1 ? "s" : ""} : ${o.map(nameOf).join(", ")}` : "Toutes fermées" });
+    }
+    const locks = listDomain("lock");
+    if (locks.length) {
+      const u = locks.filter(s => s.state !== "locked");
+      rows.push({ ic: "🔒", label: "Serrures", val: u.length ? `${u.length} déverrouillée${u.length > 1 ? "s" : ""}` : "Verrouillées", ok: !u.length });
+    }
+    $("houseState").innerHTML = rows.length ? rows.map(r => `<div class="hrow" title="${esc(r.title || "")}">
+        <span class="h-ic">${r.ic}</span><span class="h-txt"><b>${r.label}</b><span>${esc(r.val)}</span></span>
+        <span class="h-st ${r.ok ? "ok" : "warn"}">${r.ok ? "✓" : "!"}</span></div>`).join("")
+      : `<div class="sub">Aucun capteur de sécurité trouvé.</div>`;
+
+    // Température moyenne intérieure
+    const ts = indoorTemps();
+    let avg = ts.length ? ts.reduce((a, s) => a + num(s.state), 0) / ts.length : null;
+    let src = `${ts.length} capteur${ts.length > 1 ? "s" : ""}`;
+    if (avg == null) {
+      const cl = listDomain("climate").map(s => num(s.attributes.current_temperature)).filter(v => v != null);
+      if (cl.length) { avg = cl.reduce((a, b) => a + b, 0) / cl.length; src = "thermostat" + (cl.length > 1 ? "s" : ""); }
+    }
+    $("tempCard").innerHTML = `<div class="stat-head"><span class="stat-ic">🌡️</span>Température</div>` + (avg == null
+      ? `<div class="sub">Aucun capteur de température dans une pièce.</div>`
+      : `<div class="stat-row"><div><div class="big">${fr(avg)}<small> °C</small></div><div class="sub">Maison · ${src}</div></div>${spark(hist.temp)}</div>`);
+
+    // Puissance
+    const p = powerSensor();
+    $("powerCard").innerHTML = `<div class="stat-head"><span class="stat-ic">⚡</span>Énergie</div>` + (!p
+      ? `<div class="sub">Aucun capteur de puissance.</div>`
+      : `<div class="stat-row"><div><div class="big">${toKW(p) < 1 ? Math.round(toKW(p) * 1000) + "<small> W</small>" : fr(toKW(p)) + "<small> kW</small>"}</div>
+           <div class="sub">Consommation actuelle</div></div>${bars(hist.power)}</div>`);
+
+    // Raccourcis
+    const q = [];
+    const lights = listDomain("light");
+    if (lights.length) {
+      const on = lights.filter(s => s.state === "on").length;
+      q.push({ act: "lights", ic: "💡", label: "Lumières", sub: `${on} allumée${on > 1 ? "s" : ""} / ${lights.length}`, on: on > 0, glow: "255,186,82" });
+    }
+    const shutters = covers.filter(s => !["gate", "garage"].includes(s.attributes.device_class) && !isHidden(s.entity_id));
+    if (shutters.length) {
+      const o = shutters.filter(coverOpen).length;
+      q.push({ act: "covers", ic: "🪟", label: "Volets", on: o > 0, glow: "165,140,255",
+               sub: o === shutters.length ? "Tous ouverts" : o === 0 ? "Tous fermés" : `${o} ouvert${o > 1 ? "s" : ""} / ${shutters.length}` });
+    }
+    const clim = listDomain("climate");
+    if (clim.length) {
+      const act = clim.filter(s => s.state !== "off" && s.state !== "unavailable"), c = act[0] || clim[0], pm = c.attributes.preset_mode;
+      const sub = !act.length ? "Arrêt" : pm && PRESETS[pm] ? "Mode " + PRESETS[pm]
+        : (HVAC[c.state] || c.state) + (c.attributes.temperature != null ? ` · ${fr(c.attributes.temperature)}°` : "");
+      q.push({ act: "climate", ic: "♨️", label: "Chauffage", sub, on: act.length > 0, glow: "255,128,82" });
+    }
+    $("quick").innerHTML = q.length ? q.map(x => `<div class="qrow" style="--glow:${x.glow}">
+        <span class="q-ic">${x.ic}</span><span class="h-txt"><b>${x.label}</b><span>${esc(x.sub)}</span></span>
+        <label class="switch"><input type="checkbox" data-act="${x.act}" ${x.on ? "checked" : ""}><span></span></label></div>`).join("")
+      : `<div class="sub">Rien à piloter.</div>`;
+  }
+
+  function quickAction(act, on, input) {
+    if (act === "lights") {
+      const lights = listDomain("light");
+      if (on) {
+        if (!confirm(`Allumer les ${lights.length} lumières ?`)) { input.checked = false; return; }
+        callService("light", "turn_on", lights.map(s => s.entity_id));
+      } else callService("light", "turn_off", lights.filter(s => s.state === "on").map(s => s.entity_id));
+    } else if (act === "covers") {
+      const sh = listDomain("cover").filter(s => !["gate", "garage"].includes(s.attributes.device_class)).map(s => s.entity_id);
+      callService("cover", on ? "open_cover" : "close_cover", sh);
+    } else if (act === "climate") {
+      callService("climate", on ? "turn_on" : "turn_off", listDomain("climate").map(s => s.entity_id));
+    }
+  }
+
+  // Barre du haut : météo + horloge
+  function updateWeather() {
+    const w = Object.values(states).find(s => domainOf(s.entity_id) === "weather"), el = $("weather");
+    if (!w || w.attributes.temperature == null) { el.innerHTML = ""; return; }
+    el.innerHTML = `<span class="w-ic">${WEATHER[w.state] || "🌡️"}</span><span><b>${fr(w.attributes.temperature)} ${esc(w.attributes.temperature_unit || "°C")}</b><small>Extérieur</small></span>`;
+  }
+  function tick() {
+    const d = new Date();
+    $("clockTime").textContent = d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+    const ds = d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+    $("clockDate").textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
+  }
+  tick(); setInterval(tick, 10000);
+
+  // Image de fond du plan (redimensionnée puis gardée dans le navigateur)
+  const BG_KEY = "ha-dashboard-planbg";
+  let planBgs = ls.get(BG_KEY, null) || {};
+  if (planBgs.src) planBgs = { _first: planBgs }; // ancienne version : une seule image → premier niveau
+  let planBg = null;
+  const bgFor = lv => planBgs[lv] || (lv === levels()[0].id ? planBgs._first || null : null);
+  function resizeImage(file, max) {
+    return new Promise((res, rej) => {
+      const fr2 = new FileReader();
+      fr2.onload = () => {
+        const im = new Image();
+        im.onload = () => {
+          const k = Math.min(1, max / Math.max(im.width, im.height));
+          const c = document.createElement("canvas");
+          c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+          c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+          res({ src: c.toDataURL("image/jpeg", 0.84), ratio: c.height / c.width });
+        };
+        im.onerror = rej; im.src = fr2.result;
+      };
+      fr2.onerror = rej; fr2.readAsDataURL(file);
+    });
+  }
+  async function setPlanBg(file) {
+    try {
+      const { src, ratio } = await resizeImage(file, 1800);
+      const rs = levelAreas(currentLevel()).filter(a => plan.rooms[a]).map(a => plan.rooms[a]);
+      const x0 = rs.length ? Math.min(...rs.map(r => r.x)) : PAD, y0 = rs.length ? Math.min(...rs.map(r => r.y)) : PAD;
+      const x1 = rs.length ? Math.max(...rs.map(r => r.x + r.w)) : 980;
+      planBg = { src, x: x0, y: y0, w: x1 - x0, h: (x1 - x0) * ratio };
+      const lvl = currentLevel();
+      planBgs[lvl] = planBg;
+      if (lvl === levels()[0].id) delete planBgs._first;
+      try { localStorage.setItem(BG_KEY, JSON.stringify(planBgs)); }
+      catch { alert("Image trop lourde pour être mémorisée dans le navigateur : elle s'affichera jusqu'au rechargement de la page."); }
+      render();
+    } catch { alert("Impossible de lire cette image."); }
+  }
+
+  // ---------- Caméras ----------
+  // HA donne à chaque caméra un jeton temporaire (attribut access_token), renouvelé régulièrement.
+  function camUrl(id, kind) {
+    const s = states[id]; if (!s) return "";
+    const base = conn.url.replace(/\/+$/, "");
+    const path = kind === "stream" ? "/api/camera_proxy_stream/" : "/api/camera_proxy/";
+    return `${base}${path}${id}?token=${encodeURIComponent(s.attributes.access_token || "")}&t=${Date.now()}`;
+  }
+
+  // Rafraîchir les aperçus toutes les 5 s (seulement si l'onglet est visible)
+  setInterval(() => {
+    if (document.hidden || !ws || ws.readyState !== 1) return;
+    document.querySelectorAll('.card[data-entity^="camera."] .cam-img').forEach(img => {
+      if (img.closest(".sec.collapsed")) return; // section repliée : pas de rafraîchissement
+      const id = img.closest(".card").dataset.entity;
+      const next = new Image();
+      next.onload = () => { img.src = next.src; };
+      next.src = camUrl(id, "snapshot");
+    });
+  }, 5000);
+
+  let camOpen = null, camSnapTimer = null;
+  function openCam(id, mode = "stream") {
+    camOpen = id;
+    clearInterval(camSnapTimer);
+    const live = $("camLive");
+    $("camTitle").textContent = nameOf(states[id]);
+    $("camModal").classList.remove("hidden");
+    if (mode === "stream") {
+      live.src = camUrl(id, "stream");
+      $("camInfo").textContent = "Flux en direct (MJPEG)";
+      $("camSnap").textContent = "Image fixe";
+      live.onerror = () => { if (camOpen === id) openCam(id, "snapshot"); };
+    } else {
+      live.onerror = null;
+      const tick = () => { live.src = camUrl(id, "snapshot"); };
+      tick(); camSnapTimer = setInterval(tick, 1000);
+      $("camInfo").textContent = "Images rafraîchies chaque seconde";
+      $("camSnap").textContent = "Flux en direct";
+    }
+    $("camSnap").onclick = () => openCam(id, mode === "stream" ? "snapshot" : "stream");
+  }
+  function closeCam() {
+    camOpen = null; clearInterval(camSnapTimer);
+    const live = $("camLive"); live.onerror = null;
+    live.removeAttribute("src"); // coupe le flux
+    $("camModal").classList.add("hidden");
+  }
+  $("camClose").onclick = closeCam;
+  $("camModal").onclick = e => { if (e.target.id === "camModal") closeCam(); };
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && camOpen) closeCam(); });
+
+  // ---------- Événements ----------
+  $("loginForm").onsubmit = e => {
+    e.preventDefault();
+    $("loginError").textContent = "";
+    conn = { url: $("haUrl").value.trim().replace(/\/+$/, ""),
+             token: $("haToken").value.trim().replace(/^Bearer\s+/i, "") };
+    if ($("remember").checked) ls.set(K.conn, conn); else ls.del(K.conn);
+    connect();
+  };
+  $("logoutBtn").onclick = () => {
+    document.body.classList.remove("connected");
+    manualClose = true; clearTimeout(reconnectTimer);
+    closeCam();
+    if (ws) ws.close();
+    ls.del(K.conn); states = {};
+    setStatus("Déconnecté");
+    $("haToken").value = "";
+    $("loginForm").classList.remove("hidden");
+    $("dashboard").classList.add("hidden");
+    $("logoutBtn").classList.add("hidden");
+  };
+  document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => {
+    view = b.dataset.view; ls.set(K.view, view); render();
+  });
+  $("editBtn").onclick = () => setEditing(!editing);
+  $("editDone").onclick = () => setEditing(false);
+  $("resetHidden").onclick = () => {
+    if (!confirm("Revenir à l'affichage par défaut ? (les entités techniques restent masquées)")) return;
+    hidden.clear(); shown.clear(); saveHidden(); render();
+  };
+  // Tout déplier / replier : agit sur les sections actuellement affichées
+  $("expandAll").onclick = () => {
+    document.querySelectorAll(".sec").forEach(s => collapsed.delete(s.dataset.key)); saveColl(); render();
+  };
+  $("collapseAll").onclick = () => {
+    document.querySelectorAll(".sec").forEach(s => collapsed.add(s.dataset.key)); saveColl(); render();
+  };
+  $("regenPlan").onclick = () => {
+    if (!confirm("Régénérer le plan de ce niveau ? Tes déplacements de pièces et d'icônes y seront perdus.")) return;
+    generateLayout(levelAreas(currentLevel())); render();
+  };
+  $("drawerClose").onclick = closeRoom;
+  $("bgInput").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) setPlanBg(f); };
+  $("bgRemove").onclick = () => {
+    if (!confirm("Retirer l'image de fond du plan ?")) return;
+    const lvl = currentLevel();
+    delete planBgs[lvl]; if (lvl === levels()[0].id) delete planBgs._first;
+    try { localStorage.setItem(BG_KEY, JSON.stringify(planBgs)); } catch {}
+    planBg = null; render();
+  };
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeRoom(); });
+  $("search").oninput = render;
+  $("domainFilter").onchange = render;
+
+  // ---------- Démarrage ----------
+  // Si la page est servie par Home Assistant (/local/), on pré-remplit l'adresse.
+  $("haUrl").value = location.protocol.startsWith("http") ? location.origin : "http://homeassistant.local:8123";
+  const saved = ls.get(K.conn, null);
+  if (saved && saved.url && saved.token) {
+    conn = saved; $("haUrl").value = saved.url; connect();
+  }
+})();
+</script>
+</body>
+</html>
