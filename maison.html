@@ -488,6 +488,8 @@
   .room-w.alert .walls-hi { stroke: #ff5d6c; stroke-width: 3; animation: wallPulse 1.3s ease-in-out infinite; }
   .room.alert .walls, .room.lit .walls { stroke: #0a111c; }
   .rlabel { pointer-events: none; }
+  /* Le nom des pièces n'apparaît qu'en mode édition */
+  body:not(.editing) .rlabel { display: none; }
   .rl-bg { fill: rgba(10,16,28,.6); stroke: rgba(140,190,255,.14); }
   .rl-name { fill: #eef3fb; font: 600 15px "Inter", system-ui, sans-serif; }
   .rlabel .rinfo { fill: #a6b4c8; font: 500 12px "Inter", system-ui, sans-serif; }
