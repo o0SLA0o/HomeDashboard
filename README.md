@@ -5,7 +5,7 @@ Tableau de bord web en un seul fichier (`maison.html`), sans dépendance, qui pi
 ## Fonctionnalités
 
 - **Plan interactif multi-niveaux** : plan stylisé généré depuis les pièces HA, étages HA + niveaux personnalisés (ex. dépendance), halos de la vraie couleur des lumières, sol teinté selon la température, alertes d'ouverture, ondes de présence, pochette et titre défilant des médias.
-- **Panneaux latéraux** : occupation (personnes), scénarios rapides, état de la maison (alarme, portail, garage, ouvertures, serrures), température moyenne avec historique 24 h, consommation électrique, raccourcis lumières / volets / chauffage.
+- **Panneaux latéraux flottants** (repliés par défaut, repli automatique après 30 s) : occupation (personnes), scénarios rapides, état de la maison (alarme, portail, garage, ouvertures, serrures), température moyenne avec historique 24 h, consommation électrique, raccourcis lumières / volets / chauffage.
 - **Vues Pièces et Types**, regroupement par appareil, sections repliables.
 - **Caméras** : aperçus rafraîchis et flux en direct en plein écran.
 - **Mode édition** : masquer entités / appareils / personnes, déplacer et redimensionner les pièces, image de fond par niveau.

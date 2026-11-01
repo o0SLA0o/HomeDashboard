@@ -373,9 +373,36 @@
   .btnlike:hover { background: rgba(255,255,255,.13); }
 
   /* Mise en page à trois colonnes (vue Plan) */
-  .layout.with-sides { display: grid; grid-template-columns: 300px minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
-  .layout:not(.with-sides) .side { display: none; }
-  .side { display: flex; flex-direction: column; gap: 14px; }
+  /* Vue Plan : le plan prend toute la largeur, les panneaux flottent par-dessus */
+  .layout { position: relative; }
+  .layout:not(.with-sides) .side, .layout:not(.with-sides) .side-tab { display: none; }
+  .side { display: flex; flex-direction: column; gap: 14px; position: absolute; top: 0; z-index: 6;
+          width: min(310px, calc(100vw - 72px)); max-height: calc(100vh - 120px); overflow-y: auto; overscroll-behavior: contain;
+          padding: 4px; scrollbar-width: thin; transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .35s ease, visibility 0s linear .45s; }
+  .side .panel { background: rgba(10,18,32,.82); box-shadow: 0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.1); }
+  #leftCol { left: 0; transform: translateX(calc(-100% - 30px)); }
+  #rightCol { right: 0; transform: translateX(calc(100% + 30px)); }
+  .side { opacity: 0; visibility: hidden; pointer-events: none; }
+  .layout.left-open #leftCol, .layout.right-open #rightCol {
+    transform: none; opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+  /* Languettes sur les bords */
+  .side-tab { position: absolute; top: 90px; z-index: 7; width: 34px; padding: 12px 0; border-radius: 0 14px 14px 0;
+              display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 16px;
+              background: rgba(10,18,32,.85); border: 1px solid var(--stroke-hi); color: var(--ink);
+              box-shadow: 0 8px 26px rgba(0,0,0,.5), 0 0 16px rgba(var(--accent),.18);
+              transition: left .45s cubic-bezier(.2,.8,.2,1), right .45s cubic-bezier(.2,.8,.2,1), background .2s; }
+  .side-tab:hover { background: rgba(var(--accent),.2); }
+  .side-tab.left { left: -16px; border-left: 0; }
+  .side-tab.right { right: -16px; border-right: 0; border-radius: 14px 0 0 14px; }
+  .layout.left-open .side-tab.left { left: min(310px, calc(100vw - 72px)); }
+  .layout.right-open .side-tab.right { right: min(310px, calc(100vw - 72px)); }
+  .st-chev { font-size: 12px; color: rgb(var(--accent)); transition: transform .45s; }
+  .layout.left-open .side-tab.left .st-chev, .layout.right-open .side-tab.right .st-chev { transform: rotate(180deg); }
+  .st-txt { writing-mode: vertical-rl; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: #cfe3f5; }
+  .st-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+  .st-dot.warn { background: var(--err); box-shadow: 0 0 10px var(--err); animation: wallPulse 1.3s infinite; }
+  .st-dot:empty { }
+  @media (min-width: 1400px) { .side-tab.left { left: -20px; } .side-tab.right { right: -20px; } }
   .panel { padding: 18px; border-radius: 20px; }
   .panel h3 { margin: 0 0 12px; font-size: 16px; font-weight: 600; }
   .occ { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; }
@@ -441,10 +468,6 @@
   body.editing .has-bg .room-w .walls-hi { stroke: rgba(var(--accent),.7); stroke-width: 2; }
   .has-bg .glow { mix-blend-mode: screen; }
 
-  @media (max-width: 1250px) {
-    .layout.with-sides { grid-template-columns: 1fr 1fr; }
-    .layout.with-sides #groups { grid-column: 1 / -1; order: -1; }
-  }
   @media (max-width: 860px) {
     .topbar { flex-wrap: wrap; padding: 10px 12px; gap: 10px; }
     .tabs { order: 3; width: 100%; justify-content: center; margin: 0; }
@@ -452,8 +475,8 @@
     .weather { padding-left: 10px; }
   }
   @media (max-width: 640px) {
-    .layout.with-sides { grid-template-columns: 1fr; }
     .clock { display: none; }
+    .side-tab.left { left: -12px; } .side-tab.right { right: -12px; }
   }
 
   /* Niveaux */
@@ -534,9 +557,13 @@
       <span>Impossible de lire les pièces depuis Home Assistant : affichage par type à la place.</span>
     </div>
     <div class="layout" id="layout">
-      <aside class="side" id="leftCol"></aside>
+      <aside class="side" id="leftCol" aria-label="Maison : occupation, scénarios, état"></aside>
+      <button type="button" class="side-tab left" id="leftTab" aria-controls="leftCol" aria-expanded="false" title="Occupation, scénarios et état de la maison">
+        <span class="st-chev">▶</span><span>🏠</span><span class="st-dot" id="leftDot"></span><span class="st-txt" id="leftTxt">Maison</span></button>
       <div id="groups"></div>
-      <aside class="side" id="rightCol"></aside>
+      <aside class="side" id="rightCol" aria-label="Température, énergie et raccourcis"></aside>
+      <button type="button" class="side-tab right" id="rightTab" aria-controls="rightCol" aria-expanded="false" title="Température, énergie et raccourcis">
+        <span class="st-chev">◀</span><span>🌡️</span><span class="st-txt" id="rightTxt">Infos</span></button>
     </div>
   </section>
 </main>
@@ -1866,6 +1893,23 @@
     loadHistory(indoorTemps().slice(0, 8).map(s => s.entity_id), p && p.entity_id);
   }
 
+  // Panneaux repliés par défaut ; repli automatique après 30 s sans interaction dans le panneau
+  const SIDE_IDLE = 30000, sideTimers = {};
+  function setSide(which, open) {
+    const lay = $("layout");
+    lay.classList.toggle(which + "-open", open);
+    $(which + "Tab").setAttribute("aria-expanded", String(open));
+    clearTimeout(sideTimers[which]);
+    if (open) sideTimers[which] = setTimeout(() => setSide(which, false), SIDE_IDLE);
+  }
+  function bumpSide(which) { if ($("layout").classList.contains(which + "-open")) setSide(which, true); }
+  ["left", "right"].forEach(w => {
+    $(w + "Tab").onclick = () => setSide(w, !$("layout").classList.contains(w + "-open"));
+    ["pointerdown", "pointermove", "wheel", "keydown", "focusin", "touchstart"].forEach(ev =>
+      $(w === "left" ? "leftCol" : "rightCol").addEventListener(ev, () => bumpSide(w), { passive: true }));
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { setSide("left", false); setSide("right", false); } });
+
   let sidesRaf = 0;
   function scheduleSides() {
     if (sidesRaf || view !== "plan") return;
@@ -1912,6 +1956,10 @@
       const u = locks.filter(s => s.state !== "locked");
       rows.push({ ic: "🔒", label: "Serrures", val: u.length ? `${u.length} déverrouillée${u.length > 1 ? "s" : ""}` : "Verrouillées", ok: !u.length });
     }
+    const warns = rows.filter(r => !r.ok).length;
+    $("leftDot").classList.toggle("warn", warns > 0);
+    $("leftDot").title = warns ? `${warns} point${warns > 1 ? "s" : ""} à vérifier` : "Tout est en ordre";
+    $("leftTxt").textContent = !persons.length ? "Maison" : home ? `${home} présent${home > 1 ? "s" : ""}` : "Vide";
     $("houseState").innerHTML = rows.length ? rows.map(r => `<div class="hrow" title="${esc(r.title || "")}">
         <span class="h-ic">${r.ic}</span><span class="h-txt"><b>${r.label}</b><span>${esc(r.val)}</span></span>
         <span class="h-st ${r.ok ? "ok" : "warn"}">${r.ok ? "✓" : "!"}</span></div>`).join("")
@@ -1925,6 +1973,7 @@
       const cl = listDomain("climate").map(s => num(s.attributes.current_temperature)).filter(v => v != null);
       if (cl.length) { avg = cl.reduce((a, b) => a + b, 0) / cl.length; src = "thermostat" + (cl.length > 1 ? "s" : ""); }
     }
+    $("rightTxt").textContent = avg == null ? "Infos" : `${fr(avg)} °C`;
     $("tempCard").innerHTML = `<div class="stat-head"><span class="stat-ic">🌡️</span>Température</div>` + (avg == null
       ? `<div class="sub">Aucun capteur de température dans une pièce.</div>`
       : `<div class="stat-row"><div><div class="big">${fr(avg)}<small> °C</small></div><div class="sub">Maison · ${src}</div></div>${spark(hist.temp)}</div>`);
