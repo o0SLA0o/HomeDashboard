@@ -8,7 +8,8 @@ Tableau de bord web en un seul fichier (`maison.html`), sans dépendance, qui pi
 - **Panneaux latéraux** : occupation (personnes), scénarios rapides, état de la maison (alarme, portail, garage, ouvertures, serrures), température moyenne avec historique 24 h, consommation électrique, raccourcis lumières / volets / chauffage.
 - **Vues Pièces et Types**, regroupement par appareil, sections repliables.
 - **Caméras** : aperçus rafraîchis et flux en direct en plein écran.
-- **Mode édition** : masquer entités / appareils / personnes, déplacer et redimensionner les pièces, placer les icônes, image de fond par niveau.
+- **Mode édition** : masquer entités / appareils / personnes, déplacer et redimensionner les pièces, image de fond par niveau.
+- **Appareils du plan au choix** : les pièces sont vides par défaut ; le bouton « + » d'une pièce (mode édition) ouvre la liste à cocher de ses entités Home Assistant, et « × » retire un appareil du plan.
 
 ## Installation
 

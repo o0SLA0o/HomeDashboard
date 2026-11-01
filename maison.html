@@ -251,7 +251,32 @@
   .mk-label { font: 500 11px "Inter", system-ui, sans-serif; fill: #d5dae7; pointer-events: none;
               paint-order: stroke; stroke: rgba(8,9,15,.85); stroke-width: 3px; stroke-linejoin: round; }
   .mk.on .mk-label { fill: #fff; }
-  .mk.masked { opacity: .35; }
+  .mk-val { font: 600 10px "Inter", system-ui, sans-serif; fill: #8fe3ef; pointer-events: none;
+            paint-order: stroke; stroke: rgba(8,9,15,.85); stroke-width: 3px; stroke-linejoin: round; }
+  .room-add { cursor: pointer; }
+  .room-add circle { fill: rgba(var(--accent),.22); stroke: rgb(var(--accent)); stroke-width: 1.5; transition: fill .2s; }
+  .room-add:hover circle { fill: rgba(var(--accent),.45); }
+  .room-add text { font: 600 20px "Inter", system-ui, sans-serif; fill: #fff; pointer-events: none; }
+  /* Fenêtre de choix des appareils */
+  .picker-wrap { position: fixed; inset: 0; z-index: 11; display: grid; place-items: center; padding: 16px;
+                 background: rgba(3,6,12,.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .picker { width: min(520px, 100%); max-height: min(720px, calc(100vh - 32px)); display: flex; flex-direction: column;
+            background: rgba(12,20,34,.88); border-radius: 22px; overflow: hidden; }
+  .pk-head, .pk-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; }
+  .pk-head { border-bottom: 1px solid var(--stroke); }
+  .pk-head strong { font-size: 20px; }
+  .pk-foot { border-top: 1px solid var(--stroke); }
+  .pk-body { overflow-y: auto; padding: 8px 10px; }
+  .pk-group + .pk-group { margin-top: 6px; }
+  .pk-dev { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); padding: 10px 8px 4px; }
+  .pk-item { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 12px; cursor: pointer; }
+  .pk-item:hover { background: rgba(255,255,255,.05); }
+  .pk-item input { width: 18px; height: 18px; accent-color: rgb(var(--accent)); flex: none; }
+  .pk-item:has(input:checked) { background: rgba(var(--accent),.1); }
+  .pk-ic { font-size: 18px; width: 24px; text-align: center; flex: none; }
+  .pk-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+  .pk-txt b { font-weight: 500; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pk-txt small { font-size: 12px; color: var(--muted); }
   .mk-cover { pointer-events: none; opacity: 0; transition: opacity .6s ease, filter .6s; }
   .mk.has-cover .mk-cover { opacity: 1; }
   .mk.has-cover .mk-ic { opacity: 0; }
@@ -260,12 +285,9 @@
   .mk-title { font: 500 10px "Inter", system-ui, sans-serif; fill: #f0c9ff; pointer-events: none;
               paint-order: stroke; stroke: rgba(8,9,15,.85); stroke-width: 3px; stroke-linejoin: round; }
   .mk.paused .mk-title { fill: var(--muted); }
-  .mk.masked .mk-bg { stroke-dasharray: 4 3; }
   .mk-x { cursor: pointer; }
   .mk-x circle { fill: #ff5d6c; stroke: rgba(8,9,15,.9); stroke-width: 2; }
-  .mk.masked .mk-x circle { fill: #3ddc97; }
   .mk-x text { font: 700 13px "Inter", system-ui, sans-serif; fill: #fff; pointer-events: none; }
-  .mk.masked .mk-x { opacity: 1; }
   /* Personnes : avatars discrets centrés */
   .people { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 2px 4px 12px; }
   .person { position: relative; flex: none; cursor: default; }
@@ -524,6 +546,17 @@
   <div class="drawer-head"><strong id="drawerTitle"></strong><button type="button" id="drawerClose">Fermer ✕</button></div>
   <div id="drawerBody"></div>
 </aside>
+
+<!-- Choix des appareils d'une pièce (plan) -->
+<div class="picker-wrap hidden" id="picker">
+  <div class="picker glass" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+    <div class="pk-head"><div><div class="sub">Appareils affichés sur le plan</div><strong id="pickerTitle"></strong></div>
+      <button type="button" id="pickerAll">Tout cocher</button></div>
+    <div class="pk-body" id="pickerBody"></div>
+    <div class="pk-foot"><span class="sub" id="pickerCount"></span>
+      <div class="btns"><button type="button" id="pickerCancel">Annuler</button><button type="button" class="primary" id="pickerOk">Valider</button></div></div>
+  </div>
+</div>
 
 <!-- Plein écran caméra -->
 <div class="modal hidden" id="camModal">
@@ -1050,12 +1083,11 @@
   function updateEditInfo() {
     $("editSub").textContent = "Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.";
     if (view === "plan" && reg.ok) {
-      const n = plan.hidden.length;
-      $("editInfo").textContent = "déplace et redimensionne les pièces, place les appareils"
-        + (n ? ` · ${n} icône${n > 1 ? "s" : ""} masquée${n > 1 ? "s" : ""}.` : ".");
+      const n = planEls ? Object.keys(planEls.markers).length : 0;
+      $("editInfo").textContent = `choisis les appareils de chaque pièce avec ＋ · ${n} appareil${n > 1 ? "s" : ""} sur ce niveau.`;
       $("editSub").textContent = planBg
-        ? "Place les pièces par-dessus l'image : elles deviennent des zones transparentes où s'affichent les lumières. × masque une icône, ◢ redimensionne."
-        : "× masque une icône du plan seulement, + la réaffiche. Le coin ◢ redimensionne une pièce. Tu peux aussi mettre une image (rendu 3D de ta maison) en fond.";
+        ? "Place les pièces par-dessus l'image : elles deviennent des zones transparentes où s'affichent les lumières. × retire un appareil, ◢ redimensionne une pièce."
+        : "× retire un appareil du plan (il reste dans les autres vues). Glisse pour déplacer, coin ◢ pour redimensionner. Tu peux aussi mettre une image en fond.";
       return;
     }
     const n = Object.keys(states).filter(id => (domainOf(id) in DOMAINS) && isHidden(id)).length;
@@ -1076,13 +1108,15 @@
   const PAD = 20, LABEL_H = 84, SNAP = 10, GAP = 0;
   const PLAN_KEY = "ha-dashboard-plan";
   let plan = ls.get(PLAN_KEY, null) || { rooms: {}, markers: {} };
-  if (!Array.isArray(plan.hidden)) plan.hidden = [];
-  const planHidden = id => plan.hidden.includes(id);
-  function togglePlanHidden(id) {
-    plan.hidden = planHidden(id) ? plan.hidden.filter(x => x !== id) : [...plan.hidden, id];
-    savePlan();
-  }
   const savePlan = () => ls.set(PLAN_KEY, plan);
+  // v2 : les pièces sont vides par défaut, on n'affiche que les appareils ajoutés avec « + ».
+  // Migration : on garde les icônes qui étaient visibles, on oublie celles qui étaient masquées.
+  if (plan.v !== 2) {
+    (plan.hidden || []).forEach(id => delete plan.markers[id]);
+    delete plan.hidden; plan.v = 2; savePlan();
+  }
+  const onPlan = id => !!plan.markers[id];
+  function removeFromPlan(id) { delete plan.markers[id]; savePlan(); }
   const MARK_DOMAINS = new Set(["light", "switch", "fan", "cover", "climate", "media_player", "lock", "camera", "binary_sensor"]);
   const BIN_ALERT = new Set(["door", "window", "opening", "garage_door"]);
   const BIN_MOTION = new Set(["motion", "occupancy", "presence"]);
@@ -1097,18 +1131,17 @@
     return e;
   }
 
-  // Entités représentées par une icône sur le plan
+  // Appareils ajoutés sur le plan dans cette pièce
   function planEntities(area) {
-    return Object.values(states).filter(s => {
-      const id = s.entity_id, d = domainOf(id);
-      if (!MARK_DOMAINS.has(d) || isHidden(id) || areaOf(id) !== area) return false;
-      if (!editing && planHidden(id)) return false;
-      if (d === "binary_sensor") {
-        const dc = s.attributes.device_class;
-        return BIN_ALERT.has(dc) || BIN_MOTION.has(dc);
-      }
-      return true;
-    }).sort(byDomainThenName);
+    return Object.values(states)
+      .filter(s => onPlan(s.entity_id) && areaOf(s.entity_id) === area && (domainOf(s.entity_id) in DOMAINS))
+      .sort(byDomainThenName);
+  }
+  // Entités de la pièce HA proposées dans la liste « + » (hors entités techniques)
+  function areaCandidates(area) {
+    return Object.values(states)
+      .filter(s => areaOf(s.entity_id) === area && (domainOf(s.entity_id) in DOMAINS) && !defaultHidden(s.entity_id))
+      .sort(byDomainThenName);
   }
   const areaWeight = a => 4 + Object.keys(states).filter(id => (domainOf(id) in DOMAINS) && !isHidden(id) && areaOf(id) === a).length;
 
@@ -1146,7 +1179,6 @@
   function moveArea(a, lv) {
     plan.areaLevel[a] = lv;
     delete plan.rooms[a]; // la pièce sera replacée sur son nouveau plan
-    Object.keys(plan.markers).forEach(id => { if (areaOf(id) === a) delete plan.markers[id]; });
     savePlan();
   }
 
@@ -1234,7 +1266,6 @@
   function generateLayout(areaList) {
     const items = areaList.map(a => ({ a, w: areaWeight(a) })).sort((x, y) => y.w - x.w);
     areaList.forEach(a => delete plan.rooms[a]);
-    Object.keys(plan.markers).forEach(id => { if (areaList.includes(areaOf(id))) delete plan.markers[id]; });
     if (items.length) (function split(list, x, y, w, h) {
       if (list.length === 1) { plan.rooms[list[0].a] = { x, y, w, h }; return; }
       const total = list.reduce((s, i) => s + i.w, 0);
@@ -1426,14 +1457,16 @@
         <text class="rl-name" x="0" y="-3" text-anchor="middle">${roomIcon(nm)} ${esc(nm)}</text>
         <text class="rinfo" x="0" y="16" text-anchor="middle"></text>`;
       const handle = svgEl("path", { class: "handle", "data-drag": "resize", "data-area": a });
+      const add = svgEl("g", { class: "room-add", "data-area": a, role: "button" });
+      add.innerHTML = `<circle r="15"/><text y="6" text-anchor="middle">+</text><title>Ajouter des appareils</title>`;
       labelsLayer.append(lab, handle);
+      if (editing) labelsLayer.append(add);
       const info = lab.querySelector(".rinfo");
-      planEls.rooms[a] = { g, gw, clipRect, floor, dots, tint, walls, wallsHi, lab, info, handle };
+      planEls.rooms[a] = { g, gw, clipRect, floor, dots, tint, walls, wallsHi, lab, info, handle, add };
 
       const ents = planEntities(a);
       ents.forEach((s, j) => {
         const id = s.entity_id, d = domainOf(id);
-        if (!plan.markers[id]) plan.markers[id] = defaultMarker(a, j, ents.length);
         const mk = svgEl("g", { class: "mk", "data-entity": id, "data-domain": d, "data-drag": "marker" });
         mk.innerHTML = `<circle class="mk-ripple" r="18"/><circle class="mk-bg" r="18"/>
           ${d === "media_player" ? `<clipPath id="mc${i}-${j}"><circle r="16"/></clipPath>
@@ -1442,11 +1475,10 @@
           <text class="mk-label" text-anchor="middle" y="36">${esc(markerLabel(s, a))}</text>
           ${d === "media_player" ? `<clipPath id="mt${i}-${j}"><rect x="-${TICKER_W / 2}" y="40" width="${TICKER_W}" height="16"/></clipPath>
             <g clip-path="url(#mt${i}-${j})"><text class="mk-title" x="0" y="51" text-anchor="middle"></text></g>` : ""}
+          ${d === "sensor" ? `<text class="mk-val" x="0" y="51" text-anchor="middle"></text>` : ""}
           ${editing ? `<g class="mk-x" role="button"><circle cx="15" cy="-15" r="9"/>
-            <text x="15" y="-11" text-anchor="middle">${planHidden(id) ? "+" : "×"}</text>
-            <title>${planHidden(id) ? "Réafficher sur le plan" : "Masquer du plan"}</title></g>` : ""}
+            <text x="15" y="-11" text-anchor="middle">×</text><title>Retirer du plan</title></g>` : ""}
           <title></title>`;
-        if (editing && planHidden(id)) mk.classList.add("masked");
         const cov = mk.querySelector(".mk-cover");
         if (cov) cov.addEventListener("error", () => { cov.removeAttribute("href"); mk.classList.remove("has-cover"); });
         markLayer.append(mk);
@@ -1467,8 +1499,10 @@
     if (levelAnim) { svg.classList.add("lvl-in"); levelAnim = false; }
     wrap.append(svg);
     wrap.insertAdjacentHTML("beforeend", `<div class="plan-legend">${editing
-      ? `Glisse une pièce pour la déplacer, son coin ◢ pour la redimensionner, et les icônes pour placer les appareils · × masque une icône du plan, + la réaffiche${plan.hidden.length ? ` (${plan.hidden.length} masquée${plan.hidden.length > 1 ? "s" : ""})` : ""}.`
-      : "Touche une icône pour allumer / éteindre · touche une pièce pour tous ses contrôles" + (levels().length > 1 ? " · glisse pour changer de niveau" : "")}</div>`);
+      ? "＋ en haut à droite d'une pièce pour choisir ses appareils · × retire un appareil du plan · glisse les icônes et les pièces, coin ◢ pour redimensionner."
+      : (Object.keys(planEls.markers).length ? "Touche une icône pour allumer / éteindre · touche une pièce pour tous ses contrôles"
+         : "Le plan est vide : passe en mode édition (✎) puis utilise ＋ dans chaque pièce pour ajouter des appareils")
+        + (levels().length > 1 ? " · glisse pour changer de niveau" : "")}</div>`);
     groups.append(wrap);
     attachPlanEvents(svg);
     applyGeometry();
@@ -1494,6 +1528,7 @@
       e.lab.setAttribute("transform", `translate(${r.x + r.w / 2} ${r.y + 44})`);
       const bx = r.x + r.w - 8, by = r.y + r.h - 8;
       e.handle.setAttribute("d", `M${bx} ${by - 18} L${bx} ${by} L${bx - 18} ${by} Z`);
+      e.add.setAttribute("transform", `translate(${r.x + r.w - 26} ${r.y + 26})`);
     }
     for (const id in planEls.markers) {
       const { g, area } = planEls.markers[id], p = markerXY(id, area);
@@ -1554,6 +1589,8 @@
       g.classList.toggle("dim", !matches(s));
       g.querySelector("title").textContent = `${nameOf(s)} · ${stateLabel(s)}`;
       if (d === "media_player") updateMedia(g, s);
+      const vt = g.querySelector(".mk-val");
+      if (vt) vt.textContent = stateLabel(s);
       const gl = planEls.glows[id];
       if (gl) {
         const [r, gg, b] = lightColor(s);
@@ -1587,9 +1624,11 @@
       const x = e.target.closest(".mk-x");
       if (x) {
         e.preventDefault(); e.stopPropagation();
-        togglePlanHidden(x.closest(".mk").dataset.entity);
+        removeFromPlan(x.closest(".mk").dataset.entity);
         render(); return;
       }
+      const add = e.target.closest(".room-add");
+      if (add) { e.preventDefault(); e.stopPropagation(); openPicker(add.dataset.area); return; }
       const t = e.target.closest("[data-drag]"); if (!t) return;
       e.preventDefault();
       const kind = t.dataset.drag;
@@ -1637,6 +1676,56 @@
     if (d === "camera") return openCam(id);
     openRoom(planEls.markers[id].area);
   }
+
+  // Fenêtre « + » : entités de la pièce HA à cocher, regroupées par appareil
+  function openPicker(area) {
+    const cands = areaCandidates(area);
+    const groups = new Map();
+    cands.forEach(s => {
+      const dv = deviceOf(s.entity_id), k = dv ? dv.id : "_";
+      if (!groups.has(k)) groups.set(k, { dv, list: [] });
+      groups.get(k).list.push(s);
+    });
+    const order = [...groups.values()].sort((x, y) => !x.dv ? 1 : !y.dv ? -1 : devName(x.dv).localeCompare(devName(y.dv), "fr"));
+    const item = s => {
+      const d = domainOf(s.entity_id);
+      const val = ["sensor", "binary_sensor"].includes(d) ? ` · ${esc(stateLabel(s))}` : "";
+      return `<label class="pk-item"><input type="checkbox" value="${esc(s.entity_id)}"${onPlan(s.entity_id) ? " checked" : ""}>
+        <span class="pk-ic">${ICONS[d] || "•"}</span>
+        <span class="pk-txt"><b>${esc(nameOf(s))}</b><small>${esc(DOMAINS[d])}${val}</small></span></label>`;
+    };
+    $("pickerTitle").textContent = `${roomIcon(areaName(area))} ${areaName(area)}`;
+    $("pickerBody").innerHTML = cands.length ? order.map(g => `<div class="pk-group">
+        ${g.dv ? `<div class="pk-dev">${esc(devName(g.dv))}</div>` : order.length > 1 ? `<div class="pk-dev">Autres entités</div>` : ""}
+        ${g.list.map(item).join("")}</div>`).join("")
+      : `<p class="empty">Aucune entité n'est rattachée à cette pièce dans Home Assistant.</p>`;
+    const boxes = () => [...$("pickerBody").querySelectorAll("input[type=checkbox]")];
+    const sync = () => {
+      const n = boxes().filter(b => b.checked).length;
+      $("pickerCount").textContent = `${n} sélectionné${n > 1 ? "s" : ""} sur ${cands.length}`;
+      $("pickerAll").textContent = n === cands.length ? "Tout décocher" : "Tout cocher";
+    };
+    $("pickerBody").onchange = sync;
+    $("pickerAll").onclick = () => { const all = boxes().every(b => b.checked); boxes().forEach(b => b.checked = !all); sync(); };
+    $("pickerOk").onclick = () => {
+      const keep = new Set(boxes().filter(b => b.checked).map(b => b.value));
+      cands.forEach(s => { if (!keep.has(s.entity_id)) delete plan.markers[s.entity_id]; });
+      // nouveaux appareils : répartis sur les emplacements libres de la grille de la pièce
+      const fresh = [...keep].filter(id => !plan.markers[id]);
+      if (fresh.length) {
+        const n = [...keep].length;
+        const taken = cands.filter(s => keep.has(s.entity_id) && plan.markers[s.entity_id]).map(s => plan.markers[s.entity_id]);
+        const slots = [];
+        for (let k = 0; k < n; k++) slots.push(defaultMarker(area, k, n));
+        const free = slots.filter(sl => !taken.some(m => Math.hypot(m.fx - sl.fx, m.fy - sl.fy) < .08));
+        fresh.forEach((id, k) => { plan.markers[id] = free[k] || slots[(taken.length + k) % slots.length]; });
+      }
+      savePlan(); closePicker(); render();
+    };
+    sync();
+    $("picker").classList.remove("hidden");
+  }
+  const closePicker = () => $("picker").classList.add("hidden");
 
   // Tiroir latéral avec tous les contrôles de la pièce
   function openRoom(a) {
@@ -2035,6 +2124,9 @@
     generateLayout(levelAreas(currentLevel())); render();
   };
   $("drawerClose").onclick = closeRoom;
+  $("pickerCancel").onclick = closePicker;
+  $("picker").onclick = e => { if (e.target.id === "picker") closePicker(); };
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closePicker(); });
   $("bgInput").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) setPlanBg(f); };
   $("bgRemove").onclick = () => {
     if (!confirm("Retirer l'image de fond du plan ?")) return;
