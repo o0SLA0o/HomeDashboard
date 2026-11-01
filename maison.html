@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050a13">
 <title>Ma Maison</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -544,6 +545,106 @@
   .assign-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px 14px; }
   .assign-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; }
   .assign-row select { padding: 6px 10px; border-radius: 10px; width: 170px; max-width: 55%; }
+
+  /* ===================== Thème jour (clair) ===================== */
+  body.theme-anim, body.theme-anim * { transition: background-color .6s ease, color .6s ease, border-color .6s ease, fill .6s ease, stroke .6s ease !important; }
+  body.day {
+    --bg: #eef1f5; --ink: #1c2433; --muted: #5b6678; --faint: #9aa4b3; --accent: 11,138,163;
+    --ok: #13a065; --err: #e0414f; --stroke: rgba(28,48,80,.12); --stroke-hi: rgba(28,60,100,.26);
+    color-scheme: light;
+    background:
+      radial-gradient(1200px 800px at 0% -10%, #dce8f8 0%, transparent 60%),
+      radial-gradient(1000px 700px at 100% 0%, #f7eadb 0%, transparent 55%),
+      radial-gradient(1100px 900px at 50% 120%, #dff0ec 0%, transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  html:has(body.day) { background: #eef1f5; }
+  body.day::before { background: #9cc2ff; opacity: .35; }
+  body.day::after { background: #ffd2a1; opacity: .4; }
+  body.day .glass { background: linear-gradient(160deg, rgba(255,255,255,.82), rgba(255,255,255,.58));
+    border-color: rgba(255,255,255,.95);
+    box-shadow: inset 0 1px 0 #fff, 0 10px 30px rgba(30,45,75,.10), 0 1px 2px rgba(30,45,75,.06); }
+  body.day .glass::after { background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,255,255,0) 35%, rgba(255,255,255,0) 70%, rgba(255,255,255,.5)); }
+  body.day button, body.day .btnlike { background: rgba(255,255,255,.75); border-color: var(--stroke); }
+  body.day button:hover, body.day .btnlike:hover { background: #fff; border-color: var(--stroke-hi); }
+  body.day button.primary { background: linear-gradient(135deg, #12a6bb, #2f6fe0); color: #fff; border-color: transparent; box-shadow: 0 6px 18px rgba(30,120,200,.3); }
+  body.day input[type=text], body.day input[type=password], body.day input[type=search], body.day select { background: rgba(255,255,255,.85); }
+  body.day select option { background: #fff; }
+  body.day .switch span { background: rgba(28,48,80,.14); }
+  body.day .switch span::before { box-shadow: 0 1px 4px rgba(20,30,50,.3); background: #fff; }
+  body.day .icon { background: rgba(28,48,80,.06); }
+  body.day .card.on .name { text-shadow: none; }
+  body.day .card.on { background: linear-gradient(160deg, rgba(var(--glow),.28), rgba(255,255,255,.7) 75%);
+    box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(var(--glow),.35), 0 10px 28px rgba(var(--glow),.28); }
+  body.day .sec-head { background: rgba(255,255,255,.55); }
+  body.day .sec-head:hover { background: rgba(255,255,255,.85); }
+  body.day .sec-title { color: #3a4456; }
+  body.day .pill { background: rgba(28,48,80,.07); }
+  body.day .pill.on-count { color: #0b5f70; box-shadow: none; background: rgba(var(--accent),.14); }
+  body.day .device { background: rgba(255,255,255,.45); border-color: rgba(28,48,80,.08); }
+  body.day .device-name { color: #2a3344; }
+  body.day .big small { color: var(--muted); }
+  body.day .hrow, body.day .qrow { border-top-color: rgba(28,48,80,.08); }
+  body.day .scene { background: rgba(60,90,200,.06); border-color: rgba(60,90,200,.14); }
+  body.day .scene:hover { background: rgba(60,90,200,.12); border-color: rgba(60,90,200,.3); }
+  body.day .spark [stroke] { stroke: rgb(11,125,147); }
+  body.day .spark circle { fill: rgb(11,125,147); }
+  body.day .spark stop { stop-color: rgb(11,125,147); }
+  body.day .bars rect { fill: rgb(11,125,147); }
+  /* barre du haut, menus, panneaux */
+  body.day .brand:hover, body.day .brand[aria-expanded=true] { background: rgba(28,48,80,.05); }
+  body.day .view-menu { background: rgba(255,255,255,.97); box-shadow: 0 20px 50px rgba(30,45,75,.2); }
+  body.day .view-menu button { background: transparent; border-color: transparent; }
+  body.day .view-menu button:hover { background: rgba(28,48,80,.05); }
+  body.day .view-menu button.active { background: rgba(var(--accent),.1); border-color: rgba(var(--accent),.4); }
+  body.day .vm-ic { background: rgba(28,48,80,.06); }
+  body.day .view-menu button.active .vm-ic { color: #0b5f70; background: rgba(var(--accent),.18); }
+  body.day .levels-top .lvl, body.day .lvl { background: transparent; border-color: transparent; }
+  body.day .levels-top .lvl:hover { background: rgba(28,48,80,.05); }
+  body.day .levels-top .lvl.active, body.day .lvl.active { color: #0b4f5e; background: linear-gradient(180deg, rgba(var(--accent),.18), rgba(var(--accent),.06));
+    border-color: rgba(var(--accent),.5); box-shadow: 0 2px 10px rgba(var(--accent),.18); }
+  body.day .lb-light { color: #b26a00; text-shadow: none; }
+  body.day .side .panel { background: rgba(255,255,255,.92); box-shadow: 0 18px 44px rgba(30,45,75,.18), inset 0 1px 0 #fff; }
+  body.day .side-tab { background: rgba(255,255,255,.94); box-shadow: 0 8px 22px rgba(30,45,75,.18); }
+  body.day .st-txt { color: #2a3344; }
+  body.day .drawer { background: rgba(246,248,251,.9); }
+  body.day .picker-wrap { background: rgba(30,40,60,.25); }
+  body.day .picker { background: rgba(255,255,255,.97); }
+  body.day .pk-item:hover { background: rgba(28,48,80,.04); }
+  body.day .assign { background: rgba(255,255,255,.75); }
+  body.day .pav { background: linear-gradient(135deg, #8aa5e6, #c69ad6); color: #fff; }
+  body.day .pdot, body.day .px { border-color: #fff; }
+  /* plan */
+  body.day .plan-wrap { background: radial-gradient(ellipse at 50% 50%, rgba(200,225,215,.45), transparent 72%), rgba(255,255,255,.35); }
+  body.day .rooms-layer { filter: drop-shadow(0 14px 28px rgba(30,45,75,.16)); }
+  body.day .room .floor { fill: #fbfaf6; }
+  body.day .room .floor:hover { fill: #ffffff; }
+  body.day pattern circle { fill: rgba(28,48,80,.10); }
+  body.day .room-w .walls { stroke: #2b3446; }
+  body.day .room-w .walls-hi { stroke: rgba(255,255,255,.55); }
+  body.day .room-w.lit .walls-hi { stroke: rgba(235,160,50,.7); }
+  body.day .glow { mix-blend-mode: multiply; }
+  body.day .rl-bg { fill: rgba(255,255,255,.9); stroke: rgba(28,48,80,.12); }
+  body.day .rl-name { fill: #1c2433; }
+  body.day .rlabel .rinfo { fill: #5b6678; }
+  body.day .mk-bg { fill: rgba(255,255,255,.95); stroke: rgba(28,48,80,.22); }
+  body.day .mk.on .mk-bg { fill: rgba(var(--glow),.32); stroke: rgb(var(--glow));
+    filter: drop-shadow(0 0 5px rgba(var(--glow),.8)) drop-shadow(0 2px 6px rgba(30,45,75,.25)); }
+  body.day .mk-label, body.day .mk.on .mk-label { fill: #1c2433; stroke: rgba(255,255,255,.92); }
+  body.day .mk-title { fill: #8a2fa6; stroke: rgba(255,255,255,.92); }
+  body.day .mk-val { fill: #0b7389; stroke: rgba(255,255,255,.92); }
+  body.day .mk-x circle { stroke: #fff; }
+  body.day .room-add circle { fill: rgba(var(--accent),.12); }
+  body.day .room-add text { fill: rgb(var(--accent)); }
+  body.day .rz-btn circle { fill: #fff; }
+  body.day .rz-btn text { fill: #1c2433; }
+  body.day .rz-pct { fill: #0b7389; stroke: rgba(255,255,255,.95); }
+  body.day .has-bg .room .floor { fill: rgba(0,0,0,0); }
+  body.day .has-bg .room-w .walls, body.day .has-bg .room-w .walls-hi { stroke: transparent; }
+  body.day .has-bg .room-w.alert .walls-hi { stroke: var(--err); }
+  body.day.editing .has-bg .room-w .walls-hi { stroke: rgba(var(--accent),.8); }
+  #themeBtn { font-size: 18px; }
 </style>
 </head>
 <body>
@@ -562,6 +663,7 @@
     <div class="clock"><b id="clockTime">--:--</b><span id="clockDate"></span></div>
     <div class="weather needs-conn" id="weather"></div>
     <div class="status" title="État de la connexion"><span class="dot" id="dot"></span><span id="statusText">Déconnecté</span></div>
+    <button type="button" id="themeBtn" class="icon-btn" title="Mode jour / nuit">🌙</button>
     <button type="button" id="editBtn" class="icon-btn needs-conn" title="Modifier la disposition">✎</button>
     <button type="button" id="logoutBtn" class="icon-btn hidden" title="Déconnexion">⏻</button>
   </div>
@@ -666,6 +768,19 @@
   const K = { conn: "ha-dashboard-conn", coll: "ha-dashboard-collapsed", hidden: "ha-dashboard-hidden",
               shown: "ha-dashboard-shown", view: "ha-dashboard-view" };
 
+  let theme = ls.get("ha-dashboard-theme", "night") === "day" ? "day" : "night";
+  function applyTheme() {
+    document.body.classList.toggle("day", theme === "day");
+    const b = document.getElementById("themeBtn");
+    if (b) {
+      b.textContent = theme === "day" ? "☀️" : "🌙";
+      b.title = theme === "day" ? "Mode jour — passer en mode nuit" : "Mode nuit — passer en mode jour";
+      b.setAttribute("aria-label", b.title);
+    }
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.content = theme === "day" ? "#eef1f5" : "#050a13";
+  }
+  applyTheme();
   const collapsed = new Set(ls.get(K.coll, []));
   const hidden = new Set(ls.get(K.hidden, []));   // masquées par toi
   const shown = new Set(ls.get(K.shown, []));     // masquées par défaut que tu as réaffichées
@@ -951,6 +1066,8 @@
     $("gridBtn").textContent = plan.grid ? "▦ Grille : activée" : "▦ Grille : désactivée";
     $("alignBtn").classList.toggle("hidden", mode !== "plan" || !plan.grid);
     $("bgPick").classList.toggle("hidden", mode !== "plan");
+    $("bgPick").firstChild.textContent = `🖼 Image de fond ${theme === "day" ? "☀️ jour" : "🌙 nuit"}`;
+    $("bgRemove").textContent = `Retirer l'image ${theme === "day" ? "de jour" : "de nuit"}`;
     $("bgRemove").classList.toggle("hidden", mode !== "plan" || !planBg);
     $("toolbar").classList.toggle("hidden", mode === "plan");
     $("layout").classList.toggle("with-sides", mode === "plan");
@@ -1293,7 +1410,7 @@
         if (!confirm(`Supprimer le niveau « ${cur.name} » ? Ses pièces retourneront à leur niveau d'origine.`)) return;
         plan.customLevels = plan.customLevels.filter(l => l.id !== lv);
         Object.keys(plan.areaLevel).forEach(a => { if (plan.areaLevel[a] === lv) { delete plan.areaLevel[a]; delete plan.rooms[a]; } });
-        delete planBgs[lv]; try { localStorage.setItem(BG_KEY, JSON.stringify(planBgs)); } catch {}
+        [lv, "day|" + lv].forEach(k => { delete planBgs[k]; saveBg(k, null); });
         savePlan(); curLevel = null; render();
       } else if (act === "assign") { assignOpen = !assignOpen; render(); }
     };
@@ -2127,11 +2244,53 @@
   tick(); setInterval(tick, 10000);
 
   // Image de fond du plan (redimensionnée puis gardée dans le navigateur)
+  // Clés : « <niveau> » pour la nuit (comme avant), « day|<niveau> » pour le jour.
   const BG_KEY = "ha-dashboard-planbg";
-  let planBgs = ls.get(BG_KEY, null) || {};
-  if (planBgs.src) planBgs = { _first: planBgs }; // ancienne version : une seule image → premier niveau
+  let planBgs = {};
   let planBg = null;
-  const bgFor = lv => planBgs[lv] || (lv === levels()[0].id ? planBgs._first || null : null);
+  const bgKey = lv => (theme === "day" ? "day|" : "") + lv;
+  const bgFor = lv => planBgs[bgKey(lv)] || (theme === "night" && lv === levels()[0].id ? planBgs._first || null : null);
+
+  // Petit magasin IndexedDB : bien plus de place que localStorage (≈ 5 Mo) pour plusieurs photos
+  const bgStore = (() => {
+    let dbp = null;
+    const open = () => dbp || (dbp = new Promise((res, rej) => {
+      const r = indexedDB.open("ha-dashboard", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("bg");
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }));
+    const tx = (mode, fn) => open().then(db => new Promise((res, rej) => {
+      const t = db.transaction("bg", mode), st = t.objectStore("bg"), out = fn(st);
+      t.oncomplete = () => res(out && out.result); t.onerror = () => rej(t.error);
+    }));
+    return {
+      async all() {
+        const db = await open();
+        return new Promise((res, rej) => {
+          const out = {}, c = db.transaction("bg").objectStore("bg").openCursor();
+          c.onsuccess = () => { const cur = c.result; if (cur) { out[cur.key] = cur.value; cur.continue(); } else res(out); };
+          c.onerror = () => rej(c.error);
+        });
+      },
+      put: (k, v) => tx("readwrite", st => st.put(v, k)),
+      del: k => tx("readwrite", st => st.delete(k))
+    };
+  })();
+  const saveBg = (k, v) => v ? bgStore.put(k, v).catch(() => alert("Impossible d'enregistrer l'image dans ce navigateur : elle s'affichera jusqu'au rechargement."))
+                             : bgStore.del(k).catch(() => {});
+  // Chargement + migration des images enregistrées par les versions précédentes (localStorage)
+  const bgReady = (async () => {
+    let legacy = ls.get(BG_KEY, null);
+    if (legacy && legacy.src) legacy = { _first: legacy };
+    try {
+      planBgs = await bgStore.all();
+      if (legacy) {
+        for (const k in legacy) if (!planBgs[k]) { planBgs[k] = legacy[k]; await bgStore.put(k, legacy[k]); }
+        ls.del(BG_KEY);
+      }
+    } catch { planBgs = legacy || {}; }
+    if (view === "plan" && document.body.classList.contains("connected")) render();
+  })();
   function resizeImage(file, max) {
     return new Promise((res, rej) => {
       const fr2 = new FileReader();
@@ -2156,11 +2315,9 @@
       const x0 = rs.length ? Math.min(...rs.map(r => r.x)) : PAD, y0 = rs.length ? Math.min(...rs.map(r => r.y)) : PAD;
       const x1 = rs.length ? Math.max(...rs.map(r => r.x + r.w)) : 980;
       planBg = { src, x: x0, y: y0, w: x1 - x0, h: (x1 - x0) * ratio };
-      const lvl = currentLevel();
-      planBgs[lvl] = planBg;
-      if (lvl === levels()[0].id) delete planBgs._first;
-      try { localStorage.setItem(BG_KEY, JSON.stringify(planBgs)); }
-      catch { alert("Image trop lourde pour être mémorisée dans le navigateur : elle s'affichera jusqu'au rechargement de la page."); }
+      const lvl = currentLevel(), k = bgKey(lvl);
+      planBgs[k] = planBg; saveBg(k, planBg);
+      if (theme === "night" && lvl === levels()[0].id && planBgs._first) { delete planBgs._first; saveBg("_first", null); }
       render();
     } catch { alert("Impossible de lire cette image."); }
   }
@@ -2270,6 +2427,14 @@
   };
   $("drawerClose").onclick = closeRoom;
   $("pickerCancel").onclick = closePicker;
+  $("themeBtn").onclick = () => {
+    theme = theme === "day" ? "night" : "day";
+    ls.set("ha-dashboard-theme", theme);
+    document.body.classList.add("theme-anim");
+    applyTheme();
+    setTimeout(() => document.body.classList.remove("theme-anim"), 700);
+    if (document.body.classList.contains("connected")) render();
+  };
   $("gridBtn").onclick = () => { plan.grid = !plan.grid; savePlan(); render(); };
   // Replace les icônes du niveau affiché sur l'intersection de grille la plus proche
   $("alignBtn").onclick = () => {
@@ -2285,10 +2450,10 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape") closePicker(); });
   $("bgInput").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) setPlanBg(f); };
   $("bgRemove").onclick = () => {
-    if (!confirm("Retirer l'image de fond du plan ?")) return;
-    const lvl = currentLevel();
-    delete planBgs[lvl]; if (lvl === levels()[0].id) delete planBgs._first;
-    try { localStorage.setItem(BG_KEY, JSON.stringify(planBgs)); } catch {}
+    if (!confirm(`Retirer l'image de fond ${theme === "day" ? "de jour" : "de nuit"} de ce niveau ?`)) return;
+    const lvl = currentLevel(), k = bgKey(lvl);
+    delete planBgs[k]; saveBg(k, null);
+    if (theme === "night" && lvl === levels()[0].id && planBgs._first) { delete planBgs._first; saveBg("_first", null); }
     planBg = null; render();
   };
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeRoom(); });
