@@ -6,10 +6,11 @@ Tableau de bord web en **un seul fichier** (`maison.html`), sans dépendance ni 
 
 ![Plan interactif, mode nuit](docs/plan-nuit.jpg)
 
-> Les captures de cette page ont été réalisées avec une maison de démonstration (données simulées).
+> L'interface suit la langue du navigateur : **français, anglais ou polonais** (anglais pour les autres langues). Les captures de cette page ont été réalisées avec une maison de démonstration (données simulées).
 
 ## Sommaire
 
+- [Langues](#langues)
 - [Plan interactif](#plan-interactif)
 - [Plusieurs niveaux](#plusieurs-niveaux)
 - [Panneaux latéraux](#panneaux-latéraux)
@@ -22,6 +23,16 @@ Tableau de bord web en **un seul fichier** (`maison.html`), sans dépendance ni 
 - [Sur téléphone et tablette](#sur-téléphone-et-tablette)
 - [Installation](#installation)
 - [Données et confidentialité](#données-et-confidentialité)
+
+## Langues
+
+Le dashboard suit automatiquement la langue préférée du navigateur :
+
+- 🇫🇷 **Français**
+- 🇬🇧 **Anglais** (utilisé aussi pour toute autre langue)
+- 🇵🇱 **Polonais**
+
+Tout est traduit : textes, états des appareils (ouvert, verrouillé, détecté…), messages d'erreur, pluriels (y compris les règles polonaises pour 1, 2 à 4 et 5 et plus), formats des nombres, des dates et de l'heure. Les icônes des pièces et des scènes sont reconnues d'après leur nom dans les trois langues (par exemple *Cuisine*, *Kitchen*, *Kuchnia* → 🍳). Les noms des entités, pièces et appareils viennent de Home Assistant et sont affichés tels quels.
 
 ## Plan interactif
 

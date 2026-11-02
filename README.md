@@ -6,10 +6,11 @@ A **single-file** web dashboard (`maison.html`), with no dependencies and no bui
 
 ![Interactive floor plan, night mode](docs/plan-nuit.jpg)
 
-> The screenshots on this page were taken with a demo house (simulated data). The dashboard's interface is in French; button labels are quoted below in English, followed by the French label shown on screen.
+> The interface follows the browser language: **English, French or Polish** (English for any other language). The screenshots on this page show the French interface with a demo house (simulated data), so button labels are given in English followed by the French label visible in the screenshots.
 
 ## Contents
 
+- [Languages](#languages)
 - [Interactive floor plan](#interactive-floor-plan)
 - [Multiple levels](#multiple-levels)
 - [Side panels](#side-panels)
@@ -22,6 +23,16 @@ A **single-file** web dashboard (`maison.html`), with no dependencies and no bui
 - [On phones and tablets](#on-phones-and-tablets)
 - [Installation](#installation)
 - [Data and privacy](#data-and-privacy)
+
+## Languages
+
+The dashboard automatically follows the browser's preferred language:
+
+- 🇬🇧 **English** (also used for any unsupported language)
+- 🇫🇷 **French**
+- 🇵🇱 **Polish**
+
+Everything is translated: texts, device states (open, locked, detected…), error messages, plural forms (including Polish rules for 1, 2–4 and 5+), and number, date and time formats. Room and scene icons are recognised from their names in all three languages (e.g. *Kitchen*, *Cuisine*, *Kuchnia* → 🍳). Entity, room and device names come from Home Assistant and are shown as they are.
 
 ## Interactive floor plan
 

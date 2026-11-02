@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -685,95 +685,95 @@
 <header class="topbar glass">
   <div class="brand-wrap">
     <button type="button" class="brand" id="viewMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="viewMenu">
-      <span class="brand-ic">⌂</span><span class="brand-txt"><span>Maison</span><small id="viewName"></small></span><span class="brand-chev needs-conn">▾</span></button>
+      <span class="brand-ic">⌂</span><span class="brand-txt"><span data-i18n="brand">Maison</span><small id="viewName"></small></span><span class="brand-chev needs-conn">▾</span></button>
     <div class="view-menu glass hidden" id="viewMenu" role="menu">
-      <button type="button" role="menuitem" data-view="plan"><span class="vm-ic">▦</span><span>Plan<small>Plan interactif par niveau</small></span></button>
-      <button type="button" role="menuitem" data-view="rooms"><span class="vm-ic">◫</span><span>Pièces<small>Contrôles regroupés par pièce</small></span></button>
-      <button type="button" role="menuitem" data-view="types"><span class="vm-ic">☰</span><span>Types<small>Lumières, volets, capteurs…</small></span></button>
+      <button type="button" role="menuitem" data-view="plan"><span class="vm-ic">▦</span><span><span data-i18n="view.plan">Plan</span><small data-i18n="view.plan.desc"></small></span></button>
+      <button type="button" role="menuitem" data-view="rooms"><span class="vm-ic">◫</span><span><span data-i18n="view.rooms">Pièces</span><small data-i18n="view.rooms.desc"></small></span></button>
+      <button type="button" role="menuitem" data-view="types"><span class="vm-ic">☰</span><span><span data-i18n="view.types">Types</span><small data-i18n="view.types.desc"></small></span></button>
     </div>
   </div>
-  <nav class="levels-top needs-conn" id="levelSlot" aria-label="Niveaux"></nav>
+  <nav class="levels-top needs-conn" id="levelSlot" data-i18n-aria="nav.levels"></nav>
   <div class="top-right">
     <div class="clock"><b id="clockTime">--:--</b><span id="clockDate"></span></div>
     <div class="weather needs-conn" id="weather"></div>
-    <div class="status" title="État de la connexion"><span class="dot" id="dot"></span><span id="statusText">Déconnecté</span></div>
-    <button type="button" id="themeBtn" class="icon-btn" title="Mode jour / nuit">🌙</button>
-    <button type="button" id="editBtn" class="icon-btn needs-conn" title="Modifier la disposition">✎</button>
-    <button type="button" id="logoutBtn" class="icon-btn hidden" title="Déconnexion">⏻</button>
+    <div class="status" data-i18n-title="status.title"><span class="dot" id="dot"></span><span id="statusText" data-i18n="status.disconnected"></span></div>
+    <button type="button" id="themeBtn" class="icon-btn" data-i18n-title="theme.toggle">🌙</button>
+    <button type="button" id="editBtn" class="icon-btn needs-conn" data-i18n-title="edit.btn">✎</button>
+    <button type="button" id="logoutBtn" class="icon-btn hidden" data-i18n-title="logout">⏻</button>
   </div>
 </header>
 
 <main>
   <!-- Écran de connexion -->
   <form class="login glass" id="loginForm">
-    <strong>Connexion à Home Assistant</strong>
-    <label>Adresse de Home Assistant
+    <strong data-i18n="login.title"></strong>
+    <label><span data-i18n="login.url"></span>
       <input type="text" id="haUrl" placeholder="http://homeassistant.local:8123" required>
     </label>
-    <label class="remember"><input type="checkbox" id="remember" checked> Rester connecté sur cet appareil</label>
+    <label class="remember"><input type="checkbox" id="remember" checked> <span data-i18n="login.remember"></span></label>
     <div class="error" id="loginError"></div>
-    <button class="primary" type="submit" id="oauthBtn">Se connecter avec Home Assistant</button>
-    <div class="hint">Tu seras redirigé vers la page de connexion de Home Assistant (identifiant, mot de passe et double authentification si elle est activée), puis ramené ici.</div>
+    <button class="primary" type="submit" id="oauthBtn" data-i18n="login.oauth"></button>
+    <div class="hint" data-i18n="login.oauthHint"></div>
     <details class="llt" id="lltBox">
-      <summary>Utiliser plutôt un jeton d'accès longue durée</summary>
-      <label>Jeton d'accès longue durée
+      <summary data-i18n="login.lltToggle"></summary>
+      <label><span data-i18n="login.llt"></span>
         <input type="password" id="haToken" placeholder="eyJhbGciOi..." autocomplete="off">
       </label>
-      <div class="hint">Pratique pour un écran en mode kiosque. À créer dans ton profil Home Assistant → onglet <em>Sécurité</em> → <em>Jetons d'accès longue durée</em>.</div>
-      <button type="submit" id="tokenBtn">Se connecter avec le jeton</button>
+      <div class="hint" data-i18n-html="login.lltHint"></div>
+      <button type="submit" id="tokenBtn" data-i18n="login.tokenBtn"></button>
     </details>
   </form>
 
   <!-- Tableau de bord -->
   <section id="dashboard" class="hidden">
     <div class="toolbar glass" id="toolbar">
-      <input type="search" id="search" placeholder="Rechercher une entité, un appareil, une pièce…">
-      <select id="domainFilter"><option value="">Tous les types</option></select>
-      <button type="button" id="expandAll" title="Tout déplier">Déplier</button>
-      <button type="button" id="collapseAll" title="Tout replier">Replier</button>
+      <input type="search" id="search" data-i18n-ph="search.ph">
+      <select id="domainFilter"></select>
+      <button type="button" id="expandAll" data-i18n-title="expand.title" data-i18n="expand"></button>
+      <button type="button" id="collapseAll" data-i18n-title="collapse.title" data-i18n="collapse"></button>
     </div>
     <div id="editBar" class="banner glass hidden">
-      <div><strong>Mode édition</strong> · <span id="editInfo"></span> <span class="sync-info" id="syncInfo"></span>
-        <div class="sub" id="editSub">Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.</div></div>
-      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼 Image de fond<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden">Retirer l'image</button><button type="button" id="bgOnionBtn" class="hidden" title="Afficher en transparence la photo de l'autre mode pour aligner les deux">◐ Superposer l'autre mode</button><button type="button" id="bgMatchBtn" class="hidden" title="Donner à cette photo la position et la taille de celle de l'autre mode">⇆ Caler sur l'autre mode</button><span class="lvl-tools" id="levelTools"></span><button type="button" id="gridBtn" class="hidden" title="Aimanter les icônes sur une grille">▦ Grille</button><button type="button" id="alignBtn" class="hidden" title="Replacer toutes les icônes de ce niveau sur la grille">⌗ Aligner</button><button type="button" id="regenPlan" class="hidden">↻ Régénérer le plan</button><button type="button" id="resetHidden">Réinitialiser</button><button type="button" class="primary" id="editDone">Terminé</button></div>
+      <div><strong data-i18n="edit.title"></strong> · <span id="editInfo"></span> <span class="sync-info" id="syncInfo"></span>
+        <div class="sub" id="editSub"></div></div>
+      <div class="btns"><label class="btnlike hidden" id="bgPick">🖼<input type="file" id="bgInput" accept="image/*" hidden></label><button type="button" id="bgRemove" class="hidden"></button><button type="button" id="bgOnionBtn" class="hidden" data-i18n-title="bg.onionTitle"></button><button type="button" id="bgMatchBtn" class="hidden" data-i18n-title="bg.matchTitle"></button><span class="lvl-tools" id="levelTools"></span><button type="button" id="gridBtn" class="hidden" data-i18n-title="grid.title"></button><button type="button" id="alignBtn" class="hidden" data-i18n-title="align.title" data-i18n="align"></button><button type="button" id="regenPlan" class="hidden" data-i18n="regen"></button><button type="button" id="resetHidden" data-i18n="reset"></button><button type="button" class="primary" id="editDone" data-i18n="done"></button></div>
     </div>
     <div id="roomsNotice" class="banner glass hidden">
-      <span>Impossible de lire les pièces depuis Home Assistant : affichage par type à la place.</span>
+      <span data-i18n="roomsNotice"></span>
     </div>
     <div class="layout" id="layout">
-      <aside class="side" id="leftCol" aria-label="Maison : occupation, scénarios, état"></aside>
-      <button type="button" class="side-tab left" id="leftTab" aria-controls="leftCol" aria-expanded="false" title="Occupation, scénarios et état de la maison">
-        <span class="st-chev">▶</span><span>🏠</span><span class="st-dot" id="leftDot"></span><span class="st-txt" id="leftTxt">Maison</span></button>
+      <aside class="side" id="leftCol" data-i18n-aria="left.aria"></aside>
+      <button type="button" class="side-tab left" id="leftTab" aria-controls="leftCol" aria-expanded="false" data-i18n-title="left.title">
+        <span class="st-chev">▶</span><span>🏠</span><span class="st-dot" id="leftDot"></span><span class="st-txt" id="leftTxt" data-i18n="brand"></span></button>
       <div id="groups"></div>
-      <aside class="side" id="rightCol" aria-label="Température, énergie et raccourcis"></aside>
-      <button type="button" class="side-tab right" id="rightTab" aria-controls="rightCol" aria-expanded="false" title="Température, énergie et raccourcis">
-        <span class="st-chev">◀</span><span>🌡️</span><span class="st-txt" id="rightTxt">Infos</span></button>
+      <aside class="side" id="rightCol" data-i18n-aria="right.title"></aside>
+      <button type="button" class="side-tab right" id="rightTab" aria-controls="rightCol" aria-expanded="false" data-i18n-title="right.title">
+        <span class="st-chev">◀</span><span>🌡️</span><span class="st-txt" id="rightTxt" data-i18n="right.txt"></span></button>
     </div>
   </section>
 </main>
 
 <!-- Tiroir d'une pièce (vue Plan) -->
-<aside class="drawer glass" id="drawer" aria-label="Contrôles de la pièce">
-  <div class="drawer-head"><strong id="drawerTitle"></strong><button type="button" id="drawerClose">Fermer ✕</button></div>
+<aside class="drawer glass" id="drawer" data-i18n-aria="drawer.aria">
+  <div class="drawer-head"><strong id="drawerTitle"></strong><button type="button" id="drawerClose" data-i18n="close"></button></div>
   <div id="drawerBody"></div>
 </aside>
 
 <!-- Choix des appareils d'une pièce (plan) -->
 <div class="picker-wrap hidden" id="picker">
   <div class="picker glass" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
-    <div class="pk-head"><div><div class="sub">Appareils affichés sur le plan</div><strong id="pickerTitle"></strong></div>
-      <button type="button" id="pickerAll">Tout cocher</button></div>
+    <div class="pk-head"><div><div class="sub" data-i18n="picker.sub"></div><strong id="pickerTitle"></strong></div>
+      <button type="button" id="pickerAll" data-i18n="picker.all"></button></div>
     <div class="pk-body" id="pickerBody"></div>
     <div class="pk-foot"><span class="sub" id="pickerCount"></span>
-      <div class="btns"><button type="button" id="pickerCancel">Annuler</button><button type="button" class="primary" id="pickerOk">Valider</button></div></div>
+      <div class="btns"><button type="button" id="pickerCancel" data-i18n="cancel"></button><button type="button" class="primary" id="pickerOk" data-i18n="ok"></button></div></div>
   </div>
 </div>
 
 <!-- Plein écran caméra -->
 <div class="modal hidden" id="camModal">
   <div class="bar glass"><strong id="camTitle"></strong>
-    <div class="btns"><button id="camSnap">Image fixe</button><button id="camClose">Fermer ✕</button></div></div>
-  <img id="camLive" alt="Flux caméra en direct">
+    <div class="btns"><button id="camSnap" data-i18n="cam.snap"></button><button id="camClose" data-i18n="close"></button></div></div>
+  <img id="camLive" alt="">
   <div class="sub" id="camInfo" style="color:#bbb"></div>
 </div>
 
@@ -781,13 +781,381 @@
 (() => {
   // ---------- Configuration ----------
   // Domaines affichés, dans l'ordre, avec leur libellé.
-  const DOMAINS = {
-    camera: "Caméras",
-    light: "Lumières", switch: "Prises & interrupteurs", fan: "Ventilateurs",
-    cover: "Volets", climate: "Chauffage / clim", media_player: "Médias",
-    scene: "Scènes", script: "Scripts", input_boolean: "Commutateurs virtuels",
-    lock: "Serrures", sensor: "Capteurs", binary_sensor: "Détecteurs"
+  // ---------- Langue : suit le navigateur (français, anglais, polonais ; anglais sinon) ----------
+  const LANGS = ["fr", "en", "pl"];
+  const LANG = (() => {
+    const prefs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"];
+    for (const l of prefs) { const c = String(l).slice(0, 2).toLowerCase(); if (LANGS.includes(c)) return c; }
+    return "en";
+  })();
+  const LOCALE = { fr: "fr-FR", en: "en-GB", pl: "pl-PL" }[LANG];
+  const PLURAL = new Intl.PluralRules(LOCALE);
+  document.documentElement.lang = LANG;
+
+  // Chaque entrée : { fr, en, pl }. Une valeur objet = formes plurielles (one / few / many / other) choisies selon {n}.
+  const STR = {
+    "brand": { fr: "Maison", en: "Home", pl: "Dom" },
+    "view.plan": { fr: "Plan", en: "Plan", pl: "Plan" },
+    "view.plan.desc": { fr: "Plan interactif par niveau", en: "Interactive floor plan by level", pl: "Interaktywny plan według poziomów" },
+    "view.rooms": { fr: "Pièces", en: "Rooms", pl: "Pomieszczenia" },
+    "view.rooms.desc": { fr: "Contrôles regroupés par pièce", en: "Controls grouped by room", pl: "Sterowanie pogrupowane według pomieszczeń" },
+    "view.types": { fr: "Types", en: "Types", pl: "Typy" },
+    "view.types.desc": { fr: "Lumières, volets, capteurs…", en: "Lights, covers, sensors…", pl: "Światła, rolety, czujniki…" },
+    "nav.levels": { fr: "Niveaux", en: "Levels", pl: "Poziomy" },
+    "status.title": { fr: "État de la connexion", en: "Connection status", pl: "Stan połączenia" },
+    "status.disconnected": { fr: "Déconnecté", en: "Disconnected", pl: "Rozłączono" },
+    "status.connecting": { fr: "Connexion…", en: "Connecting…", pl: "Łączenie…" },
+    "status.connected": { fr: "Connecté (HA {v})", en: "Connected (HA {v})", pl: "Połączono (HA {v})" },
+    "status.error": { fr: "Erreur de connexion", en: "Connection error", pl: "Błąd połączenia" },
+    "status.reconnecting": { fr: "Reconnexion…", en: "Reconnecting…", pl: "Ponowne łączenie…" },
+    "theme.toggle": { fr: "Mode jour / nuit", en: "Day / night mode", pl: "Tryb dzienny / nocny" },
+    "theme.isDay": { fr: "Mode jour — passer en mode nuit", en: "Day mode — switch to night mode", pl: "Tryb dzienny — przełącz na nocny" },
+    "theme.isNight": { fr: "Mode nuit — passer en mode jour", en: "Night mode — switch to day mode", pl: "Tryb nocny — przełącz na dzienny" },
+    "edit.btn": { fr: "Modifier la disposition", en: "Edit layout", pl: "Edytuj układ" },
+    "logout": { fr: "Déconnexion", en: "Sign out", pl: "Wyloguj" },
+
+    "login.title": { fr: "Connexion à Home Assistant", en: "Sign in to Home Assistant", pl: "Logowanie do Home Assistant" },
+    "login.url": { fr: "Adresse de Home Assistant", en: "Home Assistant address", pl: "Adres Home Assistant" },
+    "login.remember": { fr: "Rester connecté sur cet appareil", en: "Stay signed in on this device", pl: "Nie wylogowuj na tym urządzeniu" },
+    "login.oauth": { fr: "Se connecter avec Home Assistant", en: "Sign in with Home Assistant", pl: "Zaloguj się przez Home Assistant" },
+    "login.oauthHint": { fr: "Tu seras redirigé vers la page de connexion de Home Assistant (identifiant, mot de passe et double authentification si elle est activée), puis ramené ici.",
+      en: "You will be redirected to the Home Assistant login page (username, password and two-factor authentication if enabled), then brought back here.",
+      pl: "Nastąpi przekierowanie na stronę logowania Home Assistant (nazwa użytkownika, hasło i uwierzytelnianie dwuskładnikowe, jeśli jest włączone), a potem powrót tutaj." },
+    "login.lltToggle": { fr: "Utiliser plutôt un jeton d'accès longue durée", en: "Use a long-lived access token instead", pl: "Użyj zamiast tego tokenu dostępu długoterminowego" },
+    "login.llt": { fr: "Jeton d'accès longue durée", en: "Long-lived access token", pl: "Token dostępu długoterminowego" },
+    "login.lltHint": { fr: "Pratique pour un écran en mode kiosque. À créer dans ton profil Home Assistant → onglet <em>Sécurité</em> → <em>Jetons d'accès longue durée</em>.",
+      en: "Handy for a kiosk screen. Create it in your Home Assistant profile → <em>Security</em> tab → <em>Long-lived access tokens</em>.",
+      pl: "Przydatne dla ekranu w trybie kiosku. Utwórz go w profilu Home Assistant → karta <em>Bezpieczeństwo</em> → <em>Tokeny dostępu długoterminowego</em>." },
+    "login.tokenBtn": { fr: "Se connecter avec le jeton", en: "Sign in with the token", pl: "Zaloguj się tokenem" },
+
+    "search.ph": { fr: "Rechercher une entité, un appareil, une pièce…", en: "Search for an entity, a device, a room…", pl: "Szukaj encji, urządzenia, pomieszczenia…" },
+    "filter.all": { fr: "Tous les types", en: "All types", pl: "Wszystkie typy" },
+    "expand": { fr: "Déplier", en: "Expand", pl: "Rozwiń" },
+    "expand.title": { fr: "Tout déplier", en: "Expand all", pl: "Rozwiń wszystko" },
+    "collapse": { fr: "Replier", en: "Collapse", pl: "Zwiń" },
+    "collapse.title": { fr: "Tout replier", en: "Collapse all", pl: "Zwiń wszystko" },
+
+    "edit.title": { fr: "Mode édition", en: "Edit mode", pl: "Tryb edycji" },
+    "edit.subViews": { fr: "Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.",
+      en: "Hide an entity or a whole device. Technical entities (diagnostic, configuration) are hidden by default.",
+      pl: "Ukryj encję lub całe urządzenie. Encje techniczne (diagnostyka, konfiguracja) są domyślnie ukryte." },
+    "edit.planInfo": { fr: { one: "choisis les appareils de chaque pièce avec ＋ · {n} appareil sur ce niveau.", other: "choisis les appareils de chaque pièce avec ＋ · {n} appareils sur ce niveau." },
+      en: { one: "choose each room's devices with ＋ · {n} device on this level.", other: "choose each room's devices with ＋ · {n} devices on this level." },
+      pl: { one: "wybierz urządzenia każdego pomieszczenia przyciskiem ＋ · {n} urządzenie na tym poziomie.", few: "wybierz urządzenia każdego pomieszczenia przyciskiem ＋ · {n} urządzenia na tym poziomie.", many: "wybierz urządzenia każdego pomieszczenia przyciskiem ＋ · {n} urządzeń na tym poziomie." } },
+    "edit.planSubBg": { fr: "Place les pièces par-dessus l'image : elles deviennent des zones transparentes où s'affichent les lumières. × retire un appareil, ◢ redimensionne une pièce.",
+      en: "Place the rooms over the image: they become transparent areas where the lights glow. × removes a device, ◢ resizes a room.",
+      pl: "Umieść pomieszczenia na obrazie: staną się przezroczystymi obszarami, w których świecą światła. × usuwa urządzenie, ◢ zmienia rozmiar pomieszczenia." },
+    "edit.planSub": { fr: "× retire un appareil du plan (il reste dans les autres vues). Glisse pour déplacer, coin ◢ pour redimensionner. Tu peux aussi mettre une image en fond.",
+      en: "× removes a device from the plan (it stays in the other views). Drag to move, corner ◢ to resize. You can also set a background image.",
+      pl: "× usuwa urządzenie z planu (pozostaje w innych widokach). Przeciągnij, aby przesunąć, róg ◢ zmienia rozmiar. Możesz też ustawić obraz tła." },
+    "edit.hiddenCount": { fr: { one: "{n} entité masquée (en transparence ci-dessous).", other: "{n} entités masquées (en transparence ci-dessous)." },
+      en: { one: "{n} hidden entity (shown faded below).", other: "{n} hidden entities (shown faded below)." },
+      pl: { one: "{n} ukryta encja (półprzezroczysta poniżej).", few: "{n} ukryte encje (półprzezroczyste poniżej).", many: "{n} ukrytych encji (półprzezroczyste poniżej)." } },
+    "edit.noneHidden": { fr: "Aucune entité masquée.", en: "No hidden entities.", pl: "Brak ukrytych encji." },
+
+    "bg.pickDay": { fr: "🖼 Image de fond ☀️ jour", en: "🖼 Background ☀️ day", pl: "🖼 Obraz tła ☀️ dzień" },
+    "bg.pickNight": { fr: "🖼 Image de fond 🌙 nuit", en: "🖼 Background 🌙 night", pl: "🖼 Obraz tła 🌙 noc" },
+    "bg.removeDay": { fr: "Retirer l'image de jour", en: "Remove day image", pl: "Usuń obraz dzienny" },
+    "bg.removeNight": { fr: "Retirer l'image de nuit", en: "Remove night image", pl: "Usuń obraz nocny" },
+    "bg.onionShowDay": { fr: "◐ Superposer la photo de jour", en: "◐ Overlay the day photo", pl: "◐ Nałóż zdjęcie dzienne" },
+    "bg.onionShowNight": { fr: "◐ Superposer la photo de nuit", en: "◐ Overlay the night photo", pl: "◐ Nałóż zdjęcie nocne" },
+    "bg.onionHideDay": { fr: "◐ Masquer la photo de jour", en: "◐ Hide the day photo", pl: "◐ Ukryj zdjęcie dzienne" },
+    "bg.onionHideNight": { fr: "◐ Masquer la photo de nuit", en: "◐ Hide the night photo", pl: "◐ Ukryj zdjęcie nocne" },
+    "bg.matchDay": { fr: "⇆ Caler sur la photo de jour", en: "⇆ Match the day photo", pl: "⇆ Dopasuj do zdjęcia dziennego" },
+    "bg.matchNight": { fr: "⇆ Caler sur la photo de nuit", en: "⇆ Match the night photo", pl: "⇆ Dopasuj do zdjęcia nocnego" },
+    "bg.onionTitle": { fr: "Afficher en transparence la photo de l'autre mode pour aligner les deux", en: "Show the other mode's photo semi-transparently to align both", pl: "Pokaż półprzezroczyste zdjęcie drugiego trybu, aby wyrównać oba" },
+    "bg.matchTitle": { fr: "Donner à cette photo la position et la taille de celle de l'autre mode", en: "Give this photo the position and size of the other mode's photo", pl: "Nadaj temu zdjęciu położenie i rozmiar zdjęcia z drugiego trybu" },
+    "bg.resize": { fr: "Redimensionner l'image (Maj : sans garder les proportions)", en: "Resize the image (Shift: free aspect ratio)", pl: "Zmień rozmiar obrazu (Shift: bez zachowania proporcji)" },
+    "bg.move": { fr: "Déplacer l'image", en: "Move the image", pl: "Przesuń obraz" },
+    "grid.title": { fr: "Aimanter les icônes sur une grille", en: "Snap icons to a grid", pl: "Przyciągaj ikony do siatki" },
+    "grid.on": { fr: "▦ Grille : activée", en: "▦ Grid: on", pl: "▦ Siatka: wł." },
+    "grid.off": { fr: "▦ Grille : désactivée", en: "▦ Grid: off", pl: "▦ Siatka: wył." },
+    "align": { fr: "⌗ Aligner", en: "⌗ Align", pl: "⌗ Wyrównaj" },
+    "align.title": { fr: "Replacer toutes les icônes de ce niveau sur la grille", en: "Snap every icon on this level to the grid", pl: "Przyciągnij wszystkie ikony tego poziomu do siatki" },
+    "regen": { fr: "↻ Régénérer le plan", en: "↻ Regenerate plan", pl: "↻ Wygeneruj plan od nowa" },
+    "reset": { fr: "Réinitialiser", en: "Reset", pl: "Resetuj" },
+    "done": { fr: "Terminé", en: "Done", pl: "Gotowe" },
+    "roomsNotice": { fr: "Impossible de lire les pièces depuis Home Assistant : affichage par type à la place.", en: "Couldn't read the rooms from Home Assistant: showing by type instead.", pl: "Nie udało się odczytać pomieszczeń z Home Assistant: wyświetlanie według typu." },
+
+    "left.aria": { fr: "Maison : occupation, scénarios, état", en: "Home: occupancy, scenes, status", pl: "Dom: obecność, sceny, stan" },
+    "left.title": { fr: "Occupation, scénarios et état de la maison", en: "Occupancy, scenes and house status", pl: "Obecność, sceny i stan domu" },
+    "right.title": { fr: "Température, énergie et raccourcis", en: "Temperature, energy and shortcuts", pl: "Temperatura, energia i skróty" },
+    "right.txt": { fr: "Infos", en: "Info", pl: "Info" },
+    "drawer.aria": { fr: "Contrôles de la pièce", en: "Room controls", pl: "Sterowanie pomieszczeniem" },
+    "drawer.empty": { fr: "Rien à afficher dans cette pièce.", en: "Nothing to show in this room.", pl: "Brak elementów w tym pomieszczeniu." },
+    "close": { fr: "Fermer ✕", en: "Close ✕", pl: "Zamknij ✕" },
+    "picker.sub": { fr: "Appareils affichés sur le plan", en: "Devices shown on the plan", pl: "Urządzenia widoczne na planie" },
+    "picker.all": { fr: "Tout cocher", en: "Select all", pl: "Zaznacz wszystko" },
+    "picker.none": { fr: "Tout décocher", en: "Deselect all", pl: "Odznacz wszystko" },
+    "picker.other": { fr: "Autres entités", en: "Other entities", pl: "Inne encje" },
+    "picker.empty": { fr: "Aucune entité n'est rattachée à cette pièce dans Home Assistant.", en: "No entities are assigned to this area in Home Assistant.", pl: "Do tego obszaru w Home Assistant nie przypisano żadnych encji." },
+    "picker.count": { fr: { one: "{n} sélectionné sur {total}", other: "{n} sélectionnés sur {total}" },
+      en: { one: "{n} of {total} selected", other: "{n} of {total} selected" },
+      pl: { one: "Zaznaczono {n} z {total}", other: "Zaznaczono {n} z {total}" } },
+    "cancel": { fr: "Annuler", en: "Cancel", pl: "Anuluj" },
+    "ok": { fr: "Valider", en: "Confirm", pl: "Zatwierdź" },
+
+    "cam.snap": { fr: "Image fixe", en: "Still image", pl: "Obraz statyczny" },
+    "cam.live": { fr: "Flux en direct", en: "Live stream", pl: "Na żywo" },
+    "cam.alt": { fr: "Flux caméra en direct", en: "Live camera stream", pl: "Obraz z kamery na żywo" },
+    "cam.infoLive": { fr: "Flux en direct (MJPEG)", en: "Live stream (MJPEG)", pl: "Transmisja na żywo (MJPEG)" },
+    "cam.infoSnap": { fr: "Images rafraîchies chaque seconde", en: "Images refreshed every second", pl: "Obraz odświeżany co sekundę" },
+    "cam.preview": { fr: "Aperçu · 5 s", en: "Preview · 5 s", pl: "Podgląd · 5 s" },
+    "cam.previewAlt": { fr: "Aperçu {name}", en: "{name} preview", pl: "Podgląd: {name}" },
+    "cam.unavailable": { fr: "Image indisponible", en: "Image unavailable", pl: "Obraz niedostępny" },
+
+    "dom.camera": { fr: "Caméras", en: "Cameras", pl: "Kamery" },
+    "dom.light": { fr: "Lumières", en: "Lights", pl: "Światła" },
+    "dom.switch": { fr: "Prises & interrupteurs", en: "Plugs & switches", pl: "Gniazdka i przełączniki" },
+    "dom.fan": { fr: "Ventilateurs", en: "Fans", pl: "Wentylatory" },
+    "dom.cover": { fr: "Volets", en: "Covers", pl: "Rolety" },
+    "dom.climate": { fr: "Chauffage / clim", en: "Heating & cooling", pl: "Ogrzewanie i klimatyzacja" },
+    "dom.media_player": { fr: "Médias", en: "Media", pl: "Multimedia" },
+    "dom.scene": { fr: "Scènes", en: "Scenes", pl: "Sceny" },
+    "dom.script": { fr: "Scripts", en: "Scripts", pl: "Skrypty" },
+    "dom.input_boolean": { fr: "Commutateurs virtuels", en: "Virtual switches", pl: "Przełączniki wirtualne" },
+    "dom.lock": { fr: "Serrures", en: "Locks", pl: "Zamki" },
+    "dom.sensor": { fr: "Capteurs", en: "Sensors", pl: "Czujniki" },
+    "dom.binary_sensor": { fr: "Détecteurs", en: "Detectors", pl: "Detektory" },
+
+    "err.noResponse": { fr: "Home Assistant ne répond pas.", en: "Home Assistant is not responding.", pl: "Home Assistant nie odpowiada." },
+    "err.cors": { fr: "Home Assistant ne répond pas, ou refuse cette page ({origin}). Si le site n'est pas servi par HA, ajoute cette adresse à « http: cors_allowed_origins » dans configuration.yaml.",
+      en: "Home Assistant is not responding, or refuses this page ({origin}). If the site is not served by HA, add this address to “http: cors_allowed_origins” in configuration.yaml.",
+      pl: "Home Assistant nie odpowiada lub odrzuca tę stronę ({origin}). Jeśli strona nie jest serwowana przez HA, dodaj ten adres do „http: cors_allowed_origins” w configuration.yaml." },
+    "err.status": { fr: "Erreur {n}", en: "Error {n}", pl: "Błąd {n}" },
+    "err.needHttp": { fr: "La connexion Home Assistant nécessite que la page soit ouverte en http(s), par exemple http://<ha>:8123/local/maison.html.",
+      en: "Signing in with Home Assistant requires the page to be opened over http(s), e.g. http://<ha>:8123/local/maison.html.",
+      pl: "Logowanie przez Home Assistant wymaga otwarcia strony przez http(s), np. http://<ha>:8123/local/maison.html." },
+    "err.state": { fr: "Réponse de connexion invalide (state). Réessaie.", en: "Invalid sign-in response (state). Please try again.", pl: "Nieprawidłowa odpowiedź logowania (state). Spróbuj ponownie." },
+    "err.cancelled": { fr: "Connexion annulée ou refusée par Home Assistant.", en: "Sign-in cancelled or refused by Home Assistant.", pl: "Logowanie anulowane lub odrzucone przez Home Assistant." },
+    "err.signin": { fr: "Échec de la connexion : {msg}", en: "Sign-in failed: {msg}", pl: "Logowanie nie powiodło się: {msg}" },
+    "err.badUrl": { fr: "Adresse invalide.", en: "Invalid address.", pl: "Nieprawidłowy adres." },
+    "err.mixed": { fr: "Cette page est en https mais l'adresse de HA est en http : le navigateur bloque la connexion. Utilise une adresse en https:// (ou ouvre la page en http).",
+      en: "This page uses https but the HA address uses http: the browser blocks the connection. Use an https:// address (or open the page over http).",
+      pl: "Ta strona używa https, a adres HA – http: przeglądarka blokuje połączenie. Użyj adresu https:// (lub otwórz stronę przez http)." },
+    "err.expired": { fr: "Session Home Assistant expirée ou révoquée : reconnecte-toi.", en: "Home Assistant session expired or revoked: please sign in again.", pl: "Sesja Home Assistant wygasła lub została unieważniona: zaloguj się ponownie." },
+    "err.browserRefused": { fr: "Le navigateur refuse la connexion : {msg}", en: "The browser refused the connection: {msg}", pl: "Przeglądarka odrzuciła połączenie: {msg}" },
+    "err.timeout": { fr: "Pas de réponse de {url} après 8 s. Vérifie l'adresse et le port (souvent :8123), et que HA est joignable depuis cet appareil.",
+      en: "No response from {url} after 8 s. Check the address and port (usually :8123), and that HA can be reached from this device.",
+      pl: "Brak odpowiedzi z {url} po 8 s. Sprawdź adres i port (zwykle :8123) oraz czy HA jest osiągalny z tego urządzenia." },
+    "err.sessionRefused": { fr: "Session Home Assistant refusée : reconnecte-toi.", en: "Home Assistant session refused: please sign in again.", pl: "Sesja Home Assistant odrzucona: zaloguj się ponownie." },
+    "err.tokenRefused": { fr: "Jeton refusé par Home Assistant ({msg}). Recopie-le en entier, sans « Bearer » devant.", en: "Token refused by Home Assistant ({msg}). Paste it in full, without “Bearer” in front.", pl: "Token odrzucony przez Home Assistant ({msg}). Wklej go w całości, bez „Bearer” na początku." },
+    "err.invalid": { fr: "invalide", en: "invalid", pl: "nieprawidłowy" },
+    "err.unreachable": { fr: "Impossible de joindre {url} (code {code}). Vérifie l'adresse, le port et http/https.", en: "Cannot reach {url} (code {code}). Check the address, the port and http/https.", pl: "Nie można połączyć się z {url} (kod {code}). Sprawdź adres, port oraz http/https." },
+    "err.generic": { fr: "Erreur : {msg}", en: "Error: {msg}", pl: "Błąd: {msg}" },
+    "err.pasteToken": { fr: "Colle d'abord ton jeton d'accès longue durée.", en: "Paste your long-lived access token first.", pl: "Najpierw wklej token dostępu długoterminowego." },
+    "err.saveImgLocal": { fr: "Impossible d'enregistrer l'image dans ce navigateur : elle s'affichera jusqu'au rechargement.", en: "Couldn't save the image in this browser: it will be shown until the page is reloaded.", pl: "Nie udało się zapisać obrazu w tej przeglądarce: będzie widoczny do przeładowania strony." },
+    "err.readImg": { fr: "Impossible de lire cette image.", en: "Couldn't read this image.", pl: "Nie udało się odczytać tego obrazu." },
+    "err.haUnreachable": { fr: "Home Assistant injoignable", en: "Home Assistant unreachable", pl: "Home Assistant jest nieosiągalny" },
+    "err.admin": { fr: "l'envoi de photos demande un compte administrateur Home Assistant", en: "uploading photos requires a Home Assistant administrator account", pl: "przesyłanie zdjęć wymaga konta administratora Home Assistant" },
+    "err.upload": { fr: "erreur {n} à l'envoi", en: "upload error {n}", pl: "błąd przesyłania {n}" },
+    "err.unexpected": { fr: "réponse inattendue de Home Assistant", en: "unexpected response from Home Assistant", pl: "nieoczekiwana odpowiedź Home Assistant" },
+
+    "device.default": { fr: "Appareil", en: "Device", pl: "Urządzenie" },
+    "dev.show": { fr: "👁 Afficher l'appareil", en: "👁 Show device", pl: "👁 Pokaż urządzenie" },
+    "dev.hide": { fr: "🚫 Masquer l'appareil", en: "🚫 Hide device", pl: "🚫 Ukryj urządzenie" },
+    "ent.show": { fr: "👁 Afficher", en: "👁 Show", pl: "👁 Pokaż" },
+    "ent.hide": { fr: "🚫 Masquer", en: "🚫 Hide", pl: "🚫 Ukryj" },
+    "room.none": { fr: "Sans pièce", en: "No room", pl: "Bez pomieszczenia" },
+    "empty.entities": { fr: "Aucune entité à afficher.", en: "No entities to show.", pl: "Brak encji do wyświetlenia." },
+    "active": { fr: { one: "{n} actif", other: "{n} actifs" }, en: { one: "{n} active", other: "{n} active" }, pl: { one: "{n} aktywne", few: "{n} aktywne", many: "{n} aktywnych" } },
+    "card.brightness": { fr: "Luminosité", en: "Brightness", pl: "Jasność" },
+    "card.setpoint": { fr: "consigne {t}°", en: "target {t}°", pl: "zadana {t}°" },
+    "btn.open": { fr: "Ouvrir", en: "Open", pl: "Otwórz" },
+    "btn.stop": { fr: "Stop", en: "Stop", pl: "Stop" },
+    "btn.close": { fr: "Fermer", en: "Close", pl: "Zamknij" },
+    "btn.activate": { fr: "Activer", en: "Activate", pl: "Aktywuj" },
+    "btn.run": { fr: "Lancer", en: "Run", pl: "Uruchom" },
+    "btn.lock": { fr: "Verrouiller", en: "Lock", pl: "Zablokuj" },
+    "btn.unlock": { fr: "Déverrouiller", en: "Unlock", pl: "Odblokuj" },
+
+    "level.default": { fr: "Maison", en: "Home", pl: "Dom" },
+    "lvl.add": { fr: "＋ Niveau", en: "＋ Level", pl: "＋ Poziom" },
+    "lvl.rename": { fr: "✎ Renommer « {name} »", en: "✎ Rename “{name}”", pl: "✎ Zmień nazwę „{name}”" },
+    "lvl.renameTitle": { fr: "Renommer ce niveau", en: "Rename this level", pl: "Zmień nazwę tego poziomu" },
+    "lvl.deleteTitle": { fr: "Supprimer ce niveau", en: "Delete this level", pl: "Usuń ten poziom" },
+    "lvl.assign": { fr: "⇄ Répartir les pièces", en: "⇄ Assign rooms", pl: "⇄ Przypisz pomieszczenia" },
+    "lvl.prompt": { fr: "Nom du nouveau niveau (ex. Dépendance, Sous-sol, Étage) :", en: "Name of the new level (e.g. Outbuilding, Basement, Upstairs):", pl: "Nazwa nowego poziomu (np. Budynek gospodarczy, Piwnica, Piętro):" },
+    "lvl.renamePrompt": { fr: "Nouveau nom :", en: "New name:", pl: "Nowa nazwa:" },
+    "lvl.confirmDelete": { fr: "Supprimer le niveau « {name} » ? Ses pièces retourneront à leur niveau d'origine.", en: "Delete the level “{name}”? Its rooms will return to their original level.", pl: "Usunąć poziom „{name}”? Jego pomieszczenia wrócą na pierwotny poziom." },
+    "assign.title": { fr: "Répartition des pièces", en: "Room assignment", pl: "Przypisanie pomieszczeń" },
+    "assign.hintFloors": { fr: "Par défaut, chaque pièce suit l'étage défini dans Home Assistant.", en: "By default, each room follows the floor set in Home Assistant.", pl: "Domyślnie każde pomieszczenie należy do piętra ustawionego w Home Assistant." },
+    "assign.hint": { fr: "Crée un niveau avec « ＋ Niveau », puis choisis où va chaque pièce.", en: "Create a level with “＋ Level”, then choose where each room goes.", pl: "Utwórz poziom przyciskiem „＋ Poziom”, a następnie wybierz, gdzie trafia każde pomieszczenie." },
+    "badge.presence": { fr: "Présence", en: "Presence", pl: "Obecność" },
+    "badge.opening": { fr: "Ouverture", en: "Opening", pl: "Otwarcie" },
+
+    "person.home": { fr: "Présent", en: "Home", pl: "W domu" },
+    "person.away": { fr: "Absent", en: "Away", pl: "Poza domem" },
+    "person.unknown": { fr: "Inconnu", en: "Unknown", pl: "Nieznany" },
+    "person.zone": { fr: "Absent · {zone}", en: "Away · {zone}", pl: "Poza domem · {zone}" },
+    "person.restore": { fr: "Réafficher", en: "Show again", pl: "Pokaż ponownie" },
+    "person.remove": { fr: "Retirer du bandeau", en: "Remove from the strip", pl: "Usuń z paska" },
+    "people.none": { fr: "Personne à la maison", en: "Nobody home", pl: "Nikogo nie ma w domu" },
+    "people.count": { fr: "{home}/{total} à la maison", en: "{home}/{total} at home", pl: "{home}/{total} w domu" },
+
+    "plan.aria": { fr: "Plan de la maison", en: "House floor plan", pl: "Plan domu" },
+    "plan.noRoomsLevel": { fr: "Aucune pièce sur ce niveau. Passe en mode édition (✎) puis « ⇄ Répartir les pièces ».", en: "No rooms on this level. Switch to edit mode (✎), then “⇄ Assign rooms”.", pl: "Brak pomieszczeń na tym poziomie. Przejdź do trybu edycji (✎), a następnie „⇄ Przypisz pomieszczenia”." },
+    "plan.noRooms": { fr: "Aucune pièce définie dans Home Assistant (Paramètres → Zones et pièces).", en: "No areas defined in Home Assistant (Settings → Areas).", pl: "Brak obszarów zdefiniowanych w Home Assistant (Ustawienia → Obszary)." },
+    "room.add": { fr: "Ajouter des appareils", en: "Add devices", pl: "Dodaj urządzenia" },
+    "zoom.in": { fr: "Agrandir les icônes", en: "Enlarge icons", pl: "Powiększ ikony" },
+    "zoom.out": { fr: "Réduire les icônes", en: "Shrink icons", pl: "Zmniejsz ikony" },
+    "mk.remove": { fr: "Retirer du plan", en: "Remove from plan", pl: "Usuń z planu" },
+    "legend.edit": { fr: "＋ en haut à droite d'une pièce pour choisir ses appareils · × retire un appareil du plan · glisse les icônes et les pièces, coin ◢ pour redimensionner.",
+      en: "＋ in a room's top-right corner to choose its devices · × removes a device from the plan · drag icons and rooms, corner ◢ to resize.",
+      pl: "＋ w prawym górnym rogu pomieszczenia, aby wybrać urządzenia · × usuwa urządzenie z planu · przeciągaj ikony i pomieszczenia, róg ◢ zmienia rozmiar." },
+    "legend.view": { fr: "Touche une icône pour allumer / éteindre · touche une pièce pour tous ses contrôles", en: "Tap an icon to turn it on / off · tap a room for all its controls", pl: "Dotknij ikony, aby włączyć / wyłączyć · dotknij pomieszczenia, aby zobaczyć wszystkie elementy sterowania" },
+    "legend.empty": { fr: "Le plan est vide : passe en mode édition (✎) puis utilise ＋ dans chaque pièce pour ajouter des appareils", en: "The plan is empty: switch to edit mode (✎), then use ＋ in each room to add devices", pl: "Plan jest pusty: przejdź do trybu edycji (✎) i użyj ＋ w każdym pomieszczeniu, aby dodać urządzenia" },
+    "legend.swipe": { fr: " · glisse pour changer de niveau", en: " · swipe to change level", pl: " · przesuń, aby zmienić poziom" },
+    "rinfo.open": { fr: "⚠ ouvert", en: "⚠ open", pl: "⚠ otwarte" },
+    "rinfo.presence": { fr: "◉ présence", en: "◉ presence", pl: "◉ obecność" },
+
+    "preset.comfort": { fr: "Confort", en: "Comfort", pl: "Komfort" },
+    "preset.eco": { fr: "Éco", en: "Eco", pl: "Eko" },
+    "preset.away": { fr: "Absence", en: "Away", pl: "Poza domem" },
+    "preset.boost": { fr: "Boost", en: "Boost", pl: "Boost" },
+    "preset.sleep": { fr: "Nuit", en: "Sleep", pl: "Sen" },
+    "preset.home": { fr: "Maison", en: "Home", pl: "Dom" },
+    "preset.activity": { fr: "Activité", en: "Activity", pl: "Aktywność" },
+    "hvac.heat": { fr: "Chauffe", en: "Heating", pl: "Grzanie" },
+    "hvac.cool": { fr: "Clim", en: "Cooling", pl: "Chłodzenie" },
+    "hvac.heat_cool": { fr: "Auto", en: "Auto", pl: "Auto" },
+    "hvac.auto": { fr: "Auto", en: "Auto", pl: "Auto" },
+    "hvac.dry": { fr: "Déshumidification", en: "Dry", pl: "Osuszanie" },
+    "hvac.fan_only": { fr: "Ventilation", en: "Fan", pl: "Wentylacja" },
+    "hvac.off": { fr: "Arrêt", en: "Off", pl: "Wyłączone" },
+
+    "panel.scenes": { fr: "Scénarios rapides", en: "Quick scenes", pl: "Szybkie sceny" },
+    "panel.state": { fr: "État de la maison", en: "House status", pl: "Stan domu" },
+    "panel.noScenes": { fr: "Aucune scène ni script dans Home Assistant.", en: "No scenes or scripts in Home Assistant.", pl: "Brak scen i skryptów w Home Assistant." },
+    "occ.home": { fr: "Maison", en: "Home", pl: "Dom" },
+    "occ.occupied": { fr: "Maison occupée", en: "Someone's home", pl: "Ktoś jest w domu" },
+    "occ.empty": { fr: "Maison vide", en: "House empty", pl: "Dom pusty" },
+    "occ.noPeople": { fr: "Aucune personne définie dans HA", en: "No people defined in HA", pl: "Brak osób zdefiniowanych w HA" },
+    "occ.people": { fr: { one: "{n} personne", other: "{n} personnes" }, en: { one: "{n} person", other: "{n} people" }, pl: { one: "{n} osoba", few: "{n} osoby", many: "{n} osób" } },
+    "alarm": { fr: "Alarme", en: "Alarm", pl: "Alarm" },
+    "alarm.disarmed": { fr: "Désactivée", en: "Disarmed", pl: "Rozbrojony" },
+    "alarm.triggered": { fr: "Déclenchée !", en: "Triggered!", pl: "Wyzwolony!" },
+    "alarm.armed": { fr: "Activée", en: "Armed", pl: "Uzbrojony" },
+    "alarm.arming": { fr: "Activation…", en: "Arming…", pl: "Uzbrajanie…" },
+    "alarm.pending": { fr: "En attente", en: "Pending", pl: "Oczekiwanie" },
+    "gate": { fr: "Portail", en: "Gate", pl: "Brama" },
+    "garage": { fr: "Garage", en: "Garage", pl: "Garaż" },
+    "isOpen": { fr: "Ouvert", en: "Open", pl: "Otwarte" },
+    "isClosed": { fr: "Fermé", en: "Closed", pl: "Zamknięte" },
+    "openings": { fr: "Portes & fenêtres", en: "Doors & windows", pl: "Drzwi i okna" },
+    "openings.some": { fr: { one: "{n} ouverte : {names}", other: "{n} ouvertes : {names}" }, en: { one: "{n} open: {names}", other: "{n} open: {names}" }, pl: { one: "{n} otwarte: {names}", other: "{n} otwarte: {names}" } },
+    "openings.all": { fr: "Toutes fermées", en: "All closed", pl: "Wszystkie zamknięte" },
+    "locks": { fr: "Serrures", en: "Locks", pl: "Zamki" },
+    "locks.some": { fr: { one: "{n} déverrouillée", other: "{n} déverrouillées" }, en: { one: "{n} unlocked", other: "{n} unlocked" }, pl: { one: "{n} odblokowany", few: "{n} odblokowane", many: "{n} odblokowanych" } },
+    "locks.all": { fr: "Verrouillées", en: "All locked", pl: "Wszystkie zablokowane" },
+    "warn.points": { fr: { one: "{n} point à vérifier", other: "{n} points à vérifier" }, en: { one: "{n} item to check", other: "{n} items to check" }, pl: { one: "{n} element do sprawdzenia", few: "{n} elementy do sprawdzenia", many: "{n} elementów do sprawdzenia" } },
+    "warn.ok": { fr: "Tout est en ordre", en: "All good", pl: "Wszystko w porządku" },
+    "tab.present": { fr: { one: "{n} présent", other: "{n} présents" }, en: { one: "{n} home", other: "{n} home" }, pl: { one: "{n} w domu", other: "{n} w domu" } },
+    "tab.empty": { fr: "Vide", en: "Empty", pl: "Pusto" },
+    "panel.noSecurity": { fr: "Aucun capteur de sécurité trouvé.", en: "No security sensors found.", pl: "Nie znaleziono czujników bezpieczeństwa." },
+    "panel.temp": { fr: "Température", en: "Temperature", pl: "Temperatura" },
+    "temp.sensors": { fr: { one: "{n} capteur", other: "{n} capteurs" }, en: { one: "{n} sensor", other: "{n} sensors" }, pl: { one: "{n} czujnik", few: "{n} czujniki", many: "{n} czujników" } },
+    "temp.thermostats": { fr: { one: "thermostat", other: "thermostats" }, en: { one: "thermostat", other: "thermostats" }, pl: { one: "termostat", few: "termostaty", many: "termostatów" } },
+    "temp.none": { fr: "Aucun capteur de température dans une pièce.", en: "No temperature sensor in any room.", pl: "Brak czujnika temperatury w pomieszczeniach." },
+    "temp.house": { fr: "Maison · {src}", en: "Home · {src}", pl: "Dom · {src}" },
+    "panel.energy": { fr: "Énergie", en: "Energy", pl: "Energia" },
+    "energy.none": { fr: "Aucun capteur de puissance.", en: "No power sensor.", pl: "Brak czujnika mocy." },
+    "energy.now": { fr: "Consommation actuelle", en: "Current consumption", pl: "Bieżące zużycie" },
+    "q.lights": { fr: "Lumières", en: "Lights", pl: "Światła" },
+    "q.lightsOn": { fr: { one: "{n} allumée / {total}", other: "{n} allumées / {total}" }, en: { one: "{n} on / {total}", other: "{n} on / {total}" }, pl: { one: "{n} wł. / {total}", other: "{n} wł. / {total}" } },
+    "q.covers": { fr: "Volets", en: "Covers", pl: "Rolety" },
+    "q.coversAllOpen": { fr: "Tous ouverts", en: "All open", pl: "Wszystkie otwarte" },
+    "q.coversAllClosed": { fr: "Tous fermés", en: "All closed", pl: "Wszystkie zamknięte" },
+    "q.coversSome": { fr: { one: "{n} ouvert / {total}", other: "{n} ouverts / {total}" }, en: { one: "{n} open / {total}", other: "{n} open / {total}" }, pl: { one: "{n} otwarta / {total}", other: "{n} otwarte / {total}" } },
+    "q.heating": { fr: "Chauffage", en: "Heating", pl: "Ogrzewanie" },
+    "q.heatOff": { fr: "Arrêt", en: "Off", pl: "Wyłączone" },
+    "q.heatMode": { fr: "Mode {m}", en: "{m} mode", pl: "Tryb {m}" },
+    "q.none": { fr: "Rien à piloter.", en: "Nothing to control.", pl: "Brak urządzeń do sterowania." },
+    "q.confirmLights": { fr: "Allumer les {n} lumières ?", en: "Turn on all {n} lights?", pl: "Włączyć wszystkie światła ({n})?" },
+    "weather.outside": { fr: "Extérieur", en: "Outside", pl: "Na zewnątrz" },
+
+    "sync.uploading": { fr: "Envoi de la photo à Home Assistant…", en: "Uploading the photo to Home Assistant…", pl: "Przesyłanie zdjęcia do Home Assistant…" },
+    "sync.photoLocal": { fr: "photo gardée sur cet appareil uniquement ({msg})", en: "photo kept on this device only ({msg})", pl: "zdjęcie zachowane tylko na tym urządzeniu ({msg})" },
+    "sync.photosLocal": { fr: "photos gardées sur cet appareil uniquement ({msg})", en: "photos kept on this device only ({msg})", pl: "zdjęcia zachowane tylko na tym urządzeniu ({msg})" },
+    "sync.okWarn": { fr: "☁️ Réglages enregistrés dans Home Assistant · ⚠️ {w}", en: "☁️ Settings saved in Home Assistant · ⚠️ {w}", pl: "☁️ Ustawienia zapisane w Home Assistant · ⚠️ {w}" },
+    "sync.ok": { fr: "☁️ Enregistré dans Home Assistant", en: "☁️ Saved in Home Assistant", pl: "☁️ Zapisano w Home Assistant" },
+    "sync.save": { fr: "☁️ Enregistrement…", en: "☁️ Saving…", pl: "☁️ Zapisywanie…" },
+    "sync.load": { fr: "☁️ Chargement…", en: "☁️ Loading…", pl: "☁️ Wczytywanie…" },
+    "sync.off": { fr: "💾 Enregistré sur cet appareil seulement", en: "💾 Saved on this device only", pl: "💾 Zapisano tylko na tym urządzeniu" },
+    "sync.err": { fr: "⚠️ Enregistrement dans Home Assistant impossible", en: "⚠️ Couldn't save to Home Assistant", pl: "⚠️ Nie udało się zapisać w Home Assistant" },
+    "sync.errMsg": { fr: "⚠️ Enregistrement impossible : {msg}", en: "⚠️ Couldn't save: {msg}", pl: "⚠️ Nie udało się zapisać: {msg}" },
+
+    "confirm.reset": { fr: "Revenir à l'affichage par défaut ? (les entités techniques restent masquées)", en: "Go back to the default display? (technical entities stay hidden)", pl: "Przywrócić domyślny widok? (encje techniczne pozostaną ukryte)" },
+    "confirm.regen": { fr: "Régénérer le plan de ce niveau ? Tes déplacements de pièces et d'icônes y seront perdus.", en: "Regenerate this level's plan? Your room and icon positions on it will be lost.", pl: "Wygenerować plan tego poziomu od nowa? Położenie pomieszczeń i ikon zostanie utracone." },
+    "confirm.removeBgDay": { fr: "Retirer l'image de fond de jour de ce niveau ?", en: "Remove this level's day background image?", pl: "Usunąć dzienny obraz tła tego poziomu?" },
+    "confirm.removeBgNight": { fr: "Retirer l'image de fond de nuit de ce niveau ?", en: "Remove this level's night background image?", pl: "Usunąć nocny obraz tła tego poziomu?" },
+
+    // États des appareils
+    "st.on": { fr: "Allumé", en: "On", pl: "Wł." },
+    "st.off": { fr: "Éteint", en: "Off", pl: "Wył." },
+    "st.unavailable": { fr: "Indisponible", en: "Unavailable", pl: "Niedostępne" },
+    "st.unknown": { fr: "Inconnu", en: "Unknown", pl: "Nieznany" },
+    "st.open": { fr: "Ouvert", en: "Open", pl: "Otwarte" },
+    "st.closed": { fr: "Fermé", en: "Closed", pl: "Zamknięte" },
+    "st.opening": { fr: "Ouverture…", en: "Opening…", pl: "Otwieranie…" },
+    "st.closing": { fr: "Fermeture…", en: "Closing…", pl: "Zamykanie…" },
+    "st.stopped": { fr: "Arrêté", en: "Stopped", pl: "Zatrzymane" },
+    "st.locked": { fr: "Verrouillé", en: "Locked", pl: "Zablokowany" },
+    "st.unlocked": { fr: "Déverrouillé", en: "Unlocked", pl: "Odblokowany" },
+    "st.locking": { fr: "Verrouillage…", en: "Locking…", pl: "Blokowanie…" },
+    "st.unlocking": { fr: "Déverrouillage…", en: "Unlocking…", pl: "Odblokowywanie…" },
+    "st.jammed": { fr: "Bloqué", en: "Jammed", pl: "Zacięty" },
+    "st.detected": { fr: "Détecté", en: "Detected", pl: "Wykryto" },
+    "st.clear": { fr: "Rien", en: "Clear", pl: "Brak" },
+    "st.playing": { fr: "Lecture", en: "Playing", pl: "Odtwarzanie" },
+    "st.paused": { fr: "Pause", en: "Paused", pl: "Wstrzymano" },
+    "st.idle": { fr: "Inactif", en: "Idle", pl: "Bezczynny" },
+    "st.standby": { fr: "Veille", en: "Standby", pl: "Czuwanie" },
+    "st.home": { fr: "Présent", en: "Home", pl: "W domu" },
+    "st.not_home": { fr: "Absent", en: "Away", pl: "Poza domem" }
   };
+
+  function tr(key, vars) {
+    const e = STR[key];
+    let s = e ? (e[LANG] !== undefined ? e[LANG] : e.en) : key;
+    if (s && typeof s === "object") { // formes plurielles
+      const n = vars && vars.n != null ? +vars.n : 0;
+      s = s[PLURAL.select(n)] || s.other || s.many || s.one;
+    }
+    return vars ? String(s).replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m)) : s;
+  }
+  // Textes statiques du HTML : data-i18n (texte), data-i18n-html, data-i18n-title, data-i18n-ph, data-i18n-aria
+  function applyStaticI18n(root = document) {
+    root.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = tr(el.dataset.i18n); });
+    root.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = tr(el.dataset.i18nHtml); });
+    root.querySelectorAll("[data-i18n-title]").forEach(el => { el.title = tr(el.dataset.i18nTitle); });
+    root.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = tr(el.dataset.i18nPh); });
+    root.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", tr(el.dataset.i18nAria)); });
+  }
+  applyStaticI18n();
+
+  // Nombres et états au format de la langue
+  const NUMF = {};
+  const fmtNum = (v, dec) => (NUMF[dec] || (NUMF[dec] = new Intl.NumberFormat(LOCALE, { minimumFractionDigits: dec, maximumFractionDigits: dec }))).format(v);
+  function stateText(s) {
+    const d = s.entity_id.split(".")[0], st = s.state, dc = s.attributes.device_class;
+    if (st === "unavailable") return tr("st.unavailable");
+    if (st === "unknown") return tr("st.unknown");
+    if (d === "binary_sensor") {
+      if (["door", "window", "opening", "garage_door"].includes(dc)) return tr(st === "on" ? "st.open" : "st.closed");
+      if (["motion", "occupancy", "presence", "moving", "sound", "vibration"].includes(dc)) return tr(st === "on" ? "st.detected" : "st.clear");
+      if (dc === "lock") return tr(st === "on" ? "st.unlocked" : "st.locked");
+    }
+    if (d === "climate" && STR["hvac." + st]) return tr("hvac." + st);
+    if (d === "person" || d === "device_tracker") return STR["st." + st] ? tr("st." + st) : st;
+    if (STR["st." + st]) return tr("st." + st);
+    if (st !== "" && !isNaN(st)) { const dec = (String(st).split(".")[1] || "").length; return fmtNum(+st, Math.min(dec, 3)); }
+    return st;
+  }
+
+  const DOMAINS = Object.fromEntries(["camera", "light", "switch", "fan", "cover", "climate", "media_player",
+    "scene", "script", "input_boolean", "lock", "sensor", "binary_sensor"].map(d => [d, tr("dom." + d)]));
+  document.getElementById("camLive").alt = tr("cam.alt");
   const DOM_ORDER = Object.keys(DOMAINS);
   const TOGGLEABLE = new Set(["light", "switch", "fan", "input_boolean", "media_player"]);
   const ICONS = {
@@ -813,7 +1181,7 @@
     const b = document.getElementById("themeBtn");
     if (b) {
       b.textContent = theme === "day" ? "☀️" : "🌙";
-      b.title = theme === "day" ? "Mode jour — passer en mode nuit" : "Mode nuit — passer en mode jour";
+      b.title = tr(theme === "day" ? "theme.isDay" : "theme.isNight");
       b.setAttribute("aria-label", b.title);
     }
     const m = document.querySelector('meta[name="theme-color"]');
@@ -912,18 +1280,18 @@
         headers: { "Content-Type": "application/x-www-form-urlencoded" } });
     } catch {
       throw new AuthError(location.origin === new URL(url).origin
-        ? "Home Assistant ne répond pas."
-        : `Home Assistant ne répond pas, ou refuse cette page (${location.origin}). Si le site n'est pas servi par HA, ajoute cette adresse à « http: cors_allowed_origins » dans configuration.yaml.`, false);
+        ? tr("err.noResponse")
+        : tr("err.cors", { origin: location.origin }), false);
     }
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new AuthError(j.error_description || j.error || ("Erreur " + r.status), r.status === 400 || r.status === 403);
+    if (!r.ok) throw new AuthError(j.error_description || j.error || tr("err.status", { n: r.status }), r.status === 400 || r.status === 403);
     return j;
   }
 
   // Étape 1 : redirection vers la page de connexion de HA
   function startOAuth(url, remember) {
     if (!/^https?:$/.test(location.protocol)) {
-      return loginFail("La connexion Home Assistant nécessite que la page soit ouverte en http(s), par exemple http://<ha>:8123/local/maison.html.");
+      return loginFail(tr("err.needHttp"));
     }
     const state = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, "0")).join("");
     try { sessionStorage.setItem(OAUTH_PENDING, JSON.stringify({ state, url, remember, clientId: clientIdFor(), redirect: pageUrl() })); } catch {}
@@ -940,16 +1308,16 @@
     history.replaceState(null, "", pageUrl() + location.hash); // retire le code de l'adresse
     if (!pend) return false;
     $("haUrl").value = pend.url;
-    if (q.get("state") !== pend.state) { loginFail("Réponse de connexion invalide (state). Réessaie."); return true; }
-    if (q.has("error")) { loginFail("Connexion annulée ou refusée par Home Assistant."); return true; }
-    setStatus("Connexion…");
+    if (q.get("state") !== pend.state) { loginFail(tr("err.state")); return true; }
+    if (q.has("error")) { loginFail(tr("err.cancelled")); return true; }
+    setStatus(tr("status.connecting"));
     try {
       const t = await tokenRequest(pend.url, { grant_type: "authorization_code", code: q.get("code"), client_id: pend.clientId });
       conn = { url: pend.url, remember: pend.remember,
                oauth: { access: t.access_token, refresh: t.refresh_token, expires: Date.now() + t.expires_in * 1000, clientId: pend.clientId } };
       saveConn();
       connect();
-    } catch (e) { loginFail("Échec de la connexion : " + e.message); }
+    } catch (e) { loginFail(tr("err.signin", { msg: e.message })); }
     return true;
   }
 
@@ -982,28 +1350,28 @@
   async function connect() {
     clearTimeout(reconnectTimer);
     manualClose = false;
-    setStatus("Connexion…");
+    setStatus(tr("status.connecting"));
     let url;
-    try { url = wsUrl(conn.url); } catch { return loginFail("Adresse invalide."); }
+    try { url = wsUrl(conn.url); } catch { return loginFail(tr("err.badUrl")); }
 
     if (location.protocol === "https:" && url.startsWith("ws:")) {
-      return loginFail("Cette page est en https mais l'adresse de HA est en http : le navigateur bloque la connexion. Utilise une adresse en https:// (ou ouvre la page en http).");
+      return loginFail(tr("err.mixed"));
     }
     let token;
     try { token = await getAccessToken(); }
     catch (e) {
-      if (e.fatal) { clearConn(); return loginFail("Session Home Assistant expirée ou révoquée : reconnecte-toi."); }
+      if (e.fatal) { clearConn(); return loginFail(tr("err.expired")); }
       setStatus("Reconnexion…", "err");
       if (document.body.classList.contains("connected")) { reconnectTimer = setTimeout(connect, 5000); return; }
       return loginFail(e.message);
     }
     try { ws = new WebSocket(url); }
-    catch (e) { return loginFail("Le navigateur refuse la connexion : " + e.message); }
+    catch (e) { return loginFail(tr("err.browserRefused", { msg: e.message })); }
     let authed = false;
     const timeout = setTimeout(() => {
       if (authed) return;
       manualClose = true; try { ws.close(); } catch {}
-      loginFail("Pas de réponse de " + url + " après 8 s. Vérifie l'adresse et le port (souvent :8123), et que HA est joignable depuis cet appareil.");
+      loginFail(tr("err.timeout", { url }));
     }, 8000);
 
     ws.onmessage = async ev => {
@@ -1015,11 +1383,10 @@
         if (conn.oauth && !authRetried) { // jeton d'accès refusé : on force un rafraîchissement, une fois
           authRetried = true; conn.oauth.expires = 0; return connect();
         }
-        loginFail(conn.oauth ? "Session Home Assistant refusée : reconnecte-toi."
-          : "Jeton refusé par Home Assistant (" + (msg.message || "invalide") + "). Recopie-le en entier, sans « Bearer » devant.");
+        loginFail(conn.oauth ? tr("err.sessionRefused") : tr("err.tokenRefused", { msg: msg.message || tr("err.invalid") }));
       } else if (msg.type === "auth_ok") {
         authed = true; authRetried = false; clearTimeout(timeout);
-        setStatus("Connecté (HA " + msg.ha_version + ")", "ok");
+        setStatus(tr("status.connected", { v: msg.ha_version }), "ok");
         showDashboard();
         const [list] = await Promise.all([send({ type: "get_states" }), loadRegistries()]);
         states = {};
@@ -1049,11 +1416,11 @@
       }
     };
 
-    ws.onerror = () => { if (!authed) setStatus("Erreur de connexion", "err"); };
+    ws.onerror = () => { if (!authed) setStatus(tr("status.error"), "err"); };
     ws.onclose = ev => {
       if (manualClose) return;
       clearTimeout(timeout);
-      if (!authed) return loginFail("Impossible de joindre " + url + " (code " + ev.code + "). Vérifie l'adresse, le port et http/https.");
+      if (!authed) return loginFail(tr("err.unreachable", { url, code: ev.code }));
       setStatus("Reconnexion…", "err");
       reconnectTimer = setTimeout(connect, 3000);
     };
@@ -1061,13 +1428,13 @@
 
   function callService(domain, service, entity_id, data = {}) {
     return send({ type: "call_service", domain, service, service_data: data, target: { entity_id } })
-      .catch(err => alert("Erreur : " + (err && err.message || err)));
+      .catch(err => alert(tr("err.generic", { msg: (err && err.message) || err })));
   }
 
   // ---------- Écrans ----------
   function loginFail(text) {
     document.body.classList.remove("connected");
-    setStatus("Déconnecté", "err");
+    setStatus(tr("status.disconnected"), "err");
     $("loginError").textContent = text;
     $("loginForm").classList.remove("hidden");
     $("dashboard").classList.add("hidden");
@@ -1085,7 +1452,7 @@
   // ---------- Modèle ----------
   const domainOf = id => id.split(".")[0];
   const nameOf = s => s.attributes.friendly_name || s.entity_id;
-  const devName = d => d.name_by_user || d.name || "Appareil";
+  const devName = d => d.name_by_user || d.name || tr("device.default");
   const areaName = a => (reg.areas[a] && reg.areas[a].name) || a;
   const deviceOf = id => {
     const e = reg.entities[id];
@@ -1118,14 +1485,14 @@
     return n;
   }
 
-  const byName = (a, b) => nameOf(a).localeCompare(nameOf(b), "fr");
+  const byName = (a, b) => nameOf(a).localeCompare(nameOf(b), LOCALE);
   const byDomainThenName = (a, b) =>
     (DOM_ORDER.indexOf(domainOf(a.entity_id)) - DOM_ORDER.indexOf(domainOf(b.entity_id))) || byName(a, b);
 
   function buildFilter() {
     const sel = $("domainFilter"), present = new Set(Object.keys(states).map(domainOf));
     const cur = sel.value;
-    sel.innerHTML = '<option value="">Tous les types</option>';
+    sel.innerHTML = `<option value="">${esc(tr("filter.all"))}</option>`;
     Object.entries(DOMAINS).forEach(([d, label]) => {
       if (present.has(d)) sel.insertAdjacentHTML("beforeend", `<option value="${d}">${label}</option>`);
     });
@@ -1188,7 +1555,7 @@
     p.innerHTML = `<div class="device-head">
         <div style="min-width:0"><div class="device-name">${esc(devName(dv))}</div>
         ${meta ? `<div class="sub">${esc(meta)}</div>` : ""}</div>
-        ${editing ? `<button type="button" class="eye-btn dev-eye">${allHidden ? "👁 Afficher l'appareil" : "🚫 Masquer l'appareil"}</button>` : ""}
+        ${editing ? `<button type="button" class="eye-btn dev-eye">${tr(allHidden ? "dev.show" : "dev.hide")}</button>` : ""}
       </div><div class="grid"></div>`;
     const g = p.querySelector(".grid");
     ents.sort(byDomainThenName).forEach(s => g.appendChild(card(s, shortName(s, dv))));
@@ -1207,23 +1574,23 @@
     planBg = mode === "plan" ? bgFor(currentLevel()) : null;
     $("roomsNotice").classList.toggle("hidden", !(view !== "types" && !reg.ok));
     document.querySelectorAll("[data-view]").forEach(b => b.classList.toggle("active", b.dataset.view === mode));
-    $("viewName").textContent = { plan: "Plan", rooms: "Pièces", types: "Types" }[mode];
+    $("viewName").textContent = tr("view." + mode);
     $("regenPlan").classList.toggle("hidden", mode !== "plan");
     $("gridBtn").classList.toggle("hidden", mode !== "plan");
     $("gridBtn").classList.toggle("active", plan.grid);
-    $("gridBtn").textContent = plan.grid ? "▦ Grille : activée" : "▦ Grille : désactivée";
+    $("gridBtn").textContent = tr(plan.grid ? "grid.on" : "grid.off");
     $("alignBtn").classList.toggle("hidden", mode !== "plan" || !plan.grid);
     $("bgPick").classList.toggle("hidden", mode !== "plan");
-    $("bgPick").firstChild.textContent = `🖼 Image de fond ${theme === "day" ? "☀️ jour" : "🌙 nuit"}`;
-    $("bgRemove").textContent = `Retirer l'image ${theme === "day" ? "de jour" : "de nuit"}`;
+    $("bgPick").firstChild.textContent = tr(theme === "day" ? "bg.pickDay" : "bg.pickNight");
+    $("bgRemove").textContent = tr(theme === "day" ? "bg.removeDay" : "bg.removeNight");
     $("bgRemove").classList.toggle("hidden", mode !== "plan" || !planBg);
     const hasOther = mode === "plan" && !!planBg && !!otherBgFor(currentLevel());
-    const otherName = theme === "day" ? "nuit" : "jour";
+    const other = theme === "day" ? "Night" : "Day";
     $("bgOnionBtn").classList.toggle("hidden", !hasOther);
     $("bgOnionBtn").classList.toggle("active", bgOnion);
-    $("bgOnionBtn").textContent = `◐ ${bgOnion ? "Masquer" : "Superposer"} la photo de ${otherName}`;
+    $("bgOnionBtn").textContent = tr((bgOnion ? "bg.onionHide" : "bg.onionShow") + other);
     $("bgMatchBtn").classList.toggle("hidden", !hasOther);
-    $("bgMatchBtn").textContent = `⇆ Caler sur la photo de ${otherName}`;
+    $("bgMatchBtn").textContent = tr("bg.match" + other);
     $("toolbar").classList.toggle("hidden", mode === "plan");
     $("layout").classList.toggle("with-sides", mode === "plan");
     if (mode === "plan") { renderPlan(); if (planEls) renderSides(); updateEditInfo(); return; }
@@ -1247,15 +1614,15 @@
         byArea.get(a).push(s);
       });
       const keys = [...byArea.keys()].sort((a, b) =>
-        a === "_none" ? 1 : b === "_none" ? -1 : areaName(a).localeCompare(areaName(b), "fr"));
+        a === "_none" ? 1 : b === "_none" ? -1 : areaName(a).localeCompare(areaName(b), LOCALE));
       keys.forEach(a => {
         const list = byArea.get(a);
-        const { sec, grid } = makeSection("area:" + a, a === "_none" ? "Sans pièce" : areaName(a), list.length, searching, false);
+        const { sec, grid } = makeSection("area:" + a, a === "_none" ? tr("room.none") : areaName(a), list.length, searching, false);
         fillArea(grid, list);
         groups.append(sec); refreshCount(sec);
       });
     }
-    if (!groups.children.length) groups.innerHTML = '<p class="empty">Aucune entité à afficher.</p>';
+    if (!groups.children.length) groups.innerHTML = `<p class="empty">${esc(tr("empty.entities"))}</p>`;
     updateEditInfo();
   }
 
@@ -1271,7 +1638,7 @@
     const panels = [];
     byDev.forEach((ents, id) => ents.length === 1 ? loose.push(ents[0]) : panels.push([reg.devices[id], ents]));
     loose.sort(byDomainThenName).forEach(s => grid.appendChild(card(s)));
-    panels.sort((x, y) => devName(x[0]).localeCompare(devName(y[0]), "fr"))
+    panels.sort((x, y) => devName(x[0]).localeCompare(devName(y[0]), LOCALE))
           .forEach(([dv, ents]) => grid.appendChild(devicePanel(dv, ents)));
   }
 
@@ -1280,7 +1647,7 @@
     if (!sec) return;
     const n = sec.querySelectorAll(".card.on:not(.masked)").length;
     const b = sec.querySelector(".on-count");
-    b.textContent = n + (n > 1 ? " actifs" : " actif");
+    b.textContent = tr("active", { n });
     b.classList.toggle("hidden", n === 0);
   }
 
@@ -1330,18 +1697,18 @@
 
     el.dataset.unavail = unavailable ? "1" : "0";
     if (unavailable) {
-      el.insertAdjacentHTML("beforeend", `<div class="sub">Indisponible</div>`);
+      el.insertAdjacentHTML("beforeend", `<div class="sub">${tr("st.unavailable")}</div>`);
       return withEye(el);
     }
 
     // Caméras : aperçu rafraîchi + clic pour le direct
     if (d === "camera") {
       el.insertAdjacentHTML("beforeend", `<div class="cam-wrap">
-        <img class="cam-img" alt="Aperçu ${esc(label)}" loading="lazy">
-        <span class="live">Aperçu · 5 s</span></div>`);
+        <img class="cam-img" alt="${esc(tr("cam.previewAlt", { name: label }))}" loading="lazy">
+        <span class="live">${tr("cam.preview")}</span></div>`);
       const img = el.querySelector(".cam-img");
       img.src = camUrl(s.entity_id, "snapshot");
-      img.onerror = () => { img.alt = "Image indisponible"; };
+      img.onerror = () => { img.alt = tr("cam.unavailable"); };
       img.onclick = () => openCam(s.entity_id);
       return withEye(el);
     }
@@ -1349,7 +1716,7 @@
     // Luminosité
     if (d === "light" && s.state === "on" && a.brightness != null) {
       const pct = Math.round(a.brightness / 2.55);
-      el.insertAdjacentHTML("beforeend", `<div class="sub">Luminosité <b class="pct">${pct}%</b></div>
+      el.insertAdjacentHTML("beforeend", `<div class="sub">${tr("card.brightness")} <b class="pct">${pct}%</b></div>
         <input type="range" min="1" max="100" value="${pct}">`);
       const r = el.querySelector("input[type=range]");
       r.oninput = () => el.querySelector(".pct").textContent = r.value + "%";
@@ -1359,8 +1726,8 @@
     // Volets
     if (d === "cover") {
       const pos = a.current_position != null ? ` · ${a.current_position}%` : "";
-      el.insertAdjacentHTML("beforeend", `<div class="sub">${esc(s.state)}${pos}</div>
-        <div class="btns"><button data-s="open_cover">Ouvrir</button><button data-s="stop_cover">Stop</button><button data-s="close_cover">Fermer</button></div>`);
+      el.insertAdjacentHTML("beforeend", `<div class="sub">${esc(stateText(s))}${pos}</div>
+        <div class="btns"><button data-s="open_cover">${tr("btn.open")}</button><button data-s="stop_cover">${tr("btn.stop")}</button><button data-s="close_cover">${tr("btn.close")}</button></div>`);
     }
 
     // Chauffage
@@ -1368,7 +1735,7 @@
       const cur = a.current_temperature != null ? `${a.current_temperature}°` : "–";
       const tgt = a.temperature;
       el.insertAdjacentHTML("beforeend", `<div class="row"><div class="value">${cur}</div>
-        <div class="sub">${esc(s.state)}${tgt != null ? " · consigne " + tgt + "°" : ""}</div></div>`);
+        <div class="sub">${esc(stateText(s))}${tgt != null ? " · " + tr("card.setpoint", { t: fmtNum(tgt, tgt % 1 ? 1 : 0) }) : ""}</div></div>`);
       if (tgt != null) {
         const step = a.target_temp_step || 0.5;
         el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-t="-">−${step}°</button><button data-t="+">+${step}°</button></div>`);
@@ -1379,17 +1746,17 @@
     }
 
     // Scènes & scripts
-    if (d === "scene") el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-s="turn_on">Activer</button></div>`);
-    if (d === "script") el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-s="turn_on">Lancer</button></div>`);
+    if (d === "scene") el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-s="turn_on">${tr("btn.activate")}</button></div>`);
+    if (d === "script") el.insertAdjacentHTML("beforeend", `<div class="btns"><button data-s="turn_on">${tr("btn.run")}</button></div>`);
 
     // Serrures
-    if (d === "lock") el.insertAdjacentHTML("beforeend", `<div class="sub">${esc(s.state)}</div>
-      <div class="btns"><button data-s="lock">Verrouiller</button><button data-s="unlock">Déverrouiller</button></div>`);
+    if (d === "lock") el.insertAdjacentHTML("beforeend", `<div class="sub">${esc(stateText(s))}</div>
+      <div class="btns"><button data-s="lock">${tr("btn.lock")}</button><button data-s="unlock">${tr("btn.unlock")}</button></div>`);
 
     // Capteurs
     if (d === "sensor" || d === "binary_sensor") {
       const unit = a.unit_of_measurement ? " " + a.unit_of_measurement : "";
-      el.insertAdjacentHTML("beforeend", `<div class="value">${esc(s.state)}${esc(unit)}</div>`);
+      el.insertAdjacentHTML("beforeend", `<div class="value">${esc(stateText(s))}${esc(unit)}</div>`);
     }
 
     // Média : titre en cours
@@ -1407,7 +1774,7 @@
     const id = el.dataset.entity;
     const b = document.createElement("button");
     b.type = "button"; b.className = "eye-btn";
-    const sync = () => { const h = isHidden(id); b.textContent = h ? "👁 Afficher" : "🚫 Masquer"; el.classList.toggle("masked", h); };
+    const sync = () => { const h = isHidden(id); b.textContent = tr(h ? "ent.show" : "ent.hide"); el.classList.toggle("masked", h); };
     sync();
     b.onclick = () => {
       setHidden(id, !isHidden(id)); saveHidden(); sync();
@@ -1419,7 +1786,7 @@
         panel.classList.toggle("masked", all);
         const db = panel.querySelector(".dev-eye");
         if (db) {
-          db.textContent = all ? "👁 Afficher l'appareil" : "🚫 Masquer l'appareil";
+          db.textContent = tr(all ? "dev.show" : "dev.hide");
           db.onclick = () => { ids.forEach(x => setHidden(x, !all)); saveHidden(); render(); };
         }
       }
@@ -1429,19 +1796,17 @@
   }
 
   function updateEditInfo() {
-    $("editSub").textContent = "Masque une entité ou un appareil entier. Les entités techniques (diagnostic, configuration) sont masquées par défaut.";
+    $("editSub").textContent = tr("edit.subViews");
     if (view === "plan" && reg.ok) {
       const n = planEls ? Object.keys(planEls.markers).length : 0;
-      $("editInfo").textContent = `choisis les appareils de chaque pièce avec ＋ · ${n} appareil${n > 1 ? "s" : ""} sur ce niveau.`;
+      $("editInfo").textContent = tr("edit.planInfo", { n });
       $("editSub").textContent = planBg
-        ? "Place les pièces par-dessus l'image : elles deviennent des zones transparentes où s'affichent les lumières. × retire un appareil, ◢ redimensionne une pièce."
-        : "× retire un appareil du plan (il reste dans les autres vues). Glisse pour déplacer, coin ◢ pour redimensionner. Tu peux aussi mettre une image en fond.";
+        ? tr("edit.planSubBg") : tr("edit.planSub");
       return;
     }
     const n = Object.keys(states).filter(id => (domainOf(id) in DOMAINS) && isHidden(id)).length;
     $("editInfo").textContent = n
-      ? `${n} entité${n > 1 ? "s" : ""} masquée${n > 1 ? "s" : ""} (en transparence ci-dessous).`
-      : "Aucune entité masquée.";
+      ? tr("edit.hiddenCount", { n }) : tr("edit.noneHidden");
   }
 
   function setEditing(on) {
@@ -1506,9 +1871,9 @@
 
   function levels() {
     const fl = Object.values(reg.floors || {})
-      .sort((a, b) => (a.level ?? 0) - (b.level ?? 0) || a.name.localeCompare(b.name, "fr"))
+      .sort((a, b) => (a.level ?? 0) - (b.level ?? 0) || a.name.localeCompare(b.name, LOCALE))
       .map(f => ({ id: "floor:" + f.floor_id, name: f.name, ha: true }));
-    const base = fl.length ? fl : [{ id: "main", name: "Maison" }];
+    const base = fl.length ? fl : [{ id: "main", name: tr("level.default") }];
     return [...base, ...plan.customLevels.map(l => ({ ...l, custom: true }))];
   }
   // Niveau d'une pièce : ton choix, sinon l'étage HA, sinon le premier niveau
@@ -1542,27 +1907,27 @@
     const slot = $("levelSlot"), tools = $("levelTools");
     slot.innerHTML = L.length < 2 ? "" : L.map(l => `<button type="button" class="lvl${l.id === lv ? " active" : ""}" data-level="${esc(l.id)}">
         <span>${esc(l.name)}</span><span class="lvl-badges" data-badges="${esc(l.id)}"></span></button>`).join("");
-    tools.innerHTML = editing ? `<button type="button" data-lt="add">＋ Niveau</button>
-          ${cur && cur.custom ? `<button type="button" data-lt="rename" title="Renommer ce niveau">✎ Renommer « ${esc(cur.name)} »</button>
-            <button type="button" data-lt="delete" title="Supprimer ce niveau">🗑</button>` : ""}
-          <button type="button" data-lt="assign" class="${assignOpen ? "active" : ""}">⇄ Répartir les pièces</button>` : "";
+    tools.innerHTML = editing ? `<button type="button" data-lt="add">${tr("lvl.add")}</button>
+          ${cur && cur.custom ? `<button type="button" data-lt="rename" title="${esc(tr("lvl.renameTitle"))}">${esc(tr("lvl.rename", { name: cur.name }))}</button>
+            <button type="button" data-lt="delete" title="${esc(tr("lvl.deleteTitle"))}">🗑</button>` : ""}
+          <button type="button" data-lt="assign" class="${assignOpen ? "active" : ""}">${tr("lvl.assign")}</button>` : "";
     const handler = e => {
       const b = e.target.closest("[data-level]");
       if (b) return goLevel(b.dataset.level);
       const t = e.target.closest("[data-lt]"); if (!t) return;
       const act = t.dataset.lt;
       if (act === "add") {
-        const name = (prompt("Nom du nouveau niveau (ex. Dépendance, Sous-sol, Étage) :") || "").trim();
+        const name = (prompt(tr("lvl.prompt")) || "").trim();
         if (!name) return;
         const id = "lvl:" + Date.now().toString(36);
         plan.customLevels.push({ id, name }); savePlan();
         assignOpen = true; goLevel(id);
       } else if (act === "rename") {
-        const name = (prompt("Nouveau nom :", cur.name) || "").trim();
+        const name = (prompt(tr("lvl.renamePrompt"), cur.name) || "").trim();
         if (!name) return;
         plan.customLevels = plan.customLevels.map(l => l.id === lv ? { ...l, name } : l); savePlan(); render();
       } else if (act === "delete") {
-        if (!confirm(`Supprimer le niveau « ${cur.name} » ? Ses pièces retourneront à leur niveau d'origine.`)) return;
+        if (!confirm(tr("lvl.confirmDelete", { name: cur.name }))) return;
         plan.customLevels = plan.customLevels.filter(l => l.id !== lv);
         Object.keys(plan.areaLevel).forEach(a => { if (plan.areaLevel[a] === lv) { delete plan.areaLevel[a]; delete plan.rooms[a]; } });
         [lv, "day|" + lv].forEach(k => { if (planBgs[k] && planBgs[k].img) deleteImage(planBgs[k].img); delete planBgs[k]; saveBg(k, null); });
@@ -1578,9 +1943,9 @@
     const L = levels(), hasFloors = L.some(l => l.ha);
     const box = document.createElement("div");
     box.className = "assign";
-    const areas = Object.keys(reg.areas).sort((a, b) => areaName(a).localeCompare(areaName(b), "fr"));
-    box.innerHTML = `<div class="assign-head"><b>Répartition des pièces</b>
-        <span class="sub">${hasFloors ? "Par défaut, chaque pièce suit l'étage défini dans Home Assistant." : "Crée un niveau avec « ＋ Niveau », puis choisis où va chaque pièce."}</span></div>
+    const areas = Object.keys(reg.areas).sort((a, b) => areaName(a).localeCompare(areaName(b), LOCALE));
+    box.innerHTML = `<div class="assign-head"><b>${tr("assign.title")}</b>
+        <span class="sub">${tr(hasFloors ? "assign.hintFloors" : "assign.hint")}</span></div>
       <div class="assign-grid">${areas.map(a => `<label class="assign-row"><span>${roomIcon(areaName(a))} ${esc(areaName(a))}</span>
         <select data-area="${esc(a)}">${L.map(l => `<option value="${esc(l.id)}"${levelOf(a, L) === l.id ? " selected" : ""}>${esc(l.name)}</option>`).join("")}</select></label>`).join("")}</div>`;
     box.onchange = e => {
@@ -1609,8 +1974,8 @@
     spans.forEach(sp => {
       const i = info[sp.dataset.badges]; if (!i) return;
       sp.innerHTML = (i.lights ? `<i class="lb-light">💡${i.lights}</i>` : "")
-        + (i.motion ? `<i class="lb-dot lb-motion" title="Présence"></i>` : "")
-        + (i.alert ? `<i class="lb-dot lb-alert" title="Ouverture"></i>` : "");
+        + (i.motion ? `<i class="lb-dot lb-motion" title="${tr("badge.presence")}"></i>` : "")
+        + (i.alert ? `<i class="lb-dot lb-alert" title="${tr("badge.opening")}"></i>` : "");
     });
   }
 
@@ -1682,8 +2047,8 @@
   // Bandeau des personnes (entités person.* de HA) : avatars discrets, nom et statut au survol
   if (!Array.isArray(plan.hiddenPeople)) plan.hiddenPeople = [];
   function personStatus(st) {
-    return st === "home" ? "Présent" : st === "not_home" ? "Absent"
-      : st === "unknown" || st === "unavailable" ? "Inconnu" : "Absent · " + st;
+    return st === "home" ? tr("person.home") : st === "not_home" ? tr("person.away")
+      : st === "unknown" || st === "unavailable" ? tr("person.unknown") : tr("person.zone", { zone: st });
   }
   function buildPeople() {
     const persons = Object.values(states)
@@ -1699,7 +2064,7 @@
       chip.className = "person" + (masked ? " masked" : "");
       chip.dataset.entity = id;
       chip.innerHTML = `<span class="pav"><span>${esc(ini)}</span><img alt=""></span><span class="pdot"></span>
-        ${editing ? `<button type="button" class="px" title="${masked ? "Réafficher" : "Retirer du bandeau"}">${masked ? "+" : "×"}</button>` : ""}`;
+        ${editing ? `<button type="button" class="px" title="${tr(masked ? "person.restore" : "person.remove")}">${masked ? "+" : "×"}</button>` : ""}`;
       const img = chip.querySelector("img");
       img.onerror = () => img.remove();
       const x = chip.querySelector(".px");
@@ -1732,7 +2097,7 @@
       }
     });
     bar.querySelector(".people-sum").textContent =
-      !total ? "" : home === 0 ? "Personne à la maison" : `${home}/${total} à la maison`;
+      !total ? "" : home === 0 ? tr("people.none") : tr("people.count", { home, total });
   }
   const markerXY = (id, area) => {
     const r = plan.rooms[area], m = plan.markers[id];
@@ -1751,7 +2116,7 @@
       plan.rooms[a] = { x: nx, y: baseY, w: 220, h: 160 };
       nx += 230; if (nx > 760) { nx = PAD; baseY += 190; }
     });
-    const areas = mine.slice().sort((a, b) => areaName(a).localeCompare(areaName(b), "fr"));
+    const areas = mine.slice().sort((a, b) => areaName(a).localeCompare(areaName(b), LOCALE));
 
     const wrap = document.createElement("div"); wrap.className = "plan-wrap" + (planBg ? " has-bg" : "");
     buildLevelBar(lv);
@@ -1768,14 +2133,13 @@
     });
     if (!areas.length) {
       wrap.insertAdjacentHTML("beforeend", `<p class="empty">${Object.keys(reg.areas).length
-        ? "Aucune pièce sur ce niveau. Passe en mode édition (✎) puis « ⇄ Répartir les pièces »."
-        : "Aucune pièce définie dans Home Assistant (Paramètres → Zones et pièces)."}</p>`);
+        ? tr("plan.noRoomsLevel") : tr("plan.noRooms")}</p>`);
       groups.append(wrap);
       planEls = { svg: null, rooms: {}, markers: {}, glows: {}, people: null };
       updateLevelBadges();
       return;
     }
-    const svg = svgEl("svg", { class: "plan", role: "img", "aria-label": "Plan de la maison" });
+    const svg = svgEl("svg", { class: "plan", role: "img", "aria-label": tr("plan.aria") });
     svg.innerHTML = `<defs><pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
       <circle cx="1" cy="1" r="1" fill="rgba(255,255,255,.08)"/></pattern></defs>`;
     const defs = svg.querySelector("defs");
@@ -1800,8 +2164,8 @@
       if (editing) {
         const h = svgEl("g", { class: "bg-handles" });
         h.innerHTML = `<rect class="bgh-frame"/>
-          ${["nw", "ne", "sw", "se"].map(c => `<g class="bgh bgh-corner" data-bgh="${c}"><circle r="14" class="bgh-hit"/><circle r="8"/><title>Redimensionner l'image (Maj : sans garder les proportions)</title></g>`).join("")}
-          <g class="bgh bgh-move" data-bgh="move"><circle r="20" class="bgh-hit"/><circle r="15"/><text y="6" text-anchor="middle">✥</text><title>Déplacer l'image</title></g>
+          ${["nw", "ne", "sw", "se"].map(c => `<g class="bgh bgh-corner" data-bgh="${c}"><circle r="14" class="bgh-hit"/><circle r="8"/><title>${tr("bg.resize")}</title></g>`).join("")}
+          <g class="bgh bgh-move" data-bgh="move"><circle r="20" class="bgh-hit"/><circle r="15"/><text y="6" text-anchor="middle">✥</text><title>${tr("bg.move")}</title></g>
           <text class="bgh-info" text-anchor="middle"></text>`;
         planEls.bgHandles = h; bgTop.append(h);
       }
@@ -1837,12 +2201,12 @@
         <text class="rinfo" x="0" y="16" text-anchor="middle"></text>`;
       const handle = svgEl("path", { class: "handle", "data-drag": "resize", "data-area": a });
       const add = svgEl("g", { class: "room-add", "data-area": a, role: "button" });
-      add.innerHTML = `<circle r="15"/><text y="6" text-anchor="middle">+</text><title>Ajouter des appareils</title>`;
+      add.innerHTML = `<circle r="15"/><text y="6" text-anchor="middle">+</text><title>${tr("room.add")}</title>`;
       labelsLayer.append(lab, handle);
       const zoom = svgEl("g", { class: "room-zoom", "data-area": a });
-      zoom.innerHTML = `<g class="rz-btn" data-z="1" role="button"><circle cy="0" r="12"/><text y="5" text-anchor="middle">＋</text><title>Agrandir les icônes</title></g>
+      zoom.innerHTML = `<g class="rz-btn" data-z="1" role="button"><circle cy="0" r="12"/><text y="5" text-anchor="middle">＋</text><title>${tr("zoom.in")}</title></g>
         <text class="rz-pct" y="27" text-anchor="middle"></text>
-        <g class="rz-btn" data-z="-1" role="button" transform="translate(0 50)"><circle r="12"/><text y="5" text-anchor="middle">−</text><title>Réduire les icônes</title></g>`;
+        <g class="rz-btn" data-z="-1" role="button" transform="translate(0 50)"><circle r="12"/><text y="5" text-anchor="middle">−</text><title>${tr("zoom.out")}</title></g>`;
       if (editing) labelsLayer.append(add, zoom);
       const info = lab.querySelector(".rinfo");
       planEls.rooms[a] = { g, gw, clipRect, floor, dots, tint, walls, wallsHi, lab, info, handle, add, zoom, grid, gridBig, gpat, gpatBig };
@@ -1860,7 +2224,7 @@
             <g clip-path="url(#mt${i}-${j})"><text class="mk-title" x="0" y="51" text-anchor="middle"></text></g>` : ""}
           ${d === "sensor" ? `<text class="mk-val" x="0" y="51" text-anchor="middle"></text>` : ""}
           ${editing ? `<g class="mk-x" role="button"><circle cx="15" cy="-15" r="9"/>
-            <text x="15" y="-11" text-anchor="middle">×</text><title>Retirer du plan</title></g>` : ""}
+            <text x="15" y="-11" text-anchor="middle">×</text><title>${tr("mk.remove")}</title></g>` : ""}
           <title></title>`;
         const cov = mk.querySelector(".mk-cover");
         if (cov) cov.addEventListener("error", () => { cov.removeAttribute("href"); mk.classList.remove("has-cover"); });
@@ -1882,10 +2246,9 @@
     if (levelAnim) { svg.classList.add("lvl-in"); levelAnim = false; }
     wrap.append(svg);
     wrap.insertAdjacentHTML("beforeend", `<div class="plan-legend">${editing
-      ? "＋ en haut à droite d'une pièce pour choisir ses appareils · × retire un appareil du plan · glisse les icônes et les pièces, coin ◢ pour redimensionner."
-      : (Object.keys(planEls.markers).length ? "Touche une icône pour allumer / éteindre · touche une pièce pour tous ses contrôles"
-         : "Le plan est vide : passe en mode édition (✎) puis utilise ＋ dans chaque pièce pour ajouter des appareils")
-        + (levels().length > 1 ? " · glisse pour changer de niveau" : "")}</div>`);
+      ? tr("legend.edit")
+      : (Object.keys(planEls.markers).length ? tr("legend.view") : tr("legend.empty"))
+        + (levels().length > 1 ? tr("legend.swipe") : "")}</div>`);
     groups.append(wrap);
     attachPlanEvents(svg);
     applyGeometry();
@@ -1969,7 +2332,7 @@
     }
     return clim;
   }
-  const stateLabel = s => s.state + (s.attributes.unit_of_measurement ? " " + s.attributes.unit_of_measurement : "");
+  const stateLabel = s => stateText(s) + (s.attributes.unit_of_measurement ? " " + s.attributes.unit_of_measurement : "");
 
   // États visuels (appelée à chaque changement d'état)
   function updatePlan() {
@@ -2010,7 +2373,7 @@
       const e = planEls.rooms[a], ri = info[a] || {}, t = areaTemp(a);
       e.tint.setAttribute("fill", t == null ? "transparent" : tempTint(t));
       e.info.textContent = [t != null ? `${fr(t)} °C` : "", ri.lights ? `💡 ${ri.lights}` : "",
-                            ri.alert ? "⚠ ouvert" : "", ri.motion ? "◉ présence" : ""].filter(Boolean).join("    ");
+                            ri.alert ? tr("rinfo.open") : "", ri.motion ? tr("rinfo.presence") : ""].filter(Boolean).join("    ");
       [e.g, e.gw].forEach(x => { x.classList.toggle("lit", !!ri.lights); x.classList.toggle("alert", !!ri.alert); });
     }
   }
@@ -2126,7 +2489,7 @@
       if (!groups.has(k)) groups.set(k, { dv, list: [] });
       groups.get(k).list.push(s);
     });
-    const order = [...groups.values()].sort((x, y) => !x.dv ? 1 : !y.dv ? -1 : devName(x.dv).localeCompare(devName(y.dv), "fr"));
+    const order = [...groups.values()].sort((x, y) => !x.dv ? 1 : !y.dv ? -1 : devName(x.dv).localeCompare(devName(y.dv), LOCALE));
     const item = s => {
       const d = domainOf(s.entity_id);
       const val = ["sensor", "binary_sensor"].includes(d) ? ` · ${esc(stateLabel(s))}` : "";
@@ -2136,14 +2499,14 @@
     };
     $("pickerTitle").textContent = `${roomIcon(areaName(area))} ${areaName(area)}`;
     $("pickerBody").innerHTML = cands.length ? order.map(g => `<div class="pk-group">
-        ${g.dv ? `<div class="pk-dev">${esc(devName(g.dv))}</div>` : order.length > 1 ? `<div class="pk-dev">Autres entités</div>` : ""}
+        ${g.dv ? `<div class="pk-dev">${esc(devName(g.dv))}</div>` : order.length > 1 ? `<div class="pk-dev">${tr("picker.other")}</div>` : ""}
         ${g.list.map(item).join("")}</div>`).join("")
-      : `<p class="empty">Aucune entité n'est rattachée à cette pièce dans Home Assistant.</p>`;
+      : `<p class="empty">${tr("picker.empty")}</p>`;
     const boxes = () => [...$("pickerBody").querySelectorAll("input[type=checkbox]")];
     const sync = () => {
       const n = boxes().filter(b => b.checked).length;
-      $("pickerCount").textContent = `${n} sélectionné${n > 1 ? "s" : ""} sur ${cands.length}`;
-      $("pickerAll").textContent = n === cands.length ? "Tout décocher" : "Tout cocher";
+      $("pickerCount").textContent = tr("picker.count", { n, total: cands.length });
+      $("pickerAll").textContent = tr(n === cands.length ? "picker.none" : "picker.all");
     };
     $("pickerBody").onchange = sync;
     $("pickerAll").onclick = () => { const all = boxes().every(b => b.checked); boxes().forEach(b => b.checked = !all); sync(); };
@@ -2172,7 +2535,7 @@
     $("drawerTitle").textContent = areaName(a);
     const body = $("drawerBody"); body.innerHTML = "";
     const list = Object.values(states).filter(s => visible(s) && areaOf(s.entity_id) === a);
-    if (!list.length) body.innerHTML = '<p class="empty">Rien à afficher dans cette pièce.</p>';
+    if (!list.length) body.innerHTML = `<p class="empty">${tr("drawer.empty")}</p>`;
     else { const grid = document.createElement("div"); grid.className = "grid"; fillArea(grid, list); body.append(grid); }
     $("drawer").classList.add("open");
   }
@@ -2181,26 +2544,39 @@
   // ---------- Panneaux latéraux de la vue Plan ----------
   const listDomain = d => Object.values(states).filter(s => domainOf(s.entity_id) === d && !isHidden(s.entity_id));
   const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
-  const fr = (v, dec = 1) => (+v).toFixed(dec).replace(".", ",");
+  const fr = (v, dec = 1) => fmtNum(+v, dec);
   const WEATHER = { "clear-night": "🌙", sunny: "☀️", partlycloudy: "⛅", cloudy: "☁️", rainy: "🌧️", pouring: "🌧️",
                     snowy: "❄️", "snowy-rainy": "🌨️", fog: "🌫️", hail: "🌨️", lightning: "⛈️", "lightning-rainy": "⛈️",
                     windy: "💨", "windy-variant": "💨", exceptional: "⚠️" };
-  const PRESETS = { comfort: "Confort", eco: "Éco", away: "Absence", boost: "Boost", sleep: "Nuit", home: "Maison", activity: "Activité" };
-  const HVAC = { heat: "Chauffe", cool: "Clim", heat_cool: "Auto", auto: "Auto", dry: "Déshumidification", fan_only: "Ventilation", off: "Arrêt" };
+  const PRESETS = Object.fromEntries(["comfort", "eco", "away", "boost", "sleep", "home", "activity"].map(k => [k, tr("preset." + k)]));
+  const HVAC = Object.fromEntries(["heat", "cool", "heat_cool", "auto", "dry", "fan_only", "off"].map(k => [k, tr("hvac." + k)]));
 
+  // Icône d'après le nom de la pièce / de la scène (mots-clés français, anglais, polonais)
   function roomIcon(n) {
     n = n.toLowerCase();
-    return /enfant|b[ée]b[ée]|kid/.test(n) ? "🧸" : /chambre|bedroom|suite/.test(n) ? "🛏️" : /salon|s[ée]jour|living/.test(n) ? "🛋️"
-      : /cuisine|kitchen/.test(n) ? "🍳" : /bain|sdb|douche|bath/.test(n) ? "🚿" : /bureau|office/.test(n) ? "💻"
-      : /entr[ée]e|hall|couloir|palier/.test(n) ? "🚪" : /garage/.test(n) ? "🚗" : /jardin|terrasse|ext[ée]rieur|balcon|piscine/.test(n) ? "🌳"
-      : /buanderie|cellier|lingerie/.test(n) ? "🧺" : /wc|toilette/.test(n) ? "🚽" : /manger|repas/.test(n) ? "🍽️" : "◻️";
+    return /enfant|b[ée]b[ée]|kid|child|nursery|baby|dzieci|dziecię|dziecka|niemowl/.test(n) ? "🧸"
+      : /chambre|bedroom|suite|sypialni/.test(n) ? "🛏️"
+      : /salon|s[ée]jour|living|lounge|pok[óo]j dzienny|pok[óo]j go[śs]cinny/.test(n) ? "🛋️"
+      : /cuisine|kitchen|kuchni|aneks/.test(n) ? "🍳"
+      : /bain|sdb|douche|bath|shower|[łl]azienk/.test(n) ? "🚿"
+      : /bureau|office|study|biuro|gabinet/.test(n) ? "💻"
+      : /entr[ée]e|hall|couloir|palier|entrance|hallway|corridor|landing|przedpok[óo]j|korytarz|\bhol\b|wiatro[łl]ap|klatka/.test(n) ? "🚪"
+      : /garage|gara[żz]/.test(n) ? "🚗"
+      : /jardin|terrasse|ext[ée]rieur|balcon|piscine|garden|terrace|patio|outdoor|outside|balcony|pool|yard|ogr[óo]d|taras|balkon|basen|podw[óo]rk/.test(n) ? "🌳"
+      : /buanderie|cellier|lingerie|laundry|utility|pantry|pralni|spi[żz]arni|kot[łl]owni/.test(n) ? "🧺"
+      : /\bwc\b|toilette|toilet|toalet/.test(n) ? "🚽"
+      : /manger|repas|dining|jadalni/.test(n) ? "🍽️" : "◻️";
   }
   function sceneIcon(n) {
     n = n.toLowerCase();
-    return /soir|ap[ée]ro|f[êe]te|party/.test(n) ? "🍸" : /cin[ée]|film|t[ée]l[ée]|tv/.test(n) ? "🎬"
-      : /absen|d[ée]part|partir|vacances|away/.test(n) ? "🏡" : /nuit|dodo|coucher|sleep|night/.test(n) ? "🌙"
-      : /matin|r[ée]veil|morning/.test(n) ? "☀️" : /repas|d[îi]ner|d[ée]jeuner/.test(n) ? "🍽️"
-      : /lecture|lire/.test(n) ? "📖" : /arriv|retour|bienvenue/.test(n) ? "👋" : "✨";
+    return /soir|ap[ée]ro|f[êe]te|party|evening|wiecz[óo]r|impreza/.test(n) ? "🍸"
+      : /cin[ée]|film|t[ée]l[ée]|\btv\b|movie|cinema|kino|telewiz/.test(n) ? "🎬"
+      : /absen|d[ée]part|partir|vacances|away|leav|holiday|vacation|wyj[śs]cie|wyjazd|nieobecn|wakacj|urlop/.test(n) ? "🏡"
+      : /nuit|dodo|coucher|sleep|night|bedtime|\bnoc|\bsen\b|spanie|dobranoc/.test(n) ? "🌙"
+      : /matin|r[ée]veil|morning|wake|rano|poran|pobudk/.test(n) ? "☀️"
+      : /repas|d[îi]ner|d[ée]jeuner|dinner|lunch|breakfast|meal|obiad|kolacj|[śs]niadani|posi[łl]ek/.test(n) ? "🍽️"
+      : /lecture|lire|reading|\bread\b|czytani/.test(n) ? "📖"
+      : /arriv|retour|bienvenue|welcome|return|coming home|powr[óo]t|przyjazd|witaj/.test(n) ? "👋" : "✨";
   }
 
   // Capteurs de température intérieurs = ceux rangés dans une pièce
@@ -2211,7 +2587,7 @@
   function powerSensor() {
     const ps = Object.values(states).filter(s => domainOf(s.entity_id) === "sensor" && s.attributes.device_class === "power" && num(s.state) != null);
     if (!ps.length) return null;
-    return ps.find(s => /(maison|total|g[ée]n[ée]ral|r[ée]seau|grid|linky|compteur|consommation|house|home)/i.test(nameOf(s) + " " + s.entity_id))
+    return ps.find(s => /(maison|total|g[ée]n[ée]ral|r[ée]seau|grid|linky|compteur|consommation|house|home|mains|meter|consumption|dom|ca[łl]kowit|licznik|zu[żz]ycie|sie[ćc])/i.test(nameOf(s) + " " + s.entity_id))
       || ps.sort((a, b) => toKW(b) - toKW(a))[0];
   }
 
@@ -2284,15 +2660,15 @@
       <div class="panel glass occ"><div class="occ-ic" id="occIc">🏠</div>
         <div><div class="occ-title" id="occTitle"></div><div class="occ-sub" id="occSub"></div></div>
         <div class="occ-people" id="peopleSlot"></div></div>
-      <div class="panel glass"><h3>Scénarios rapides</h3><div class="scenes" id="scenes"></div></div>
-      <div class="panel glass"><h3>État de la maison</h3><div id="houseState"></div></div>`;
+      <div class="panel glass"><h3>${tr("panel.scenes")}</h3><div class="scenes" id="scenes"></div></div>
+      <div class="panel glass"><h3>${tr("panel.state")}</h3><div id="houseState"></div></div>`;
     const people = buildPeople();
     if (people) $("peopleSlot").append(people);
     updatePeople();
     const sc = [...listDomain("scene"), ...listDomain("script")].sort(byName);
     $("scenes").innerHTML = sc.length
       ? sc.map(s => `<button type="button" class="scene" data-scene="${s.entity_id}"><span class="sc-ic">${sceneIcon(nameOf(s))}</span><span>${esc(nameOf(s))}</span></button>`).join("")
-      : `<div class="sub">Aucune scène ni script dans Home Assistant.</div>`;
+      : `<div class="sub">${tr("panel.noScenes")}</div>`;
     L.onclick = e => {
       const b = e.target.closest("[data-scene]"); if (!b) return;
       const id = b.dataset.scene;
@@ -2334,8 +2710,8 @@
     // Occupation
     const persons = Object.values(states).filter(s => domainOf(s.entity_id) === "person" && !(plan.hiddenPeople || []).includes(s.entity_id));
     const home = persons.filter(s => s.state === "home").length;
-    $("occTitle").textContent = !persons.length ? "Maison" : home ? "Maison occupée" : "Maison vide";
-    $("occSub").textContent = !persons.length ? "Aucune personne définie dans HA" : home ? `${home} personne${home > 1 ? "s" : ""}` : "Personne à la maison";
+    $("occTitle").textContent = tr(!persons.length ? "occ.home" : home ? "occ.occupied" : "occ.empty");
+    $("occSub").textContent = !persons.length ? tr("occ.noPeople") : home ? tr("occ.people", { n: home }) : tr("people.none");
     $("occIc").classList.toggle("on", home > 0);
 
     // État de la maison
@@ -2343,92 +2719,92 @@
     const alarm = all.find(s => domainOf(s.entity_id) === "alarm_control_panel");
     if (alarm) {
       const st = alarm.state;
-      rows.push({ ic: "🛡️", label: "Alarme", ok: st !== "triggered",
-        val: st === "disarmed" ? "Désactivée" : st === "triggered" ? "Déclenchée !" : st.startsWith("armed") ? "Activée"
+      rows.push({ ic: "🛡️", label: tr("alarm"), ok: st !== "triggered",
+        val: st === "disarmed" ? tr("alarm.disarmed") : st === "triggered" ? tr("alarm.triggered") : st.startsWith("armed") ? tr("alarm.armed")
            : st === "arming" ? "Activation…" : st === "pending" ? "En attente" : st });
     }
     const covers = all.filter(s => domainOf(s.entity_id) === "cover");
     const coverOpen = s => ["open", "opening", "closing"].includes(s.state);
     const gates = covers.filter(s => s.attributes.device_class === "gate");
-    if (gates.length) { const o = gates.filter(coverOpen); rows.push({ ic: "🚧", label: "Portail", val: o.length ? "Ouvert" : "Fermé", ok: !o.length }); }
+    if (gates.length) { const o = gates.filter(coverOpen); rows.push({ ic: "🚧", label: tr("gate"), val: tr(o.length ? "isOpen" : "isClosed"), ok: !o.length }); }
     const garages = [...covers.filter(s => s.attributes.device_class === "garage"),
                      ...all.filter(s => domainOf(s.entity_id) === "binary_sensor" && s.attributes.device_class === "garage_door")];
     if (garages.length) {
       const o = garages.filter(s => domainOf(s.entity_id) === "cover" ? coverOpen(s) : s.state === "on");
-      rows.push({ ic: "🚗", label: "Garage", val: o.length ? "Ouvert" : "Fermé", ok: !o.length });
+      rows.push({ ic: "🚗", label: tr("garage"), val: tr(o.length ? "isOpen" : "isClosed"), ok: !o.length });
     }
     const openings = all.filter(s => domainOf(s.entity_id) === "binary_sensor"
       && ["door", "window", "opening"].includes(s.attributes.device_class) && !isHidden(s.entity_id));
     if (openings.length) {
       const o = openings.filter(s => s.state === "on");
-      rows.push({ ic: "🪟", label: "Portes & fenêtres", ok: !o.length, title: o.map(nameOf).join(", "),
-                  val: o.length ? `${o.length} ouverte${o.length > 1 ? "s" : ""} : ${o.map(nameOf).join(", ")}` : "Toutes fermées" });
+      rows.push({ ic: "🪟", label: tr("openings"), ok: !o.length, title: o.map(nameOf).join(", "),
+                  val: o.length ? tr("openings.some", { n: o.length, names: o.map(nameOf).join(", ") }) : tr("openings.all") });
     }
     const locks = listDomain("lock");
     if (locks.length) {
       const u = locks.filter(s => s.state !== "locked");
-      rows.push({ ic: "🔒", label: "Serrures", val: u.length ? `${u.length} déverrouillée${u.length > 1 ? "s" : ""}` : "Verrouillées", ok: !u.length });
+      rows.push({ ic: "🔒", label: tr("locks"), val: u.length ? tr("locks.some", { n: u.length }) : tr("locks.all"), ok: !u.length });
     }
     const warns = rows.filter(r => !r.ok).length;
     $("leftDot").classList.toggle("warn", warns > 0);
-    $("leftDot").title = warns ? `${warns} point${warns > 1 ? "s" : ""} à vérifier` : "Tout est en ordre";
-    $("leftTxt").textContent = !persons.length ? "Maison" : home ? `${home} présent${home > 1 ? "s" : ""}` : "Vide";
+    $("leftDot").title = warns ? tr("warn.points", { n: warns }) : tr("warn.ok");
+    $("leftTxt").textContent = !persons.length ? tr("brand") : home ? tr("tab.present", { n: home }) : tr("tab.empty");
     $("houseState").innerHTML = rows.length ? rows.map(r => `<div class="hrow" title="${esc(r.title || "")}">
         <span class="h-ic">${r.ic}</span><span class="h-txt"><b>${r.label}</b><span>${esc(r.val)}</span></span>
         <span class="h-st ${r.ok ? "ok" : "warn"}">${r.ok ? "✓" : "!"}</span></div>`).join("")
-      : `<div class="sub">Aucun capteur de sécurité trouvé.</div>`;
+      : `<div class="sub">${tr("panel.noSecurity")}</div>`;
 
     // Température moyenne intérieure
     const ts = indoorTemps();
     let avg = ts.length ? ts.reduce((a, s) => a + num(s.state), 0) / ts.length : null;
-    let src = `${ts.length} capteur${ts.length > 1 ? "s" : ""}`;
+    let src = tr("temp.sensors", { n: ts.length });
     if (avg == null) {
       const cl = listDomain("climate").map(s => num(s.attributes.current_temperature)).filter(v => v != null);
       if (cl.length) { avg = cl.reduce((a, b) => a + b, 0) / cl.length; src = "thermostat" + (cl.length > 1 ? "s" : ""); }
     }
     $("rightTxt").textContent = avg == null ? "Infos" : `${fr(avg)} °C`;
-    $("tempCard").innerHTML = `<div class="stat-head"><span class="stat-ic">🌡️</span>Température</div>` + (avg == null
-      ? `<div class="sub">Aucun capteur de température dans une pièce.</div>`
-      : `<div class="stat-row"><div><div class="big">${fr(avg)}<small> °C</small></div><div class="sub">Maison · ${src}</div></div>${spark(hist.temp)}</div>`);
+    $("tempCard").innerHTML = `<div class="stat-head"><span class="stat-ic">🌡️</span>${tr("panel.temp")}</div>` + (avg == null
+      ? `<div class="sub">${tr("temp.none")}</div>`
+      : `<div class="stat-row"><div><div class="big">${fr(avg)}<small> °C</small></div><div class="sub">${esc(tr("temp.house", { src }))}</div></div>${spark(hist.temp)}</div>`);
 
     // Puissance
     const p = powerSensor();
-    $("powerCard").innerHTML = `<div class="stat-head"><span class="stat-ic">⚡</span>Énergie</div>` + (!p
-      ? `<div class="sub">Aucun capteur de puissance.</div>`
+    $("powerCard").innerHTML = `<div class="stat-head"><span class="stat-ic">⚡</span>${tr("panel.energy")}</div>` + (!p
+      ? `<div class="sub">${tr("energy.none")}</div>`
       : `<div class="stat-row"><div><div class="big">${toKW(p) < 1 ? Math.round(toKW(p) * 1000) + "<small> W</small>" : fr(toKW(p)) + "<small> kW</small>"}</div>
-           <div class="sub">Consommation actuelle</div></div>${bars(hist.power)}</div>`);
+           <div class="sub">${tr("energy.now")}</div></div>${bars(hist.power)}</div>`);
 
     // Raccourcis
     const q = [];
     const lights = listDomain("light");
     if (lights.length) {
       const on = lights.filter(s => s.state === "on").length;
-      q.push({ act: "lights", ic: "💡", label: "Lumières", sub: `${on} allumée${on > 1 ? "s" : ""} / ${lights.length}`, on: on > 0, glow: "255,186,82" });
+      q.push({ act: "lights", ic: "💡", label: tr("q.lights"), sub: tr("q.lightsOn", { n: on, total: lights.length }), on: on > 0, glow: "255,186,82" });
     }
     const shutters = covers.filter(s => !["gate", "garage"].includes(s.attributes.device_class) && !isHidden(s.entity_id));
     if (shutters.length) {
       const o = shutters.filter(coverOpen).length;
-      q.push({ act: "covers", ic: "🪟", label: "Volets", on: o > 0, glow: "165,140,255",
-               sub: o === shutters.length ? "Tous ouverts" : o === 0 ? "Tous fermés" : `${o} ouvert${o > 1 ? "s" : ""} / ${shutters.length}` });
+      q.push({ act: "covers", ic: "🪟", label: tr("q.covers"), on: o > 0, glow: "165,140,255",
+               sub: o === shutters.length ? tr("q.coversAllOpen") : o === 0 ? tr("q.coversAllClosed") : tr("q.coversSome", { n: o, total: shutters.length }) });
     }
     const clim = listDomain("climate");
     if (clim.length) {
       const act = clim.filter(s => s.state !== "off" && s.state !== "unavailable"), c = act[0] || clim[0], pm = c.attributes.preset_mode;
-      const sub = !act.length ? "Arrêt" : pm && PRESETS[pm] ? "Mode " + PRESETS[pm]
+      const sub = !act.length ? tr("q.heatOff") : pm && PRESETS[pm] ? tr("q.heatMode", { m: PRESETS[pm] })
         : (HVAC[c.state] || c.state) + (c.attributes.temperature != null ? ` · ${fr(c.attributes.temperature)}°` : "");
-      q.push({ act: "climate", ic: "♨️", label: "Chauffage", sub, on: act.length > 0, glow: "255,128,82" });
+      q.push({ act: "climate", ic: "♨️", label: tr("q.heating"), sub, on: act.length > 0, glow: "255,128,82" });
     }
     $("quick").innerHTML = q.length ? q.map(x => `<div class="qrow" style="--glow:${x.glow}">
         <span class="q-ic">${x.ic}</span><span class="h-txt"><b>${x.label}</b><span>${esc(x.sub)}</span></span>
         <label class="switch"><input type="checkbox" data-act="${x.act}" ${x.on ? "checked" : ""}><span></span></label></div>`).join("")
-      : `<div class="sub">Rien à piloter.</div>`;
+      : `<div class="sub">${tr("q.none")}</div>`;
   }
 
   function quickAction(act, on, input) {
     if (act === "lights") {
       const lights = listDomain("light");
       if (on) {
-        if (!confirm(`Allumer les ${lights.length} lumières ?`)) { input.checked = false; return; }
+        if (!confirm(tr("q.confirmLights", { n: lights.length }))) { input.checked = false; return; }
         callService("light", "turn_on", lights.map(s => s.entity_id));
       } else callService("light", "turn_off", lights.filter(s => s.state === "on").map(s => s.entity_id));
     } else if (act === "covers") {
@@ -2443,12 +2819,12 @@
   function updateWeather() {
     const w = Object.values(states).find(s => domainOf(s.entity_id) === "weather"), el = $("weather");
     if (!w || w.attributes.temperature == null) { el.innerHTML = ""; return; }
-    el.innerHTML = `<span class="w-ic">${WEATHER[w.state] || "🌡️"}</span><span><b>${fr(w.attributes.temperature)} ${esc(w.attributes.temperature_unit || "°C")}</b><small>Extérieur</small></span>`;
+    el.innerHTML = `<span class="w-ic">${WEATHER[w.state] || "🌡️"}</span><span><b>${fr(w.attributes.temperature)} ${esc(w.attributes.temperature_unit || "°C")}</b><small>${tr("weather.outside")}</small></span>`;
   }
   function tick() {
     const d = new Date();
-    $("clockTime").textContent = d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-    const ds = d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+    $("clockTime").textContent = d.toLocaleTimeString(LOCALE, { hour: "2-digit", minute: "2-digit" });
+    const ds = d.toLocaleDateString(LOCALE, { weekday: "short", day: "numeric", month: "short" });
     $("clockDate").textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
   }
   tick(); setInterval(tick, 10000);
@@ -2496,7 +2872,7 @@
   const saveBg = (k, v) => {
     scheduleSync();
     if (!v || v.img) return bgStore.del(k).catch(() => {});
-    return bgStore.put(k, v).catch(() => alert("Impossible d'enregistrer l'image dans ce navigateur : elle s'affichera jusqu'au rechargement."));
+    return bgStore.put(k, v).catch(() => alert(tr("err.saveImgLocal")));
   };
   // Chargement + migration des images enregistrées par les versions précédentes (localStorage)
   const bgReady = (async () => {
@@ -2537,19 +2913,19 @@
       const x1 = rs.length ? Math.max(...rs.map(r => r.x + r.w)) : 980;
       const lvl = currentLevel(), k = bgKey(lvl), old = planBgs[k];
       planBg = { src, x: x0, y: y0, w: x1 - x0, h: (x1 - x0) * ratio };
-      setSync("save", "Envoi de la photo à Home Assistant…");
+      setSync("save", tr("sync.uploading"));
       try {
         planBg.img = await uploadImage(src);
         planBg.src = imageUrl(planBg.img);
         syncWarn = "";
       } catch (e) {
-        setSync("warn", `photo gardée sur cet appareil uniquement (${e.message})`);
+        setSync("warn", tr("sync.photoLocal", { msg: e.message }));
       }
       if (old && old.img && old.img !== planBg.img) deleteImage(old.img);
       planBgs[k] = planBg; saveBg(k, planBg);
       if (theme === "night" && lvl === levels()[0].id && planBgs._first) { delete planBgs._first; saveBg("_first", null); }
       render();
-    } catch { alert("Impossible de lire cette image."); }
+    } catch { alert(tr("err.readImg")); }
   }
 
 
@@ -2567,11 +2943,11 @@
     try {
       r = await fetch(conn.url + "/api/image/upload", { method: "POST", body: fd,
         headers: { Authorization: "Bearer " + await getAccessToken() } });
-    } catch { throw new Error("Home Assistant injoignable"); }
-    if (r.status === 401 || r.status === 403) throw new Error("l'envoi de photos demande un compte administrateur Home Assistant");
-    if (!r.ok) throw new Error("erreur " + r.status + " à l'envoi");
+    } catch { throw new Error(tr("err.haUnreachable")); }
+    if (r.status === 401 || r.status === 403) throw new Error(tr("err.admin"));
+    if (!r.ok) throw new Error(tr("err.upload", { n: r.status }));
     const j = await r.json();
-    if (!j.id) throw new Error("réponse inattendue de Home Assistant");
+    if (!j.id) throw new Error(tr("err.unexpected"));
     return j.id;
   }
   function deleteImage(id) { if (ws && ws.readyState === 1) send({ type: "image/delete", image_id: id }).catch(() => {}); }
@@ -2609,10 +2985,9 @@
   function setSync(state, text) {
     const el = document.getElementById("syncInfo"); if (!el) return;
     if (state === "warn") { syncWarn = text; }
-    else if (state === "ok" && syncWarn) { state = "warn"; text = "☁️ Réglages enregistrés dans Home Assistant · ⚠️ " + syncWarn; }
+    else if (state === "ok" && syncWarn) { state = "warn"; text = tr("sync.okWarn", { w: syncWarn }); }
     el.dataset.state = state;
-    el.textContent = text || { ok: "☁️ Enregistré dans Home Assistant", save: "☁️ Enregistrement…", load: "☁️ Chargement…",
-      off: "💾 Enregistré sur cet appareil seulement", err: "⚠️ Enregistrement dans Home Assistant impossible" }[state] || "";
+    el.textContent = text || (STR["sync." + state] ? tr("sync." + state) : "");
   }
   function scheduleSync() {
     if (!syncReady) return;
@@ -2630,7 +3005,7 @@
     try {
       await send({ type: "frontend/set_user_data", key: SYNC_KEY, value });
       lastJson = json; lastUpdated = value.updated; syncPending = false; setSync("ok");
-    } catch (e) { syncPending = true; setSync("err", "⚠️ Enregistrement impossible : " + ((e && e.message) || e)); }
+    } catch (e) { syncPending = true; setSync("err", tr("sync.errMsg", { msg: (e && e.message) || e })); }
   }
   // Photos encore stockées localement (versions précédentes) → envoyées dans HA
   async function migrateLocalImages() {
@@ -2643,7 +3018,7 @@
       const b = planBgs[k];
       if (!b || b.img || !String(b.src).startsWith("data:")) continue;
       try { b.img = await uploadImage(b.src); b.src = imageUrl(b.img); bgStore.del(k).catch(() => {}); }
-      catch (e) { setSync("warn", `photos gardées sur cet appareil uniquement (${e.message})`); }
+      catch (e) { setSync("warn", tr("sync.photosLocal", { msg: e.message })); }
     }
   }
   // Lecture des réglages depuis HA (à la connexion et au retour sur l'onglet)
@@ -2705,15 +3080,15 @@
     $("camModal").classList.remove("hidden");
     if (mode === "stream") {
       live.src = camUrl(id, "stream");
-      $("camInfo").textContent = "Flux en direct (MJPEG)";
-      $("camSnap").textContent = "Image fixe";
+      $("camInfo").textContent = tr("cam.infoLive");
+      $("camSnap").textContent = tr("cam.snap");
       live.onerror = () => { if (camOpen === id) openCam(id, "snapshot"); };
     } else {
       live.onerror = null;
       const tick = () => { live.src = camUrl(id, "snapshot"); };
       tick(); camSnapTimer = setInterval(tick, 1000);
-      $("camInfo").textContent = "Images rafraîchies chaque seconde";
-      $("camSnap").textContent = "Flux en direct";
+      $("camInfo").textContent = tr("cam.infoSnap");
+      $("camSnap").textContent = tr("cam.live");
     }
     $("camSnap").onclick = () => openCam(id, mode === "stream" ? "snapshot" : "stream");
   }
@@ -2733,11 +3108,11 @@
     $("loginError").textContent = "";
     let url = $("haUrl").value.trim().replace(/\/+$/, "");
     if (url && !/^https?:\/\//i.test(url)) url = "http://" + url;
-    try { url = new URL(url).origin; } catch { return loginFail("Adresse invalide."); }
+    try { url = new URL(url).origin; } catch { return loginFail(tr("err.badUrl")); }
     const remember = $("remember").checked;
     if (e.submitter && e.submitter.id === "tokenBtn") {
       const token = $("haToken").value.trim().replace(/^Bearer\s+/i, "");
-      if (!token) { $("haToken").focus(); return loginFail("Colle d'abord ton jeton d'accès longue durée."); }
+      if (!token) { $("haToken").focus(); return loginFail(tr("err.pasteToken")); }
       conn = { url, token, remember }; saveConn(); connect();
     } else startOAuth(url, remember);
   };
@@ -2749,7 +3124,7 @@
     syncReady = false; lastJson = null; lastUpdated = null; clearTimeout(syncTimer);
     revokeOAuth(conn); // invalide la session côté Home Assistant
     clearConn(); conn = null; states = {};
-    setStatus("Déconnecté");
+    setStatus(tr("status.disconnected"));
     $("haToken").value = "";
     $("loginForm").classList.remove("hidden");
     $("dashboard").classList.add("hidden");
@@ -2771,7 +3146,7 @@
   $("editBtn").onclick = () => setEditing(!editing);
   $("editDone").onclick = () => setEditing(false);
   $("resetHidden").onclick = () => {
-    if (!confirm("Revenir à l'affichage par défaut ? (les entités techniques restent masquées)")) return;
+    if (!confirm(tr("confirm.reset"))) return;
     hidden.clear(); shown.clear(); saveHidden(); render();
   };
   // Tout déplier / replier : agit sur les sections actuellement affichées
@@ -2782,7 +3157,7 @@
     document.querySelectorAll(".sec").forEach(s => collapsed.add(s.dataset.key)); saveColl(); render();
   };
   $("regenPlan").onclick = () => {
-    if (!confirm("Régénérer le plan de ce niveau ? Tes déplacements de pièces et d'icônes y seront perdus.")) return;
+    if (!confirm(tr("confirm.regen"))) return;
     generateLayout(levelAreas(currentLevel())); render();
   };
   $("drawerClose").onclick = closeRoom;
@@ -2816,7 +3191,7 @@
   document.addEventListener("keydown", e => { if (e.key === "Escape") closePicker(); });
   $("bgInput").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) setPlanBg(f); };
   $("bgRemove").onclick = () => {
-    if (!confirm(`Retirer l'image de fond ${theme === "day" ? "de jour" : "de nuit"} de ce niveau ?`)) return;
+    if (!confirm(tr(theme === "day" ? "confirm.removeBgDay" : "confirm.removeBgNight"))) return;
     const lvl = currentLevel(), k = bgKey(lvl);
     if (planBgs[k] && planBgs[k].img) deleteImage(planBgs[k].img);
     delete planBgs[k]; saveBg(k, null);
